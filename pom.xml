@@ -30,7 +30,7 @@
             <version>1.1.5</version>
         </dependency>
         <dependency>
-            <groupId>org.mule.raml</groupId>
+            <groupId>org.mule.apikit</groupId>
             <artifactId>parser-service</artifactId>
             <version>${project.version}</version>
         </dependency>
