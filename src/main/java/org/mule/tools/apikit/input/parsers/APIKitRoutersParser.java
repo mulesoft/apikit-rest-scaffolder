@@ -6,7 +6,7 @@
  */
 package org.mule.tools.apikit.input.parsers;
 
-import org.mule.raml.interfaces.common.APISyncUtils;
+import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.tools.apikit.input.APIKitFlow;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.API;
@@ -78,8 +78,8 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
   }
 
   private boolean compareApisLocation(String configRaml, String currentRootRaml) {
-    if (APISyncUtils.isSyncProtocol(configRaml) && APISyncUtils.isSyncProtocol(currentRootRaml)) {
-      return APISyncUtils.compareResourcesLocation(configRaml, currentRootRaml, false);
+    if (ApiSyncUtils.isSyncProtocol(configRaml) && ApiSyncUtils.isSyncProtocol(currentRootRaml)) {
+      return ApiSyncUtils.compareResourcesLocation(configRaml, currentRootRaml, false);
     }
 
     return currentRootRaml.endsWith(configRaml);

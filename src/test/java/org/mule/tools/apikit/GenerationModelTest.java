@@ -12,22 +12,20 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mule.raml.interfaces.model.IActionType.DELETE;
-import static org.mule.raml.interfaces.model.IActionType.GET;
-import static org.mule.raml.interfaces.model.IActionType.OPTIONS;
-import static org.mule.raml.interfaces.model.IActionType.POST;
-import static org.mule.raml.interfaces.model.IActionType.PUT;
+import static org.mule.apikit.model.ActionType.DELETE;
+import static org.mule.apikit.model.ActionType.GET;
+import static org.mule.apikit.model.ActionType.OPTIONS;
+import static org.mule.apikit.model.ActionType.POST;
+import static org.mule.apikit.model.ActionType.PUT;
 
-import com.google.common.collect.Maps;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IMimeType;
-import org.mule.raml.interfaces.model.IResource;
-import org.mule.raml.interfaces.model.IResponse;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.MimeType;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.Response;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.output.GenerationModel;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -37,9 +35,9 @@ public class GenerationModelTest {
 
   @Test
   public void testGetVerb() throws Exception {
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals("GET", new GenerationModel(api, VERSION, resource, action).getVerb());
@@ -47,47 +45,47 @@ public class GenerationModelTest {
 
   @Test
   public void testGetStringFromActionType() throws Exception {
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
 
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
     assertEquals("retrieve", new GenerationModel(api, VERSION, resource, action).getStringFromActionType());
 
-    action = mock(IAction.class);
+    action = mock(Action.class);
     when(action.getType()).thenReturn(PUT);
     assertEquals("create", new GenerationModel(api, VERSION, resource, action).getStringFromActionType());
 
-    action = mock(IAction.class);
+    action = mock(Action.class);
     when(action.getType()).thenReturn(POST);
     assertEquals("update", new GenerationModel(api, VERSION, resource, action).getStringFromActionType());
 
-    action = mock(IAction.class);
+    action = mock(Action.class);
     when(action.getType()).thenReturn(DELETE);
     assertEquals("delete", new GenerationModel(api, VERSION, resource, action).getStringFromActionType());
 
-    action = mock(IAction.class);
+    action = mock(Action.class);
     when(action.getType()).thenReturn(OPTIONS);
     assertEquals("options", new GenerationModel(api, VERSION, resource, action).getStringFromActionType());
   }
 
   @Test
   public void testGetExample() throws Exception {
-    IAction action = mock(IAction.class);
-    HashMap<String, IResponse> stringResponseHashMap = new HashMap<>();
-    IResponse response = mock(IResponse.class);
+    Action action = mock(Action.class);
+    HashMap<String, Response> stringResponseHashMap = new HashMap<>();
+    Response response = mock(Response.class);
     final HashMap<String, String> examples = new HashMap<>();
     examples.put("application/json", "{\n\"hello\": \">world<\"\n}");
     when(response.getExamples()).thenReturn(examples);
-    HashMap<String, IMimeType> stringMimeTypeHashMap = new HashMap<>();
-    IMimeType mimeType = mock(IMimeType.class);
+    HashMap<String, MimeType> stringMimeTypeHashMap = new HashMap<>();
+    MimeType mimeType = mock(MimeType.class);
     stringMimeTypeHashMap.put("application/json", mimeType);
     when(response.getBody()).thenReturn(stringMimeTypeHashMap);
     stringResponseHashMap.put("200", response);
     when(action.getResponses()).thenReturn(stringResponseHashMap);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals("{\n\"hello\": \">world<\"\n}",
@@ -96,20 +94,20 @@ public class GenerationModelTest {
 
   @Test
   public void testGetExample200Complex() throws Exception {
-    IAction action = mock(IAction.class);
-    HashMap<String, IResponse> stringResponseHashMap = new HashMap<>();
-    IResponse response = mock(IResponse.class);
+    Action action = mock(Action.class);
+    HashMap<String, Response> stringResponseHashMap = new HashMap<>();
+    Response response = mock(Response.class);
     final HashMap<String, String> examples = new HashMap<>();
     examples.put("application/xml", "<hello>world</hello>");
     when(response.getExamples()).thenReturn(examples);
-    HashMap<String, IMimeType> stringMimeTypeHashMap = new HashMap<>();
-    IMimeType mimeType = mock(IMimeType.class);
+    HashMap<String, MimeType> stringMimeTypeHashMap = new HashMap<>();
+    MimeType mimeType = mock(MimeType.class);
     stringMimeTypeHashMap.put("application/xml", mimeType);
     when(response.getBody()).thenReturn(stringMimeTypeHashMap);
     stringResponseHashMap.put("200", response);
     when(action.getResponses()).thenReturn(stringResponseHashMap);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals("<hello>world</hello>",
@@ -118,20 +116,20 @@ public class GenerationModelTest {
 
   @Test
   public void testGetExampleComplex() throws Exception {
-    IAction action = mock(IAction.class);
-    HashMap<String, IResponse> stringResponseHashMap = new HashMap<>();
-    IResponse response = mock(IResponse.class);
+    Action action = mock(Action.class);
+    HashMap<String, Response> stringResponseHashMap = new HashMap<>();
+    Response response = mock(Response.class);
     final HashMap<String, String> examples = new HashMap<>();
     examples.put("application/xml", "<hello>world</hello>");
     when(response.getExamples()).thenReturn(examples);
-    HashMap<String, IMimeType> stringMimeTypeHashMap = new HashMap<>();
-    IMimeType mimeType = mock(IMimeType.class);
+    HashMap<String, MimeType> stringMimeTypeHashMap = new HashMap<>();
+    MimeType mimeType = mock(MimeType.class);
     stringMimeTypeHashMap.put("application/xml", mimeType);
     when(response.getBody()).thenReturn(stringMimeTypeHashMap);
     stringResponseHashMap.put("403", response);
     when(action.getResponses()).thenReturn(stringResponseHashMap);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals("<hello>world</hello>",
@@ -140,9 +138,9 @@ public class GenerationModelTest {
 
   @Test
   public void testGetExampleNull() throws Exception {
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals(null, new GenerationModel(api, VERSION, resource, action).getExampleWrapper());
@@ -150,9 +148,9 @@ public class GenerationModelTest {
 
   @Test
   public void testGetMadeUpName() throws Exception {
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals("retrievePet", new GenerationModel(api, VERSION, resource, action).getName());
@@ -160,9 +158,9 @@ public class GenerationModelTest {
 
   @Test
   public void testGetRealName() throws Exception {
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getDisplayName()).thenReturn("Animal");
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
@@ -171,9 +169,9 @@ public class GenerationModelTest {
 
   @Test
   public void testGetMadeUpNameWithMimeTypes() throws Exception {
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(POST);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     GenerationModel model1 = new GenerationModel(api, VERSION, resource, action, "text/xml");
@@ -185,9 +183,9 @@ public class GenerationModelTest {
 
   @Test
   public void testGetRelativeURI() throws Exception {
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     API api = mock(API.class);
     assertEquals("/pet", new GenerationModel(api, VERSION, resource, action).getRelativeURI());

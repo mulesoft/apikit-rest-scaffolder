@@ -11,8 +11,8 @@ import amf.client.resource.ResourceLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import static org.mule.raml.interfaces.common.APISyncUtils.isSyncProtocol;
-import static org.mule.raml.interfaces.common.APISyncUtils.isExchangeModules;
+import static org.mule.apikit.common.ApiSyncUtils.isSyncProtocol;
+import static org.mule.apikit.common.ApiSyncUtils.isExchangeModules;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.InputStream;

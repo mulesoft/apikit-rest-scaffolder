@@ -7,7 +7,7 @@
 package org.mule.tools.apikit.input;
 
 import static org.junit.Assert.assertEquals;
-import static org.mule.raml.interfaces.model.IActionType.GET;
+import static org.mule.apikit.model.ActionType.GET;
 
 import java.util.Arrays;
 

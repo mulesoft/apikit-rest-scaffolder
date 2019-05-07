@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.Stubber;
 
-import org.mule.parser.service.ComponentScaffoldingError;
+import org.mule.parser.service.ParsingError;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
@@ -164,8 +164,8 @@ public class RAMLFilesParserTest {
 
     assertThat(ramlFilesParser.getParseStatus(), is(FAILED));
     assertThat(ramlFilesParser.getParsingErrors().size(), is(2));
-    ComponentScaffoldingError amfError = ramlFilesParser.getParsingErrors().get(0);
-    ComponentScaffoldingError ramlError = ramlFilesParser.getParsingErrors().get(1);
+    ParsingError amfError = ramlFilesParser.getParsingErrors().get(0);
+    ParsingError ramlError = ramlFilesParser.getParsingErrors().get(1);
 
     assertEquals(true, amfError.cause().contains("Validation failed using parser type : AMF, in file :"));
     assertEquals(true, ramlError.cause().contains("Validation failed using fallback parser type : RAML, in file :"));

@@ -7,7 +7,7 @@
 package org.mule.tools.apikit;
 
 import org.apache.commons.io.FileUtils;
-import org.mule.raml.interfaces.common.APISyncUtils;
+import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.tools.apikit.model.ScaffolderResourceLoader;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public class TestScaffolderResourceLoader implements ScaffolderResourceLoader {
   private File getFile(String resource) {
     String file = resource;
 
-    if (APISyncUtils.isSyncProtocol(resource)) {
+    if (ApiSyncUtils.isSyncProtocol(resource)) {
       file = resource.substring(resource.lastIndexOf(":") + 1);
     }
 

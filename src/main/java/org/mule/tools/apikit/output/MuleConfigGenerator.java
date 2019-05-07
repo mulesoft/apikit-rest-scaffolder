@@ -20,9 +20,9 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
-import org.mule.parser.service.ComponentScaffoldingError;
-import org.mule.parser.service.ScaffoldingErrorType;
-import org.mule.parser.service.SimpleScaffoldingError;
+import org.mule.parser.service.ParsingError;
+import org.mule.parser.service.ParserConfiguration;
+import org.mule.parser.service.DefaultParsingError;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -77,7 +77,7 @@ public class MuleConfigGenerator {
   private final Set<File> ramlsWithExtensionEnabled;
   private final RuntimeEdition runtimeEdition;
   private final List<API> apis;
-  private final List<ComponentScaffoldingError> errors = new LinkedList<>();
+  private final List<ParsingError> errors = new LinkedList<>();
 
   public MuleConfigGenerator(Log log, File muleConfigOutputDirectory, List<API> apis, List<GenerationModel> flowEntries,
                              Set<File> ramlsWithExtensionEnabled, RuntimeEdition runtimeEdition) {
@@ -93,7 +93,7 @@ public class MuleConfigGenerator {
     this.apis = apis;
   }
 
-  public List<ComponentScaffoldingError> getErrors() {
+  public List<ParsingError> getErrors() {
     return errors;
   }
 
@@ -117,9 +117,9 @@ public class MuleConfigGenerator {
         } catch (Exception e) {
           log.error("Error generating xml for file: [" + api.getApiFilePath() + "]", e);
           errors
-              .add(new SimpleScaffoldingError(String.format("Error generating xml for file: [ %s ] : %s", api.getApiFilePath(),
-                                                            e.getMessage()),
-                                              ScaffoldingErrorType.GENERATION));
+              .add(new DefaultParsingError(String.format("Error generating xml for file: [ %s ] : %s", api.getApiFilePath(),
+                                                         e.getMessage()),
+                                           ParserConfiguration.GENERATION));
         }
       });
     } else {
@@ -134,11 +134,11 @@ public class MuleConfigGenerator {
               .addContent(index, new APIKitFlowScope(flowEntry, isMuleEE()).generate());
         } catch (Exception e) {
           log.error("Error generating xml for file: [" + api.getApiFilePath() + "]", e);
-          errors.add(new SimpleScaffoldingError(
-                                                String.format("Error generating xml for file: [ %s ] : %s",
+          errors.add(new DefaultParsingError(
+            String.format("Error generating xml for file: [ %s ] : %s",
                                                               api.getApiFilePath(),
                                                               e.getMessage()),
-                                                ScaffoldingErrorType.GENERATION));
+            ParserConfiguration.GENERATION));
         }
       }
     }
@@ -162,8 +162,8 @@ public class MuleConfigGenerator {
         log.info("Updating file: [" + xmlFile + "]");
       } catch (IOException e) {
         log.error("Error writing to file: [" + xmlFile + "]", e);
-        errors.add(new SimpleScaffoldingError(String.format("Error writing to file: [ %s ] : %s", xmlFile, e.getMessage()),
-                                              ScaffoldingErrorType.GENERATION));
+        errors.add(new DefaultParsingError(String.format("Error writing to file: [ %s ] : %s", xmlFile, e.getMessage()),
+                                           ParserConfiguration.GENERATION));
       }
     }
 

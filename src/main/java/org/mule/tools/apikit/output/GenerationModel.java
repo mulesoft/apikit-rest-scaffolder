@@ -11,9 +11,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 import org.mule.module.apikit.helpers.FlowName;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IResource;
-import org.mule.raml.interfaces.model.IResponse;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.Response;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.tools.apikit.model.API;
 
@@ -35,18 +35,18 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private static final String OAS_DEFAULT_STATUS_CODE = "default";
 
   private final String verb;
-  private IAction action;
-  private IResource resource;
+  private Action action;
+  private Resource resource;
   private String mimeType;
   private String version;
   private List<String> splitPath;
   private API api;
 
-  public GenerationModel(API api, String version, IResource resource, IAction action) {
+  public GenerationModel(API api, String version, Resource resource, Action action) {
     this(api, version, resource, action, null);
   }
 
-  public GenerationModel(API api, String version, IResource resource, IAction action, String mimeType) {
+  public GenerationModel(API api, String version, Resource resource, Action action, String mimeType) {
     this.api = api;
     Validate.notNull(api);
     Validate.notNull(action);
@@ -85,17 +85,17 @@ public class GenerationModel implements Comparable<GenerationModel> {
   }
 
   public String getExampleWrapper() {
-    Map<String, IResponse> responses = action.getResponses();
+    Map<String, Response> responses = action.getResponses();
 
     return getExampleWrapper(responses);
   }
 
-  private String getExampleWrapper(Map<String, IResponse> responses) {
+  private String getExampleWrapper(Map<String, Response> responses) {
     // filter responses with status codes between 200 and 300 from all responses
-    final LinkedHashMap<String, IResponse> validResponses = responses.entrySet().stream()
+    final LinkedHashMap<String, Response> validResponses = responses.entrySet().stream()
         //        .filter(entry -> isOkResponse(entry.getKey()))
         .sorted(getStatusCodeComparator())
-        .collect(toMap((Map.Entry<String, IResponse> e) -> OAS_DEFAULT_STATUS_CODE.equalsIgnoreCase(e.getKey()) ? "200"
+        .collect(toMap((Map.Entry<String, Response> e) -> OAS_DEFAULT_STATUS_CODE.equalsIgnoreCase(e.getKey()) ? "200"
             : e.getKey(),
                        Map.Entry::getValue, (k, v) -> v,
                        LinkedHashMap::new));
@@ -104,7 +104,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
       return null;
 
     // look for an example for status code 200
-    final IResponse responseOk = validResponses.get("200");
+    final Response responseOk = validResponses.get("200");
 
     String example = null;
 
@@ -113,7 +113,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
 
     // if there's no examples for status code 200, look for one for any status code
     if (example == null) {
-      for (IResponse response : validResponses.values()) {
+      for (Response response : validResponses.values()) {
         example = getExampleFromResponse(response);
         if (example != null)
           break;
@@ -123,7 +123,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
     return example;
   }
 
-  private static String getExampleFromResponse(IResponse response) {
+  private static String getExampleFromResponse(Response response) {
     final Map<String, String> examples = response.getExamples();
     if (examples.isEmpty())
       return null;
@@ -134,7 +134,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
     }
   }
 
-  private static Comparator<Map.Entry<String, IResponse>> getStatusCodeComparator() {
+  private static Comparator<Map.Entry<String, Response>> getStatusCodeComparator() {
     return (c1, c2) -> {
       final String c1Key = c1.getKey();
       final String c2Key = c2.getKey();

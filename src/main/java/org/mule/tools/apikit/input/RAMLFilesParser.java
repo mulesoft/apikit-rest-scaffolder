@@ -10,15 +10,14 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.maven.plugin.logging.Log;
 
-import org.mule.parser.service.ComponentScaffoldingError;
+import org.mule.parser.service.ParsingError;
 import org.mule.parser.service.ParserService;
-import org.mule.parser.service.logger.Logger;
-import org.mule.raml.interfaces.ParserWrapper;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IMimeType;
-import org.mule.raml.interfaces.model.IRaml;
-import org.mule.raml.interfaces.model.IResource;
-import org.mule.raml.interfaces.model.api.ApiRef;
+import org.mule.apikit.ApiParser;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.MimeType;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.apikit.model.Resource;
+import org.mule.apikit.model.api.ApiRef;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.model.APIFactory;
@@ -56,7 +55,7 @@ public class RAMLFilesParser {
 
   private final Status parseStatus;
 
-  private final List<ComponentScaffoldingError> parsingErrors = new ArrayList<>();
+  private final List<ParsingError> parsingErrors = new ArrayList<>();
 
   private final Set<API> apis = new HashSet<>();
 
@@ -67,11 +66,11 @@ public class RAMLFilesParser {
     List<ApiRef> processedFiles = new ArrayList<>();
     for (ApiRef spec : specs) {
       try {
-        final ParserWrapper parserWrapper = getParserWrapper(spec, scaffolderResourceLoader);
-        parserWrapper.validate(); // This will fail whether the raml is not valid
+        final ApiParser apiParser = getParserWrapper(spec, scaffolderResourceLoader);
+        apiParser.validate(); // This will fail whether the raml is not valid
 
-        vendorId = parserWrapper.getApiVendor().toString();
-        final IRaml raml = parserWrapper.build();
+        vendorId = apiParser.getApiVendor().toString();
+        final ApiSpecification raml = apiParser.parse();
         ramlVersion = raml.getVersion();
 
         collectResources(spec.getLocation(), raml.getResources(), API.DEFAULT_BASE_URI, raml.getVersion());
@@ -122,7 +121,7 @@ public class RAMLFilesParser {
     return ramlVersion;
   }
 
-  public List<ComponentScaffoldingError> getParsingErrors() {
+  public List<ParsingError> getParsingErrors() {
     return parsingErrors;
   }
 
@@ -130,17 +129,17 @@ public class RAMLFilesParser {
     return apis;
   }
 
-  private void collectResources(String filePath, Map<String, IResource> resourceMap, String baseUri, String version) {
+  private void collectResources(String filePath, Map<String, Resource> resourceMap, String baseUri, String version) {
     API api = apiFactory.createAPIBinding(filePath, null, baseUri, APIKitTools.getPathFromUri(baseUri, false), null,
                                           null);
     apis.add(api);
-    for (IResource resource : resourceMap.values()) {
-      for (IAction action : resource.getActions().values()) {
+    for (Resource resource : resourceMap.values()) {
+      for (Action action : resource.getActions().values()) {
 
-        Map<String, IMimeType> mimeTypes = action.getBody();
+        Map<String, MimeType> mimeTypes = action.getBody();
         boolean addGenericAction = false;
         if (mimeTypes != null && !mimeTypes.isEmpty()) {
-          for (IMimeType mimeType : mimeTypes.values()) {
+          for (MimeType mimeType : mimeTypes.values()) {
             if (mimeType.getSchema() != null
                 || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty())) {
               addResource(api, resource, action, mimeType.getType(), version);
@@ -161,7 +160,7 @@ public class RAMLFilesParser {
     }
   }
 
-  private void addResource(API api, IResource resource, IAction action, String mimeType, String version) {
+  private void addResource(API api, Resource resource, Action action, String mimeType, String version) {
 
     String completePath = APIKitTools
         .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
@@ -177,67 +176,14 @@ public class RAMLFilesParser {
     return entries;
   }
 
-  private ParserWrapper getParserWrapper(ApiRef apiRef, ScaffolderResourceLoader scaffolderResourceLoader) {
-    final ParserService parserService = new ParserService(LoggerWrapper.getLogger(LOGGER));
+  private ApiParser getParserWrapper(ApiRef apiRef, ScaffolderResourceLoader scaffolderResourceLoader) {
+    final ParserService parserService = new ParserService();
     try {
-      final ParserWrapper parser = parserService.getParser(ApiRef.create(apiRef.getLocation(), scaffolderResourceLoader));
+      final ApiParser parser = parserService.getParser(ApiRef.create(apiRef.getLocation(), scaffolderResourceLoader));
       LOGGER.info(format("Using %s to load APIs", parser.getParserType().name()));
       return parser;
     } finally {
       parsingErrors.addAll(parserService.getParsingErrors());
-    }
-  }
-
-  private static class LoggerWrapper implements Logger {
-
-    private final Log LOGGER;
-
-    private LoggerWrapper(Log logger) {
-      this.LOGGER = logger;
-    }
-
-    static LoggerWrapper getLogger(Log logger) {
-      return new LoggerWrapper(logger);
-    }
-
-    @Override
-    public void debug(String msg) {
-      LOGGER.debug(msg);
-    }
-
-    @Override
-    public void debug(String msg, Throwable error) {
-      LOGGER.debug(msg, error);
-    }
-
-    @Override
-    public void info(String msg) {
-      LOGGER.info(msg);
-    }
-
-    @Override
-    public void info(String msg, Throwable error) {
-      LOGGER.info(msg, error);
-    }
-
-    @Override
-    public void warn(String msg) {
-      LOGGER.warn(msg);
-    }
-
-    @Override
-    public void warn(String msg, Throwable error) {
-      LOGGER.warn(msg, error);
-    }
-
-    @Override
-    public void error(String msg) {
-      LOGGER.error(msg);
-    }
-
-    @Override
-    public void error(String msg, Throwable error) {
-      LOGGER.error(msg, error);
     }
   }
 }

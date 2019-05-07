@@ -16,7 +16,7 @@ import java.util.TreeSet;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.mule.raml.implv2.ParserV2Utils;
+import org.mule.apikit.implv2.ParserV2Utils;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
