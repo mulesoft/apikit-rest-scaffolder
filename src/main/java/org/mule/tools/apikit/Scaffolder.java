@@ -95,7 +95,7 @@ public class Scaffolder {
     MuleDomainParser muleDomainParser = new MuleDomainParser(log, domainStream);
     APIFactory apiFactory = new APIFactory(muleDomainParser.getHttpListenerConfigs());
     MuleConfigParser muleConfigParser = new MuleConfigParser(log, apiFactory).parse(getFilePathSet(apis.keySet()), xmls);
-    RAMLFilesParser filesParser = RAMLFilesParser.create(log, apis, apiFactory);
+    RAMLFilesParser filesParser = RAMLFilesParser.create(apis, apiFactory);
     List<GenerationModel> generationModels = new GenerationStrategy(log).generate(filesParser, muleConfigParser);
 
     scaffolderReportBuilder =
@@ -115,7 +115,7 @@ public class Scaffolder {
     }
 
     muleConfigGenerator =
-        new MuleConfigGenerator(log, muleXmlOutputDirectory, newArrayList(filesParser.getApis()), generationModels,
+        new MuleConfigGenerator(muleXmlOutputDirectory, newArrayList(filesParser.getApis()), generationModels,
                                 ramlsWithExtensionEnabled, runtimeEdition);
 
     muleArtifactJsonGenerator =
@@ -138,7 +138,7 @@ public class Scaffolder {
     MuleDomainParser muleDomainParser = new MuleDomainParser(log, domainStream);
     APIFactory apiFactory = new APIFactory(muleDomainParser.getHttpListenerConfigs());
     MuleConfigParser muleConfigParser = new MuleConfigParser(log, apiFactory).parse(apis.keySet(), xmls);
-    RAMLFilesParser filesParser = RAMLFilesParser.create(log, apis, apiFactory, scaffolderResourceLoader);
+    RAMLFilesParser filesParser = RAMLFilesParser.create(apis, apiFactory, scaffolderResourceLoader);
     List<GenerationModel> generationModels = new GenerationStrategy(log).generate(filesParser, muleConfigParser);
 
     scaffolderReportBuilder =
@@ -156,7 +156,7 @@ public class Scaffolder {
     }
 
     muleConfigGenerator =
-        new MuleConfigGenerator(log, muleXmlOutputDirectory, newArrayList(filesParser.getApis()),
+        new MuleConfigGenerator(muleXmlOutputDirectory, newArrayList(filesParser.getApis()),
                                 generationModels, null, runtimeEdition);
 
     muleArtifactJsonGenerator =
@@ -194,7 +194,7 @@ public class Scaffolder {
 
   }
 
-  public ScaffolderReport getScaffolderReport() {
+  ScaffolderReport getScaffolderReport() {
     return scaffolderReportBuilder.build();
   }
 

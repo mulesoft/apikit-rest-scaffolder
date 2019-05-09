@@ -18,15 +18,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import org.mule.parser.service.ParsingError;
-import org.mule.parser.service.DefaultParsingError;
+
+import org.mule.parser.service.result.DefaultParsingIssue;
+import org.mule.parser.service.result.ParsingIssue;
 
 public class MuleArtifactJsonGenerator {
 
   private final File rootDirectory;
   private final String minMuleVersion;
   private final Log log;
-  private final List<ParsingError> errors = new LinkedList<>();
+  private final List<ParsingIssue> errors = new LinkedList<>();
 
   private static final String MULE_ARTIFACT_FILENAME = "mule-artifact.json";
   private static final String MIN_MULE_VERSION = "minMuleVersion";
@@ -37,7 +38,7 @@ public class MuleArtifactJsonGenerator {
     this.minMuleVersion = minMuleVersion;
   }
 
-  public List<ParsingError> getErrors() {
+  public List<ParsingIssue> getErrors() {
     return errors;
   }
 
@@ -47,7 +48,7 @@ public class MuleArtifactJsonGenerator {
     } catch (Exception e) {
       log.error("Error generating descriptor mule-artifact.json", e);
       errors
-          .add(new DefaultParsingError(String.format("Error generating descriptor mule-artifact.json : %s",
+          .add(new DefaultParsingIssue(String.format("Error generating descriptor mule-artifact.json : %s",
                                                      e.getMessage())));
     }
   }

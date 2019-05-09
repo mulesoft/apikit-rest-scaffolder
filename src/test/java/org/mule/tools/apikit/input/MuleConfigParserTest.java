@@ -178,7 +178,7 @@ public class MuleConfigParserTest {
     HashMap<String, HttpListener4xConfig> domainStreams = new HashMap<>();
   
     MuleConfigParser muleConfigParser =
-        new MuleConfigParser(log, new APIFactory(domainStreams)).parse(ramlPaths, streams);
+        new MuleConfigParser(log, new APIFactory(domainStreams)).get(ramlPaths, streams);
     Set<ResourceActionMimeTypeTriplet> set = muleConfigParser.getEntries();
     assertNotNull(set);
     assertEquals(6, set.size());
@@ -210,7 +210,7 @@ public class MuleConfigParserTest {
     HttpListener4xConfig httpListener3xConfig = new HttpListener4xConfig("http-lc-0.0.0.0-8081", "0.0.0.0", "8081", "HTTP", "/");
     domainStreams.put("http-lc-0.0.0.0-8081", httpListener3xConfig);
     MuleConfigParser muleConfigParser =
-        new MuleConfigParser(log, new APIFactory(domainStreams)).parse(ramlPaths, streams);
+        new MuleConfigParser(log, new APIFactory(domainStreams)).get(ramlPaths, streams);
     Set<ResourceActionMimeTypeTriplet> set = muleConfigParser.getEntries();
     assertNotNull(set);
     assertEquals(6, set.size());
@@ -244,7 +244,7 @@ public class MuleConfigParserTest {
     domainStreams.put("http-lc-0.0.0.0-8081", httpListener3xConfig);
   
     MuleConfigParser muleConfigParser =
-        new MuleConfigParser(log, new APIFactory(domainStreams)).parse(ramlPaths, streams);
+        new MuleConfigParser(log, new APIFactory(domainStreams)).get(ramlPaths, streams);
     Set<ResourceActionMimeTypeTriplet> set = muleConfigParser.getEntries();
     assertNotNull(set);
     assertEquals(6, set.size());
@@ -275,7 +275,7 @@ public class MuleConfigParserTest {
   
     Map<String, HttpListener4xConfig> domainHttpListenerConfigs = new HashMap<>();
     MuleConfigParser muleConfigParser =
-        new MuleConfigParser(log, new APIFactory(domainHttpListenerConfigs)).parse(ramlPaths, streams);
+        new MuleConfigParser(log, new APIFactory(domainHttpListenerConfigs)).get(ramlPaths, streams);
     Set<ResourceActionMimeTypeTriplet> set = muleConfigParser.getEntries();
     assertNotNull(set);
     assertEquals(6, set.size());
@@ -318,7 +318,7 @@ public class MuleConfigParserTest {
     domainStreams.put("http-lc-0.0.0.0-8081", httpListener3xConfig);
   
     MuleConfigParser muleConfigParser =
-        new MuleConfigParser(log, new APIFactory(domainStreams)).parse(ramlPaths, streams);
+        new MuleConfigParser(log, new APIFactory(domainStreams)).get(ramlPaths, streams);
     Set<ResourceActionMimeTypeTriplet> set = muleConfigParser.getEntries();
     assertNotNull(set);
     assertEquals(6, set.size());

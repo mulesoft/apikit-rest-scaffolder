@@ -8,16 +8,16 @@ package org.mule.tools.apikit.input;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.maven.plugin.logging.Log;
 
-import org.mule.parser.service.ParsingError;
+
+import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.result.ParsingIssue;
 import org.mule.parser.service.ParserService;
-import org.mule.apikit.ApiParser;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.Resource;
-import org.mule.apikit.model.api.ApiRef;
+import org.mule.apikit.model.api.ApiReference;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.model.APIFactory;
@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.mule.tools.apikit.model.Status.FAILED;
 import static org.mule.tools.apikit.model.Status.SUCCESS;
@@ -41,72 +40,55 @@ import static org.mule.tools.apikit.model.Status.SUCCESS_WITH_ERRORS;
 
 public class RAMLFilesParser {
 
-  private Map<ResourceActionMimeTypeTriplet, GenerationModel> entries = new HashMap<>();
+  public static final String MULE_APIKIT_PARSER = "mule.apikit.parser";
+  private String vendorId = "RAML";
 
   private final APIFactory apiFactory;
-
-  private final Log LOGGER;
-
-  private String ramlVersion;
-
-  private static String vendorId = "RAML";
-
-  public static final String MULE_APIKIT_PARSER = "mule.apikit.parser";
-
   private final Status parseStatus;
-
-  private final List<ParsingError> parsingErrors = new ArrayList<>();
-
+  private final List<ParsingIssue> parsingErrors = new ArrayList<>();
   private final Set<API> apis = new HashSet<>();
 
-  private RAMLFilesParser(Log log, List<ApiRef> specs, APIFactory apiFactory,
-                          ScaffolderResourceLoader scaffolderResourceLoader) {
-    this.LOGGER = log;
+  private Map<ResourceActionMimeTypeTriplet, GenerationModel> entries = new HashMap<>();
+  private String ramlVersion;
+
+  private RAMLFilesParser(List<ApiReference> specs, APIFactory apiFactory, ScaffolderResourceLoader scaffolderResourceLoader) {
     this.apiFactory = apiFactory;
-    List<ApiRef> processedFiles = new ArrayList<>();
-    for (ApiRef spec : specs) {
-      try {
-        final ApiParser apiParser = getParserWrapper(spec, scaffolderResourceLoader);
-        apiParser.validate(); // This will fail whether the raml is not valid
-
-        vendorId = apiParser.getApiVendor().toString();
-        final ApiSpecification raml = apiParser.parse();
-        ramlVersion = raml.getVersion();
-
-        collectResources(spec.getLocation(), raml.getResources(), API.DEFAULT_BASE_URI, raml.getVersion());
-        processedFiles.add(spec);
-      } catch (Exception e) {
-        final String reason = e.getMessage() == null ? "" : " Reason: " + e.getMessage();
-        log.info("Could not parse [" + spec.getLocation() + "] as root RAML file." + reason);
-        log.debug(e);
-      }
+    List<ApiReference> processedFiles = new ArrayList<>();
+    for (ApiReference spec : specs) {
+        ParseResult parseResult = parseApi(spec, scaffolderResourceLoader);
+        if (parseResult.success()) {
+          final ApiSpecification api = parseResult.get();
+          vendorId = api.getApiVendor().toString();
+          ramlVersion = api.getVersion();
+          collectResources(spec.getLocation(), api.getResources(), API.DEFAULT_BASE_URI, api.getVersion());
+          processedFiles.add(spec);
+        } else {
+          parsingErrors.addAll(parseResult.getWarnings());
+          parsingErrors.addAll(parseResult.getErrors());
+        }
     }
     if (processedFiles.size() > 0) {
-      LOGGER.info("The following RAML files were parsed correctly: " +
-          processedFiles);
       parseStatus = parsingErrors.size() == 0 ? SUCCESS : SUCCESS_WITH_ERRORS;
     } else {
-      LOGGER.error("None of the files was recognized as a valid root API file. See the Error Log for more details");
       parseStatus = FAILED;
     }
   }
 
-  public static RAMLFilesParser create(Log log, Map<File, InputStream> fileStreams,
-                                       APIFactory apiFactory) {
-    final List<ApiRef> specs = fileStreams.entrySet().stream()
-        .map(e -> ApiRef.create(e.getKey().getAbsolutePath()))
-        .collect(toList());
+  public static RAMLFilesParser create(Map<File, InputStream> fileStreams, APIFactory apiFactory) {
+    final List<ApiReference> specs = fileStreams.entrySet().stream()
+      .map(e -> ApiReference.create(e.getKey().getAbsolutePath()))
+      .collect(toList());
 
-    return new RAMLFilesParser(log, specs, apiFactory, null);
+    return new RAMLFilesParser(specs, apiFactory, null);
   }
 
-  public static RAMLFilesParser create(Log log, Map<String, InputStream> apis, APIFactory apiFactory,
+  public static RAMLFilesParser create(Map<String, InputStream> apis, APIFactory apiFactory,
                                        ScaffolderResourceLoader scaffolderResourceLoader) {
-    final List<ApiRef> specs = apis.entrySet().stream()
-        .map(e -> ApiRef.create(e.getKey(), scaffolderResourceLoader))
-        .collect(toList());
+    final List<ApiReference> specs = apis.entrySet().stream()
+      .map(e -> ApiReference.create(e.getKey(), scaffolderResourceLoader))
+      .collect(toList());
 
-    return new RAMLFilesParser(log, specs, apiFactory, scaffolderResourceLoader);
+    return new RAMLFilesParser(specs, apiFactory, scaffolderResourceLoader);
   }
 
   public Status getParseStatus() {
@@ -121,7 +103,7 @@ public class RAMLFilesParser {
     return ramlVersion;
   }
 
-  public List<ParsingError> getParsingErrors() {
+  public List<ParsingIssue> getParsingErrors() {
     return parsingErrors;
   }
 
@@ -141,7 +123,7 @@ public class RAMLFilesParser {
         if (mimeTypes != null && !mimeTypes.isEmpty()) {
           for (MimeType mimeType : mimeTypes.values()) {
             if (mimeType.getSchema() != null
-                || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty())) {
+              || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty())) {
               addResource(api, resource, action, mimeType.getType(), version);
             } else {
               addGenericAction = true;
@@ -163,12 +145,12 @@ public class RAMLFilesParser {
   private void addResource(API api, Resource resource, Action action, String mimeType, String version) {
 
     String completePath = APIKitTools
-        .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
+      .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
 
     ResourceActionMimeTypeTriplet resourceActionTriplet =
-        new ResourceActionMimeTypeTriplet(api, completePath + resource.getResolvedUri(version),
-                                          action.getType().toString(),
-                                          mimeType);
+      new ResourceActionMimeTypeTriplet(api, completePath + resource.getResolvedUri(version),
+                                        action.getType().toString(),
+                                        mimeType);
     entries.put(resourceActionTriplet, new GenerationModel(api, version, resource, action, mimeType));
   }
 
@@ -176,14 +158,8 @@ public class RAMLFilesParser {
     return entries;
   }
 
-  private ApiParser getParserWrapper(ApiRef apiRef, ScaffolderResourceLoader scaffolderResourceLoader) {
-    final ParserService parserService = new ParserService();
-    try {
-      final ApiParser parser = parserService.getParser(ApiRef.create(apiRef.getLocation(), scaffolderResourceLoader));
-      LOGGER.info(format("Using %s to load APIs", parser.getParserType().name()));
-      return parser;
-    } finally {
-      parsingErrors.addAll(parserService.getParsingErrors());
-    }
+  private ParseResult parseApi(ApiReference apiRef, ScaffolderResourceLoader scaffolderResourceLoader) {
+    ParserService parserService = new ParserService();
+    return parserService.parse(ApiReference.create(apiRef.getLocation(), scaffolderResourceLoader));
   }
 }

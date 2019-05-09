@@ -6,12 +6,10 @@
  */
 package org.mule.tools.apikit.model;
 
-import org.mule.parser.service.ParsingError;
-import org.mule.parser.service.ParserConfiguration;
+import org.mule.parser.service.result.ParsingIssue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *  Collects information while scaffolding an API
@@ -22,14 +20,11 @@ import java.util.stream.Collectors;
 public class ScaffolderReport {
 
   private final String vendorId;
-
   private final String version;
-
   private final Status status;
+  private final List<ParsingIssue> scaffoldingErrors;
 
-  private final List<ParsingError> scaffoldingErrors;
-
-  private ScaffolderReport(String vendorId, String version, Status status, List<ParsingError> errors) {
+  private ScaffolderReport(String vendorId, String version, Status status, List<ParsingIssue> errors) {
     this.vendorId = vendorId;
     this.version = version;
     this.status = status;
@@ -48,12 +43,8 @@ public class ScaffolderReport {
     return vendorId;
   }
 
-  public List<ParsingError> getScaffoldingErrors() {
+  public List<ParsingIssue> getScaffoldingErrors() {
     return scaffoldingErrors;
-  }
-
-  public List<ParsingError> getScaffoldingErrorsByType(ParserConfiguration type) {
-    return scaffoldingErrors.stream().filter(e -> type.equals(e.errorType())).collect(Collectors.toList());
   }
 
   public static class Builder {
@@ -64,7 +55,7 @@ public class ScaffolderReport {
 
     private Status status;
 
-    private final List<ParsingError> parsingErrors;
+    private final List<ParsingIssue> parsingErrors;
 
     public Builder() {
       this.parsingErrors = new ArrayList<>();
@@ -85,7 +76,7 @@ public class ScaffolderReport {
       return this;
     }
 
-    public Builder withScaffoldingErrors(List<ParsingError> errors) {
+    public Builder withScaffoldingErrors(List<ParsingIssue> errors) {
       this.parsingErrors.addAll(errors);
       return this;
     }
