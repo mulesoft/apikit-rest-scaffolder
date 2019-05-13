@@ -15,7 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.mule.raml.implv2.ParserV2Utils;
+import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.tools.apikit.model.ScaffolderResourceLoader;
 
 import java.io.File;

@@ -22,11 +22,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.stubbing.Stubber;
-import org.mule.raml.implv2.ParserV2Utils;
+import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.tools.apikit.misc.FileListUtils;
 import org.mule.tools.apikit.model.RuntimeEdition;
 

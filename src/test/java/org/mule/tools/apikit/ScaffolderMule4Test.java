@@ -9,11 +9,14 @@ package org.mule.tools.apikit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
+import org.hamcrest.core.StringContains;
 import org.junit.Test;
-import org.mockito.stubbing.Stubber;
-import org.mule.raml.implv2.ParserV2Utils;
+
+import org.mule.apikit.implv2.ParserV2Utils;
+import org.mule.parser.service.result.ParsingIssue;
+import org.mule.runtime.api.util.Pair;
 import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderReport;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,12 +31,13 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mule.tools.apikit.Helper.countOccurences;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
@@ -329,7 +333,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
   @Test
   public void testExampleGenerateForCE() throws Exception {
     final String apiPath = "scaffolder/example-v10.raml";
-    File muleXmlSimple = simpleGeneration(apiPath, null, DEFAULT_MULE_VERSION, DEFAULT_RUNTIME_EDITION);
+    File muleXmlSimple = simpleGeneration(apiPath, null, DEFAULT_RUNTIME_EDITION);
     assertTrue(muleXmlSimple.exists());
     String name = fileNameWhithOutExtension(apiPath);
     String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
@@ -418,7 +422,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
   public void testGenerateWithAMF() throws Exception {
     if (!isAmf())
       return;
-    File muleXmlSimple = simpleGeneration("parser/amf-only.raml", null, DEFAULT_MULE_VERSION, EE);
+    File muleXmlSimple = simpleGeneration("parser/amf-only.raml", null, EE);
     assertTrue(muleXmlSimple.exists());
     String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
     assertEquals(1, countOccurences(s, "<http:listener-config"));
@@ -430,7 +434,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
   public void testGenerateWithRAML() throws Exception {
     if (isAmf())
       return;
-    File muleXmlSimple = simpleGeneration("parser/raml-parser-only.raml", null, DEFAULT_MULE_VERSION, EE);
+    File muleXmlSimple = simpleGeneration("parser/raml-parser-only.raml", null, EE);
     assertTrue(muleXmlSimple.exists());
     String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
     assertEquals(1, countOccurences(s, "<http:listener-config"));
@@ -440,22 +444,11 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
 
   @Test
   public void testFailingGenerateWithBothParsers() throws Exception {
-    final List<String> errors = new ArrayList<>();
-
-    // create a logger that accumulates the errors instead of printing them out to standard output
-    logger = mock(Log.class);
-    final Stubber errorAccumulatorStubber = doAnswer(invocation -> {
-      Object[] args = invocation.getArguments();
-      errors.add(args[0].toString());
-      return null;
-    });
-    errorAccumulatorStubber.when(logger).error(anyString());
-
-    File muleXmlSimple = simpleGeneration("parser/failing-api.raml", null, DEFAULT_MULE_VERSION, EE);
-    assertFalse(muleXmlSimple.exists());
-
-    assertEquals(2, errors.size());
-    assertTrue(errors.stream().anyMatch(e -> e.contains("reference 'SomeTypo'")));
+    Pair<File, ScaffolderReport> result = failingGeneration("parser/failing-api.raml", null, EE);
+    assertFalse(result.getFirst().exists());
+    List<ParsingIssue> errors = result.getSecond().getScaffoldingErrors();
+    assertEquals(1, errors.size());
+    assertThat(errors.get(0).cause(), containsString("reference 'SomeTypo'"));
   }
 
   @Test
@@ -523,7 +516,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
 
 
   private void simpleGenerateForCE(final String apiPath) throws Exception {
-    File muleXmlSimple = simpleGeneration(apiPath, null, DEFAULT_MULE_VERSION, DEFAULT_RUNTIME_EDITION);
+    File muleXmlSimple = simpleGeneration(apiPath, null, DEFAULT_RUNTIME_EDITION);
     assertTrue(muleXmlSimple.exists());
     final String name = fileNameWhithOutExtension(apiPath);
     final String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
@@ -897,21 +890,34 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
 
   }
 
-  private File simpleGeneration(final String apiPath, final String domainPath) throws Exception {
-    return simpleGeneration(apiPath, domainPath, DEFAULT_MULE_VERSION, EE);
+  private File simpleGeneration(String apiPath, String domainPath) throws Exception {
+    return simpleGeneration(apiPath, domainPath, EE);
   }
 
-  private File simpleGeneration(final String apiPath, final String domainPath, final String muleVersion,
-                                final RuntimeEdition runtimeEdition)
+  private File simpleGeneration(String apiPath, String domainPath, RuntimeEdition runtimeEdition)
       throws Exception {
     List<File> ramls = singletonList(createTmpFile(apiPath));
     File domainFile = domainPath == null ? null : createTmpFile(domainPath);
 
     File muleXmlOut = createTmpMuleXmlOutFolder();
 
-    createScaffolder(ramls, emptyList(), muleXmlOut, domainFile, null, muleVersion, runtimeEdition).run();
+    Scaffolder scaffolder = createScaffolder(ramls, emptyList(), muleXmlOut, domainFile, null, Scaffolder.DEFAULT_MULE_VERSION, runtimeEdition);
+    scaffolder.run();
 
     return new File(muleXmlOut, fileNameWhithOutExtension(apiPath) + ".xml");
+  }
+
+  private Pair<File, ScaffolderReport> failingGeneration(String apiPath, String domainPath, RuntimeEdition runtimeEdition)
+    throws Exception {
+    List<File> ramls = singletonList(createTmpFile(apiPath));
+    File domainFile = domainPath == null ? null : createTmpFile(domainPath);
+
+    File muleXmlOut = createTmpMuleXmlOutFolder();
+
+    Scaffolder scaffolder = createScaffolder(ramls, emptyList(), muleXmlOut, domainFile, null, Scaffolder.DEFAULT_MULE_VERSION, runtimeEdition);
+    scaffolder.run();
+
+    return new Pair<>(new File(muleXmlOut, fileNameWhithOutExtension(apiPath) + ".xml"), scaffolder.getScaffolderReport());
   }
 
   @Test

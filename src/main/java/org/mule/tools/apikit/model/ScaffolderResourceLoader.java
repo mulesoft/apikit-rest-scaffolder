@@ -6,7 +6,7 @@
  */
 package org.mule.tools.apikit.model;
 
-import org.mule.raml.interfaces.loader.ResourceLoader;
+import org.mule.apikit.loader.ResourceLoader;
 
 import java.io.InputStream;
 import java.net.URI;

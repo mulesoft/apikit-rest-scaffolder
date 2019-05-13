@@ -21,15 +21,15 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Dependency;
-import org.mule.raml.interfaces.common.APISyncUtils;
+import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.tools.apikit.model.ScaffolderResourceLoader;
 
 import static java.lang.String.format;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_RUNTIME_EDITION;
 
-import static org.mule.raml.interfaces.common.APISyncUtils.EXCHANGE_JSON;
-import static org.mule.raml.interfaces.common.APISyncUtils.RESOURCE_FORMAT;
+import static org.mule.apikit.common.ApiSyncUtils.EXCHANGE_JSON;
+import static org.mule.apikit.common.ApiSyncUtils.RESOURCE_FORMAT;
 
 public class ScaffolderAPI {
 
@@ -131,7 +131,7 @@ public class ScaffolderAPI {
                                                dependency.getVersion(), dependency.getClassifier(), dependency.getType(), "%s");
       InputStream exchangeJson =
           scaffolderResourceLoader.getResourceAsStream(format(dependencyResourceFormat, EXCHANGE_JSON));
-      String rootApiFileName = APISyncUtils.getMainApi(IOUtils.toString(exchangeJson));
+      String rootApiFileName = ApiSyncUtils.getMainApi(IOUtils.toString(exchangeJson));
       String rootApiResource = format(dependencyResourceFormat, rootApiFileName);
       InputStream rootApi = scaffolderResourceLoader.getResourceAsStream(rootApiResource);
       apiSpecs.put(rootApiResource, rootApi);

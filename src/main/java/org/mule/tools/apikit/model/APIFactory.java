@@ -10,7 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.codehaus.plexus.util.FileUtils;
-import org.mule.raml.interfaces.common.APISyncUtils;
+import org.mule.apikit.common.ApiSyncUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -108,8 +108,8 @@ public class APIFactory {
   private String buildApiId(String ramlFilePath) {
     final String apiId;
 
-    if (APISyncUtils.isSyncProtocol(ramlFilePath))
-      apiId = FilenameUtils.removeExtension(APISyncUtils.getFileName(ramlFilePath));
+    if (ApiSyncUtils.isSyncProtocol(ramlFilePath))
+      apiId = FilenameUtils.removeExtension(ApiSyncUtils.getFileName(ramlFilePath));
     else
       apiId = FilenameUtils.removeExtension(FileUtils.basename(ramlFilePath)).trim();
 
@@ -135,7 +135,7 @@ public class APIFactory {
   }
 
   private String getRelativePath(String path) {
-    if (!APISyncUtils.isSyncProtocol(path)
+    if (!ApiSyncUtils.isSyncProtocol(path)
         && !(path.startsWith("http://") || path.startsWith("https://"))
         && path.contains(RESOURCE_API_FOLDER))
       return path.substring(path.lastIndexOf(RESOURCE_API_FOLDER) + RESOURCE_API_FOLDER.length());

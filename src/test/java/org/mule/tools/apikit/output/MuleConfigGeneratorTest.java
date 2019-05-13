@@ -7,7 +7,6 @@
 package org.mule.tools.apikit.output;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
@@ -15,9 +14,9 @@ import org.jdom2.Element;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IActionType;
-import org.mule.raml.interfaces.model.IResource;
+import org.mule.apikit.model.Action;
+import org.mule.apikit.model.ActionType;
+import org.mule.apikit.model.Resource;
 import org.mule.tools.apikit.Helper;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.model.HttpListener4xConfig;
@@ -36,31 +35,29 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_RUNTIME_EDITION;
 
 public class MuleConfigGeneratorTest {
 
-  public static final String VERSION = "v1";
+  private static final String VERSION = "v1";
 
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
   @Test
   public void testGenerate() throws Exception {
-    List<GenerationModel> entries = new ArrayList<GenerationModel>();
 
-    IResource resource = mock(IResource.class);
+    Resource resource = mock(Resource.class);
 
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
 
-    IAction action = mock(IAction.class);
+    Action action = mock(Action.class);
 
-    when(action.getType()).thenReturn(IActionType.GET);
+    when(action.getType()).thenReturn(ActionType.GET);
 
-    IAction postAction = mock(IAction.class);
+    Action postAction = mock(Action.class);
 
-    when(postAction.getType()).thenReturn(IActionType.POST);
+    when(postAction.getType()).thenReturn(ActionType.POST);
 
     API api = mock(API.class);
     File raml = mock(File.class);
@@ -74,19 +71,17 @@ public class MuleConfigGeneratorTest {
     when(api.getPath()).thenReturn("/api/*");
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
 
-    entries.addAll(Arrays.asList(new GenerationModel(api, VERSION, resource, action),
-                                 new GenerationModel(api, VERSION, resource, postAction)));
+    List<GenerationModel> entries = new ArrayList<>(Arrays.asList(new GenerationModel(api, VERSION, resource, action),
+                                                                  new GenerationModel(api, VERSION, resource, postAction)));
 
 
-    Log mock = mock(Log.class);
     MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(mock, new File(""), emptyList(), entries, null,
+        new MuleConfigGenerator(new File(""), emptyList(), entries, null,
                                 DEFAULT_RUNTIME_EDITION);
     muleConfigGenerator.generate(true);
 
     assertTrue(file.exists());
     assertTrue(file.isFile());
-    verify(mock, never()).error(any(CharSequence.class), any(Throwable.class));
 
     String s = IOUtils.toString(new FileInputStream(file));
     assertTrue(s.length() > 0);
@@ -171,10 +166,10 @@ public class MuleConfigGeneratorTest {
     when(api.getXmlFile(any(File.class))).thenReturn(file);
 
     MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(mock(Log.class), new File(""), emptyList(), new ArrayList<GenerationModel>(),
+        new MuleConfigGenerator(new File(""), emptyList(), new ArrayList<>(),
                                 null, DEFAULT_RUNTIME_EDITION);
 
-    Document document = muleConfigGenerator.getOrCreateDocument(new HashMap<API, Document>(), api);
+    Document document = muleConfigGenerator.getOrCreateDocument(new HashMap<>(), api);
 
     Element rootElement = document.getRootElement();
     assertEquals("mule", rootElement.getName());
@@ -221,10 +216,10 @@ public class MuleConfigGeneratorTest {
 
 
     MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(mock(Log.class), new File(""), emptyList(), new ArrayList<GenerationModel>(),
+        new MuleConfigGenerator(new File(""), emptyList(), new ArrayList<>(),
                                 null, DEFAULT_RUNTIME_EDITION);
 
-    Document document = muleConfigGenerator.getOrCreateDocument(new HashMap<API, Document>(), api);
+    Document document = muleConfigGenerator.getOrCreateDocument(new HashMap<>(), api);
 
     Element rootElement = document.getRootElement();
     assertEquals("mule", rootElement.getName());

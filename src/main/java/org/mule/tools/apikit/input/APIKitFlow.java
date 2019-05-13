@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 
 import org.mule.module.apikit.helpers.FlowName;
-import org.mule.raml.interfaces.common.RamlUtils;
+import org.mule.apikit.common.RamlUtils;
 
 public class APIKitFlow {
 
