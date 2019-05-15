@@ -11,7 +11,9 @@ import org.mule.tools.apikit.model.HttpListener4xConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
@@ -22,9 +24,10 @@ import org.jdom2.input.sax.XMLReaders;
 
 public class MuleDomainParser {
 
-  private Map<String, HttpListener4xConfig> httpListenerConfigs = new HashMap<>();
+  private List<HttpListener4xConfig> httpListenerConfigs;
 
   public MuleDomainParser(Log log, InputStream domainStream) {
+    httpListenerConfigs = new ArrayList<>();
 
     if (domainStream != null) {
       try {
@@ -39,10 +42,10 @@ public class MuleDomainParser {
   private void parseMuleDomainFile(InputStream stream) throws JDOMException, IOException {
     SAXBuilder saxBuilder = new SAXBuilder(XMLReaders.NONVALIDATING);
     Document document = saxBuilder.build(stream);
-    httpListenerConfigs.putAll(new HttpListener4xConfigParser().parse(document));
+    httpListenerConfigs = new HttpListener4xConfigParser().parse(document);
   }
 
-  public Map<String, HttpListener4xConfig> getHttpListenerConfigs() {
+  public List<HttpListener4xConfig> getHttpListenerConfigs() {
     return httpListenerConfigs;
   }
 

@@ -20,7 +20,6 @@ import java.util.Map;
 
 import static java.io.File.separator;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.mule.tools.apikit.model.API.DEFAULT_BASE_PATH;
 import static org.mule.tools.apikit.model.API.DEFAULT_HOST;
 import static org.mule.tools.apikit.model.API.DEFAULT_PROTOCOL;
@@ -32,13 +31,15 @@ public class APIFactory {
       "src" + separator + "main" + separator + "resources" + separator + "api" + separator;
 
   private Map<String, API> apis = new HashMap<>();
-  private final Map<String, HttpListener4xConfig> httpListenerConfigs = new HashMap<>();
+  private List<HttpListener4xConfig> httpListenerConfigs;
 
-  public APIFactory(Map<String, HttpListener4xConfig> httpListenerConfigs) {
-    this.httpListenerConfigs.putAll(httpListenerConfigs);
+  public APIFactory(List<HttpListener4xConfig> httpListenerConfigs) {
+    this.httpListenerConfigs = httpListenerConfigs;
   }
 
-  public APIFactory() {}
+  public APIFactory() {
+    httpListenerConfigs = new ArrayList<>();
+  }
 
   public API createAPIBindingInboundEndpoint(String apiFileName, File xmlFile, String baseUri, String path,
                                              APIKitConfig config) {
@@ -65,7 +66,7 @@ public class APIFactory {
         api.setHttpListenerConfig(availableConfig);
       } else {
         final HttpListener4xConfig defaultHttpListenerConfig = buildDefaultHttpListenerConfig(id);
-        httpListenerConfigs.put(defaultHttpListenerConfig.getName(), defaultHttpListenerConfig);
+        httpListenerConfigs.add(defaultHttpListenerConfig);
         api.setHttpListenerConfig(defaultHttpListenerConfig);
       }
     } else {
@@ -87,10 +88,10 @@ public class APIFactory {
     return new HttpListener4xConfig(httpListenerConfigName, DEFAULT_BASE_PATH, listenerConnection);
   }
 
-  private static String getNextPort(Map<String, HttpListener4xConfig> httpListenerConfigs) {
-    final List<Map.Entry<String, HttpListener4xConfig>> numericPortListeners = getNumericPortListenersAsList(httpListenerConfigs);
+  private static String getNextPort(List<HttpListener4xConfig> httpListenerConfigs) {
+    final List<HttpListener4xConfig> numericPortListeners = getNumericPortListenersAsList(httpListenerConfigs);
     if (numericPortListeners.size() > 0) {
-      final String greaterPort = numericPortListeners.get(numericPortListeners.size() - 1).getValue().getPort();
+      final String greaterPort = numericPortListeners.get(numericPortListeners.size() - 1).getPort();
       return String.valueOf(Integer.parseInt(greaterPort) + 1);
     }
 
@@ -143,11 +144,11 @@ public class APIFactory {
     return path;
   }
 
-  public Map<String, HttpListener4xConfig> getHttpListenerConfigs() {
+  public List<HttpListener4xConfig> getHttpListenerConfigs() {
     return httpListenerConfigs;
   }
 
-  private HttpListener4xConfig getAvailableLCForPath(String path, Map<String, HttpListener4xConfig> httpListenerConfigs) {
+  private HttpListener4xConfig getAvailableLCForPath(String path, List<HttpListener4xConfig> httpListenerConfigs) {
     if (httpListenerConfigs.size() <= 0)
       return null;
 
@@ -160,39 +161,33 @@ public class APIFactory {
         .collect(toList());
 
 
-    final List<Map.Entry<String, HttpListener4xConfig>> availableListeners = new ArrayList<>();
+    final List<HttpListener4xConfig> availableListeners = new ArrayList<>();
     availableListeners.addAll(getNumericPortListenersAsList(httpListenerConfigs));
-    availableListeners.addAll(getNonNumericPortListeners(httpListenerConfigs).entrySet());
+    availableListeners.addAll(getNonNumericPortListeners(httpListenerConfigs));
 
     return availableListeners.stream()
-        .map(Map.Entry::getValue)
-        .filter(l -> !usedListeners.contains(l))
+        .filter(config -> !usedListeners.contains(config))
         .findFirst()
         .orElse(null);
   }
 
-  private static Map<String, HttpListener4xConfig> getNumericPortListeners(Map<String, HttpListener4xConfig> httpListenerConfigs) {
-    return httpListenerConfigs.entrySet().stream()
-        .filter(entry -> StringUtils.isNumeric(entry.getValue().getPort()))
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  private static List<Map.Entry<String, HttpListener4xConfig>> getNumericPortListenersAsList(Map<String, HttpListener4xConfig> httpListenerConfigs) {
-    final List<Map.Entry<String, HttpListener4xConfig>> numericPortsList =
-        new ArrayList<>(getNumericPortListeners(httpListenerConfigs).entrySet());
+  private static List<HttpListener4xConfig> getNumericPortListenersAsList(List<HttpListener4xConfig> httpListenerConfigs) {
+    final List<HttpListener4xConfig> numericPortsList = httpListenerConfigs.stream()
+        .filter(config -> StringUtils.isNumeric(config.getPort()))
+        .collect(toList());
 
     numericPortsList.sort((o1, o2) -> {
-      Integer i1 = Integer.parseInt(o1.getValue().getPort());
-      Integer i2 = Integer.parseInt(o2.getValue().getPort());
+      Integer i1 = Integer.parseInt(o1.getPort());
+      Integer i2 = Integer.parseInt(o2.getPort());
       return i1.compareTo(i2);
     });
 
     return numericPortsList;
   }
 
-  private static Map<String, HttpListener4xConfig> getNonNumericPortListeners(Map<String, HttpListener4xConfig> httpListenerConfigs) {
-    return httpListenerConfigs.entrySet().stream()
-        .filter(entry -> !StringUtils.isNumeric(entry.getValue().getPort()))
-        .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+  private static List<HttpListener4xConfig> getNonNumericPortListeners(List<HttpListener4xConfig> httpListenerConfigs) {
+    return httpListenerConfigs.stream()
+        .filter(config -> StringUtils.isNumeric(config.getPort()))
+        .collect(toList());
   }
 }

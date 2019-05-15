@@ -30,13 +30,13 @@ import org.jdom2.xpath.XPathFactory;
 public class APIKitRoutersParser implements MuleConfigFileParser {
 
   private final Map<String, APIKitConfig> apikitConfigs;
-  private final Map<String, HttpListener4xConfig> httpListenerConfigs;
+  private final List<HttpListener4xConfig> httpListenerConfigs;
   private final Set<String> apiFilePaths;
   private final File file;
   private final APIFactory apiFactory;
 
   public APIKitRoutersParser(final Map<String, APIKitConfig> apikitConfigs,
-                             final Map<String, HttpListener4xConfig> httpListenerConfigs,
+                             final List<HttpListener4xConfig> httpListenerConfigs,
                              final Set<String> apiFilePaths,
                              final File file,
                              final APIFactory apiFactory) {
@@ -137,7 +137,9 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     String httpListenerConfigId =
         httpListenerConfigRef != null ? httpListenerConfigRef.getValue() : HttpListener4xConfig.DEFAULT_CONFIG_NAME;
 
-    HttpListener4xConfig httpListenerConfig = httpListenerConfigs.get(httpListenerConfigId);
+    HttpListener4xConfig httpListenerConfig = httpListenerConfigs.stream()
+        .filter(config -> config.getName().equals(httpListenerConfigId))
+        .findFirst().orElse(null);
     if (httpListenerConfig == null) {
       throw new IllegalStateException("An HTTP Listener configuration is mandatory.");
     }

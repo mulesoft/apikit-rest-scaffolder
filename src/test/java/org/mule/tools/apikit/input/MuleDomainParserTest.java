@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import org.mule.tools.apikit.model.HttpListener4xConfig;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
@@ -29,11 +30,11 @@ public class MuleDomainParserTest {
     Log log = mock(Log.class);
 
     MuleDomainParser muleDomainParser = new MuleDomainParser(log, resourceAsStream);
-    Map<String, HttpListener4xConfig> httpListenerConfigs = muleDomainParser.getHttpListenerConfigs();
+    List<HttpListener4xConfig> httpListenerConfigs = muleDomainParser.getHttpListenerConfigs();
     assertNotNull(httpListenerConfigs);
     assertEquals(1, httpListenerConfigs.size());
-    String expectedKey = "http-lc-0.0.0.0-8081";
-    HttpListener4xConfig value = httpListenerConfigs.get(expectedKey);
+    String expectedConfigName = "http-lc-0.0.0.0-8081";
+    HttpListener4xConfig value = getConfigByName(httpListenerConfigs, expectedConfigName);
     Assert.assertNotNull(value);
     Assert.assertEquals("http-lc-0.0.0.0-8081", value.getName());
     Assert.assertEquals("0.0.0.0", value.getHost());
@@ -49,28 +50,28 @@ public class MuleDomainParserTest {
     Log log = mock(Log.class);
 
     MuleDomainParser muleDomainParser = new MuleDomainParser(log, resourceAsStream);
-    Map<String, HttpListener4xConfig> httpListenerConfigs = muleDomainParser.getHttpListenerConfigs();
+    List<HttpListener4xConfig> httpListenerConfigs = muleDomainParser.getHttpListenerConfigs();
     assertNotNull(httpListenerConfigs);
     assertEquals(5, httpListenerConfigs.size());
 
-    String expectedKey = "abcd";
-    HttpListener4xConfig value = httpListenerConfigs.get(expectedKey);
+    String expectedConfigName = "abcd";
+    HttpListener4xConfig value = getConfigByName(httpListenerConfigs, expectedConfigName);
     Assert.assertNotNull(value);
     Assert.assertEquals("abcd", value.getName());
     Assert.assertEquals("localhost", value.getHost());
     Assert.assertEquals("7001", value.getPort());
     Assert.assertEquals("/", value.getBasePath());
 
-    String expectedKey2 = "http-lc-0.0.0.0-8083";
-    HttpListener4xConfig value2 = httpListenerConfigs.get(expectedKey2);
+    String expectedConfigName2 = "http-lc-0.0.0.0-8083";
+    HttpListener4xConfig value2 = getConfigByName(httpListenerConfigs, expectedConfigName2);
     Assert.assertNotNull(value2);
     Assert.assertEquals("http-lc-0.0.0.0-8083", value2.getName());
     Assert.assertEquals("0.0.0.0", value2.getHost());
     Assert.assertEquals("8083", value2.getPort());
     Assert.assertEquals("/test", value2.getBasePath());
 
-    String expectedKey3 = "http-lc-0.0.0.0-8080";
-    HttpListener4xConfig value3 = httpListenerConfigs.get(expectedKey3);
+    String expectedConfigName3 = "http-lc-0.0.0.0-8080";
+    HttpListener4xConfig value3 = getConfigByName(httpListenerConfigs, expectedConfigName3);
     Assert.assertNotNull(value3);
     Assert.assertEquals("http-lc-0.0.0.0-8080", value3.getName());
     Assert.assertEquals("0.0.0.0", value3.getHost());
@@ -78,8 +79,8 @@ public class MuleDomainParserTest {
     Assert.assertEquals("/", value3.getBasePath());
 
 
-    String expectedKey4 = "https-lc-0.0.0.0-8082";
-    HttpListener4xConfig value4 = httpListenerConfigs.get(expectedKey4);
+    String expectedConfigName4 = "https-lc-0.0.0.0-8082";
+    HttpListener4xConfig value4 = getConfigByName(httpListenerConfigs, expectedConfigName4);
     Assert.assertNotNull(value4);
     Assert.assertEquals("https-lc-0.0.0.0-8082", value4.getName());
     Assert.assertEquals("0.0.0.0", value4.getHost());
@@ -96,8 +97,12 @@ public class MuleDomainParserTest {
     Log log = mock(Log.class);
 
     MuleDomainParser muleDomainParser = new MuleDomainParser(log, resourceAsStream);
-    Map<String, HttpListener4xConfig> httpListenerConfigs = muleDomainParser.getHttpListenerConfigs();
+    List<HttpListener4xConfig> httpListenerConfigs = muleDomainParser.getHttpListenerConfigs();
     assertNotNull(httpListenerConfigs);
     assertEquals(0, httpListenerConfigs.size());
+  }
+
+  private HttpListener4xConfig getConfigByName(List<HttpListener4xConfig> configs, String name) {
+    return configs.stream().filter(config -> config.getName().equals(name)).findFirst().orElse(null);
   }
 }

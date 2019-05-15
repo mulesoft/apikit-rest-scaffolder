@@ -82,7 +82,7 @@ public class MuleConfigParser {
 
   protected void parseConfigs(File file, Document document, Set<String> apiFilePaths) {
     apikitConfigs.putAll(new APIKitConfigParser().parse(document));
-    apiFactory.getHttpListenerConfigs().putAll(new HttpListener4xConfigParser().parse(document));
+    apiFactory.getHttpListenerConfigs().addAll(new HttpListener4xConfigParser().parse(document));
   }
 
   protected void parseApis(File file, Document document, Set<String> apiFilePaths) {

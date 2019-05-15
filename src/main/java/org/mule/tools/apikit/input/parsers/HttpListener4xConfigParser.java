@@ -12,9 +12,8 @@ import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.model.HttpListener4xConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -26,8 +25,8 @@ public class HttpListener4xConfigParser implements MuleConfigFileParser {
 
   public static final String ELEMENT_NAME = "listener-config";
 
-  public Map<String, HttpListener4xConfig> parse(Document document) {
-    Map<String, HttpListener4xConfig> httpListenerConfigMap = new HashMap<String, HttpListener4xConfig>();
+  public List<HttpListener4xConfig> parse(Document document) {
+    List<HttpListener4xConfig> httpListenerConfigMap = new ArrayList<>();
     XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
                                                                   Filters.element(HTTP_NAMESPACE.getNamespace()));
     List<Element> elements = xp.evaluate(document);
@@ -59,7 +58,7 @@ public class HttpListener4xConfigParser implements MuleConfigFileParser {
           final HttpListener4xConfig httpListenerConfig =
               new HttpListener4xConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
           httpListenerConfig.setPeristed(true);
-          httpListenerConfigMap.put(name, httpListenerConfig);
+          httpListenerConfigMap.add(httpListenerConfig);
         }
       }
     }

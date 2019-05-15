@@ -21,11 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
@@ -46,7 +47,7 @@ public class MuleConfigParserTest {
 
     HashMap<File, InputStream> streams = new HashMap<File, InputStream>();
     streams.put(new File(""), resourceAsStream);
-    Map<String, HttpListener4xConfig> domainHttpListenerConfigs = new HashMap<>();
+    List<HttpListener4xConfig> domainHttpListenerConfigs = new ArrayList<>();
     MuleConfigParser muleConfigParser =
         new MuleConfigParser(log, new APIFactory(domainHttpListenerConfigs)).parse(ramlFileNames, streams);
     Set<ResourceActionMimeTypeTriplet> set = muleConfigParser.getEntries();
