@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Sets;
 import org.mule.tools.apikit.input.MuleConfigParser;
 import org.mule.tools.apikit.input.RAMLFilesParser;
 import org.mule.tools.apikit.model.API;
@@ -20,11 +21,10 @@ import org.mule.tools.apikit.output.GenerationStrategy;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.apache.maven.plugin.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,98 +35,65 @@ public class GenerationStrategyTest {
 
   @Before
   public void setUp() {
-    generationStrategy = new GenerationStrategy(mock(Log.class));
+    generationStrategy = new GenerationStrategy();
     apiFactory = new APIFactory();
   }
 
   @Test
-  public void testAllEmptyGenerate() throws Exception {
-    List<GenerationModel> generate = generationStrategy.generate(mock(RAMLFilesParser.class),
-                                                                 mock(MuleConfigParser.class));
+  public void testAllEmptyGenerate() {
+    Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries = new HashMap<>();
+    Set<API> includedApis = Sets.newHashSet();
+    Set<ResourceActionMimeTypeTriplet> flowsEntries = Sets.newHashSet();
+    List<GenerationModel> generate = generationStrategy.generate(ramlEntries, includedApis, flowsEntries);
+
     assertEquals(0, generate.size());
   }
 
   @Test
-  public void testNotEmptyRamlGenerate() throws Exception {
+  public void testNotEmptyRamlGenerate() {
     final API fromRAMLFile =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", null, "http://localhost:8080", "/api/*", null);
-
-    RAMLFilesParser raml = mock(RAMLFilesParser.class);
     MuleConfigParser mule = mock(MuleConfigParser.class);
-
-    final Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries =
-        new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
+    Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries = new HashMap<>();
     ramlEntries.put(new ResourceActionMimeTypeTriplet(fromRAMLFile, "pet", "post"), mock(GenerationModel.class));
+    List<GenerationModel> generate = generationStrategy.generate(ramlEntries, mule.getIncludedApis(), mule.getEntries());
 
-    when(raml.getEntries()).thenReturn(ramlEntries);
-
-    List<GenerationModel> generate = generationStrategy.generate(raml, mule);
     assertEquals(1, generate.size());
   }
 
   @Test
-  public void testExistingAPIKitFlow() throws Exception {
+  public void testExistingAPIKitFlow() {
     RAMLFilesParser raml = mock(RAMLFilesParser.class);
     MuleConfigParser mule = mock(MuleConfigParser.class);
     final API api =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", new File("sample.xml"), "http://localhost:8080",
                                                    "/api/*", null);
-
-    when(mule.getIncludedApis()).thenReturn(new HashSet<API>() {
-
-      {
-        this.add(api);
-      }
-    });
-
-    when(mule.getEntries()).thenReturn(new HashSet<ResourceActionMimeTypeTriplet>() {
-
-      {
-        this.add(new ResourceActionMimeTypeTriplet(api, "/pet", "GET"));
-      }
-    });
-
-    final Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries =
-        new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
+    Set<API> includedApis = Sets.newHashSet(api);
+    Set<ResourceActionMimeTypeTriplet> flowsEntries = Sets.newHashSet(new ResourceActionMimeTypeTriplet(api, "/pet", "GET"));
+    Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries = new HashMap<>();
     ramlEntries.put(new ResourceActionMimeTypeTriplet(api, "/pet", "GET"), mock(GenerationModel.class));
+    List<GenerationModel> generate = generationStrategy.generate(ramlEntries, includedApis, flowsEntries);
 
-    when(raml.getEntries()).thenReturn(ramlEntries);
-
-    List<GenerationModel> generate = generationStrategy.generate(raml, mule);
     assertEquals(0, generate.size());
   }
 
   @Test
-  public void testNonExistingAPIKitFlow() throws Exception {
+  public void testNonExistingAPIKitFlow() {
     RAMLFilesParser raml = mock(RAMLFilesParser.class);
     MuleConfigParser mule = mock(MuleConfigParser.class);
     final API api =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", null, "http://localhost:8080", "/api/*", null);
-
-    when(mule.getIncludedApis()).thenReturn(new HashSet<API>() {
-
-      {
-        this.add(api);
-      }
-    });
-
-    when(mule.getEntries()).thenReturn(new HashSet<ResourceActionMimeTypeTriplet>() {
-
-      {
-        this.add(new ResourceActionMimeTypeTriplet(api, "/pet", "GET"));
-      }
-    });
+    Set<API> includedApis = Sets.newHashSet(api);
+    Set<ResourceActionMimeTypeTriplet> muleFlowEntries = Sets.newHashSet(new ResourceActionMimeTypeTriplet(api, "/pet", "GET"));
     API fromRAMLFile =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", null, "http://localhost:8080", "/api/*", null);
-
-    final Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries =
-        new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
+    Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlEntries = new HashMap<>();
     ramlEntries.put(new ResourceActionMimeTypeTriplet(fromRAMLFile, "/pet", "GET"), mock(GenerationModel.class));
     ramlEntries.put(new ResourceActionMimeTypeTriplet(fromRAMLFile, "/pet", "POST"), mock(GenerationModel.class));
 
     when(raml.getEntries()).thenReturn(ramlEntries);
 
-    List<GenerationModel> generate = generationStrategy.generate(raml, mule);
+    List<GenerationModel> generate = generationStrategy.generate(ramlEntries, includedApis, muleFlowEntries);
     assertEquals(1, generate.size());
   }
 }
