@@ -6,7 +6,11 @@
  */
 package org.mule.tools.apikit.input;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import org.mule.apikit.model.Action;
