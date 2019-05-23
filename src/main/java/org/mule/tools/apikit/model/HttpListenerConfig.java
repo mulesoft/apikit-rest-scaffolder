@@ -10,10 +10,10 @@ import org.mule.tools.apikit.misc.APIKitTools;
 
 import java.util.Objects;
 
-import static org.mule.tools.apikit.model.API.DEFAULT_BASE_PATH;
-import static org.mule.tools.apikit.model.API.DEFAULT_HOST;
-import static org.mule.tools.apikit.model.API.DEFAULT_PORT;
-import static org.mule.tools.apikit.model.API.DEFAULT_PROTOCOL;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_BASE_PATH;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_HOST;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PORT;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PROTOCOL;
 
 public class HttpListener4xConfig {
 

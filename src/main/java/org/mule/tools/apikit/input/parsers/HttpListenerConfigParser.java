@@ -8,8 +8,8 @@ package org.mule.tools.apikit.input.parsers;
 
 import static org.mule.tools.apikit.output.MuleConfigGenerator.HTTP_NAMESPACE;
 
-import org.mule.tools.apikit.model.API;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 
 import java.util.ArrayList;
@@ -25,8 +25,8 @@ public class HttpListener4xConfigParser implements MuleConfigFileParser {
 
   public static final String ELEMENT_NAME = "listener-config";
 
-  public List<HttpListener4xConfig> parse(Document document) {
-    List<HttpListener4xConfig> httpListenerConfigMap = new ArrayList<>();
+  public List<HttpListenerConfig> parse(Document document) {
+    List<HttpListenerConfig> httpListenerConfigMap = new ArrayList<>();
     XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
                                                                   Filters.element(HTTP_NAMESPACE.getNamespace()));
     List<Element> elements = xp.evaluate(document);
@@ -49,14 +49,14 @@ public class HttpListener4xConfigParser implements MuleConfigFileParser {
           }
           String port = child.getAttributeValue("port");
           if (port == null) {
-            port = Integer.toString(API.DEFAULT_PORT);
+            port = Integer.toString(ApikitMainFlowContainer.DEFAULT_PORT);
           }
           String protocol = child.getAttributeValue("protocol");
           if (protocol == null) {
-            protocol = API.DEFAULT_PROTOCOL;
+            protocol = ApikitMainFlowContainer.DEFAULT_PROTOCOL;
           }
-          final HttpListener4xConfig httpListenerConfig =
-              new HttpListener4xConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
+          final HttpListenerConfig httpListenerConfig =
+              new HttpListenerConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
           httpListenerConfig.setPeristed(true);
           httpListenerConfigMap.add(httpListenerConfig);
         }

@@ -8,7 +8,7 @@ package org.mule.tools.apikit.model;
 
 import java.io.File;
 
-public class API {
+public class ApikitRouterConfig {
 
   public static final String DEFAULT_HOST = "0.0.0.0";
   public static final int DEFAULT_PORT = 8081;
@@ -16,7 +16,6 @@ public class API {
   public static final String DEFAULT_BASE_PATH = "/";
   public static final String DEFAULT_PROTOCOL = "HTTP";
   public static final String DEFAULT_CONSOLE_PATH = "/console/*";
-  public static final String DEFAULT_CONSOLE_PATH_INBOUND = "http://" + DEFAULT_HOST + ":" + DEFAULT_PORT + "/console";
 
   private APIKitConfig config;
   private HttpListener4xConfig httpListenerConfig;
@@ -27,7 +26,7 @@ public class API {
   private String apiFilPath;
   private String id;
 
-  public API(String id, String apiFilePath, File xmlFile, String baseUri, String path) {
+  public ApikitRouterConfig(String id, String apiFilePath, File xmlFile, String baseUri, String path) {
     this.path = path;
     this.apiFilPath = apiFilePath;
     this.xmlFile = xmlFile;
@@ -36,7 +35,7 @@ public class API {
   }
 
 
-  public API(String id, String apiFileName, File xmlFile, String baseUri, String path, APIKitConfig config) {
+  public ApikitRouterConfig(String id, String apiFileName, File xmlFile, String baseUri, String path, APIKitConfig config) {
     this(id, apiFileName, xmlFile, baseUri, path);
     this.config = config;
   }
@@ -106,7 +105,7 @@ public class API {
     if (o == null || getClass() != o.getClass())
       return false;
 
-    API api = (API) o;
+    ApikitRouterConfig api = (ApikitRouterConfig) o;
 
     if (!apiFilPath.equals(api.apiFilPath) || !id.equals(api.id))
       return false;
