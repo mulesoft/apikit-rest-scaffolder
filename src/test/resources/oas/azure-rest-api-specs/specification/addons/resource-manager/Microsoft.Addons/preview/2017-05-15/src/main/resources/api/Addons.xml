@@ -126,9 +126,9 @@ output application/json
     <flow name="put:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes\(planTypeName):Addons-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="subscriptionId">attributes.uriParams.subscriptionId</ee:set-variable>
-                <ee:set-variable variableName="providerName">attributes.uriParams.providerName</ee:set-variable>
-                <ee:set-variable variableName="planTypeName">attributes.uriParams.planTypeName</ee:set-variable>
+                <ee:set-variable variableName="subscriptionId">attributes.uriParams.'subscriptionId'</ee:set-variable>
+                <ee:set-variable variableName="providerName">attributes.uriParams.'providerName'</ee:set-variable>
+                <ee:set-variable variableName="planTypeName">attributes.uriParams.'planTypeName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="put:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes\(planTypeName):Addons-config" />
@@ -136,9 +136,9 @@ output application/json
     <flow name="delete:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes\(planTypeName):Addons-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="subscriptionId">attributes.uriParams.subscriptionId</ee:set-variable>
-                <ee:set-variable variableName="providerName">attributes.uriParams.providerName</ee:set-variable>
-                <ee:set-variable variableName="planTypeName">attributes.uriParams.planTypeName</ee:set-variable>
+                <ee:set-variable variableName="subscriptionId">attributes.uriParams.'subscriptionId'</ee:set-variable>
+                <ee:set-variable variableName="providerName">attributes.uriParams.'providerName'</ee:set-variable>
+                <ee:set-variable variableName="planTypeName">attributes.uriParams.'planTypeName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes\(planTypeName):Addons-config" />
@@ -149,8 +149,8 @@ output application/json
     <flow name="get:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes:Addons-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="subscriptionId">attributes.uriParams.subscriptionId</ee:set-variable>
-                <ee:set-variable variableName="providerName">attributes.uriParams.providerName</ee:set-variable>
+                <ee:set-variable variableName="subscriptionId">attributes.uriParams.'subscriptionId'</ee:set-variable>
+                <ee:set-variable variableName="providerName">attributes.uriParams.'providerName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes:Addons-config" />
@@ -158,9 +158,9 @@ output application/json
     <flow name="get:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes\(planTypeName):Addons-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="subscriptionId">attributes.uriParams.subscriptionId</ee:set-variable>
-                <ee:set-variable variableName="providerName">attributes.uriParams.providerName</ee:set-variable>
-                <ee:set-variable variableName="planTypeName">attributes.uriParams.planTypeName</ee:set-variable>
+                <ee:set-variable variableName="subscriptionId">attributes.uriParams.'subscriptionId'</ee:set-variable>
+                <ee:set-variable variableName="providerName">attributes.uriParams.'providerName'</ee:set-variable>
+                <ee:set-variable variableName="planTypeName">attributes.uriParams.'planTypeName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\subscriptions\(subscriptionId)\providers\Microsoft.Addons\supportProviders\(providerName)\supportPlanTypes\(planTypeName):Addons-config" />

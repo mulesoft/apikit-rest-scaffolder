@@ -129,7 +129,7 @@ output application/json
     <flow name="get:\pets\(petId):petstore-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="petId">attributes.uriParams.petId</ee:set-variable>
+                <ee:set-variable variableName="petId">attributes.uriParams.'petId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\pets\(petId):petstore-config" />
