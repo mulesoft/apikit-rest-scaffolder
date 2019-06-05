@@ -141,7 +141,7 @@ output application/json
     <flow name="put:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="levelId">attributes.uriParams.levelId</ee:set-variable>
+                <ee:set-variable variableName="levelId">attributes.uriParams.'levelId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="put:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config" />
@@ -149,7 +149,7 @@ output application/json
     <flow name="put:\v4\items\(itemId):application\x-www-form-urlencoded:test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="itemId">attributes.uriParams.itemId</ee:set-variable>
+                <ee:set-variable variableName="itemId">attributes.uriParams.'itemId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="put:\v4\items\(itemId):application\x-www-form-urlencoded:test-validation-resource-SwaggerYaml-config" />
@@ -157,7 +157,7 @@ output application/json
     <flow name="delete:\v4\items\(itemId):test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="itemId">attributes.uriParams.itemId</ee:set-variable>
+                <ee:set-variable variableName="itemId">attributes.uriParams.'itemId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\v4\items\(itemId):test-validation-resource-SwaggerYaml-config" />
@@ -180,7 +180,7 @@ output application/json
     <flow name="patch:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="levelId">attributes.uriParams.levelId</ee:set-variable>
+                <ee:set-variable variableName="levelId">attributes.uriParams.'levelId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="patch:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config" />
@@ -203,7 +203,7 @@ output application/json
     <flow name="get:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="levelId">attributes.uriParams.levelId</ee:set-variable>
+                <ee:set-variable variableName="levelId">attributes.uriParams.'levelId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config" />
@@ -238,7 +238,7 @@ output application/json
     <flow name="get:\v4\items\(itemId):test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="itemId">attributes.uriParams.itemId</ee:set-variable>
+                <ee:set-variable variableName="itemId">attributes.uriParams.'itemId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\v4\items\(itemId):test-validation-resource-SwaggerYaml-config" />
@@ -261,7 +261,7 @@ output application/json
     <flow name="post:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="levelId">attributes.uriParams.levelId</ee:set-variable>
+                <ee:set-variable variableName="levelId">attributes.uriParams.'levelId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="post:\v4\filtered\resources\level2\level3\(levelId):test-validation-resource-SwaggerYaml-config" />

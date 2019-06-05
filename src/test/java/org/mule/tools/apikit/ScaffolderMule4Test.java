@@ -541,9 +541,9 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
                                  "<set-variable variableName=\"outboundHeaders\" value=\"#[{'Content-Type':'application/json'}]\" />"));
     assertEquals(7, countOccurences(s, "<set-variable variableName=\"httpStatus\""));
     assertEquals(2,
-                 countOccurences(s, "<set-variable value=\"#[attributes.uriParams.name]\" variableName=\"name\" />"));
+                 countOccurences(s, "<set-variable value=\"#[attributes.uriParams.'name']\" variableName=\"name\" />"));
     assertEquals(1,
-                 countOccurences(s, "<set-variable value=\"#[attributes.uriParams.owner]\" variableName=\"owner\""));
+                 countOccurences(s, "<set-variable value=\"#[attributes.uriParams.'owner']\" variableName=\"owner\""));
     assertEquals(7, countOccurences(s, "<set-payload"));
     assertEquals(4, countOccurences(s, "http:body"));
     assertEquals(2, countOccurences(s, "#[payload]"));
@@ -581,8 +581,8 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     assertEquals(7, countOccurences(s, "<ee:message>"));
     assertEquals(9, countOccurences(s, "<ee:variables>"));
     assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(2, countOccurences(s, "<ee:set-variable variableName=\"name\">attributes.uriParams.name</ee:set-variable>"));
-    assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"owner\">attributes.uriParams.owner</ee:set-variable>"));
+    assertEquals(2, countOccurences(s, "<ee:set-variable variableName=\"name\">attributes.uriParams.'name'</ee:set-variable>"));
+    assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"owner\">attributes.uriParams.'owner'</ee:set-variable>"));
     assertEquals(7, countOccurences(s, "<ee:set-payload>"));
     assertEquals(4, countOccurences(s, "http:body"));
     assertEquals(2, countOccurences(s, "#[payload]"));

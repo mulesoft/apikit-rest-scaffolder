@@ -86,7 +86,7 @@ public class APIKitFlowScope implements Scope {
     for (String uriParameter : flowEntry.getUriParameters()) {
       Element setVariable = new Element("set-variable", EE_NAMESPACE.getNamespace());
       setVariable.setAttribute("variableName", uriParameter);
-      setVariable.addContent("attributes.uriParams." + uriParameter);
+      setVariable.addContent("attributes.uriParams.'" + uriParameter + "'");
 
       variables.addContent(setVariable);
     }
@@ -100,7 +100,7 @@ public class APIKitFlowScope implements Scope {
     List<Element> result = new ArrayList<>();
     for (String uriParameter : flowEntry.getUriParameters()) {
       Element element = new Element("set-variable", XMLNS_NAMESPACE.getNamespace());
-      element.setAttribute("value", "#[attributes.uriParams." + uriParameter + "]");
+      element.setAttribute("value", "#[attributes.uriParams.'" + uriParameter + "']");
       element.setAttribute("variableName", uriParameter);
       result.add(element);
     }
