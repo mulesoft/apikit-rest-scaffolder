@@ -126,7 +126,7 @@ output application/json
     <flow name="delete:\pets\(id):petstore-simple-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\pets\(id):petstore-simple-config" />
@@ -137,7 +137,7 @@ output application/json
     <flow name="get:\pets\(id):petstore-simple-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="id">attributes.uriParams.id</ee:set-variable>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\pets\(id):petstore-simple-config" />
