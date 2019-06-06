@@ -15,7 +15,7 @@ import org.mule.apikit.model.Action;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.Response;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -40,13 +40,13 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private String mimeType;
   private String version;
   private List<String> splitPath;
-  private API api;
+  private ApikitMainFlowContainer api;
 
-  public GenerationModel(API api, String version, Resource resource, Action action) {
+  public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action) {
     this(api, version, resource, action, null);
   }
 
-  public GenerationModel(API api, String version, Resource resource, Action action, String mimeType) {
+  public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action, String mimeType) {
     this.api = api;
     Validate.notNull(api);
     Validate.notNull(action);
@@ -93,7 +93,6 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private String getExampleWrapper(Map<String, Response> responses) {
     // filter responses with status codes between 200 and 300 from all responses
     final LinkedHashMap<String, Response> validResponses = responses.entrySet().stream()
-        //        .filter(entry -> isOkResponse(entry.getKey()))
         .sorted(getStatusCodeComparator())
         .collect(toMap((Map.Entry<String, Response> e) -> OAS_DEFAULT_STATUS_CODE.equalsIgnoreCase(e.getKey()) ? "200"
             : e.getKey(),
@@ -152,15 +151,6 @@ public class GenerationModel implements Comparable<GenerationModel> {
     };
   }
 
-  private static boolean isOkResponse(final String code) {
-    try {
-      final Integer value = Integer.valueOf(code);
-      return value >= 200 && value < 300;
-    } catch (NumberFormatException ignore) {
-      return OAS_DEFAULT_STATUS_CODE.equalsIgnoreCase(code);
-    }
-  }
-
   public String getName() {
     StringBuilder name = new StringBuilder();
     name.append(this.getStringFromActionType());
@@ -191,23 +181,8 @@ public class GenerationModel implements Comparable<GenerationModel> {
     return "/" + StringUtils.join(splitPath.toArray(), "/");
   }
 
-  public API getApi() {
+  public ApikitMainFlowContainer getApi() {
     return api;
-  }
-
-  public String getContentType() {
-    if (action.getResponses() != null) {
-      for (String response : action.getResponses().keySet()) {
-        int statusCode = Integer.parseInt(response);
-        if (statusCode >= 200 && statusCode < 299) {
-          if (action.getResponses().get(response).getBody() != null && action.getResponses().get(response).getBody().size() > 0) {
-            return (String) action.getResponses().get(response).getBody().keySet().toArray()[0];
-          }
-        }
-      }
-    }
-
-    return null;
   }
 
   public String getFlowName() {

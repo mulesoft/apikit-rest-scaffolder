@@ -24,7 +24,7 @@ public class MainFlowsUtils {
       "#[vars." + APIKitConfig.DEFAULT_OUTBOUND_HEADERS_MAP_NAME + " default {}]";
   public static final String DEFAULT_ERROR_BODY_CONTENT = "#[payload]";
 
-  public static void generateListenerSource(String httpListenerConfigRef, String path, Element main) {
+  public static Element generateListenerSource(String httpListenerConfigRef, String path) {
     Element httpListener = new Element("listener", HTTP_NAMESPACE.getNamespace());
     httpListener.setAttribute("config-ref", httpListenerConfigRef);
     httpListener.setAttribute("path", path);
@@ -48,8 +48,7 @@ public class MainFlowsUtils {
     errorResponseBuilder.addContent(errorBody);
     errorResponseBuilder.addContent(errorHeaders);
     httpListener.addContent(errorResponseBuilder);
-
-    main.addContent(httpListener);
+    return httpListener;
   }
 
 }

@@ -6,7 +6,6 @@
  */
 package org.mule.tools.apikit.output;
 
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
@@ -14,84 +13,30 @@ import org.jdom2.Element;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mule.apikit.model.Action;
-import org.mule.apikit.model.ActionType;
-import org.mule.apikit.model.Resource;
 import org.mule.tools.apikit.Helper;
-import org.mule.tools.apikit.model.API;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.HttpListenerConfig;
+import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mule.tools.apikit.Scaffolder.DEFAULT_RUNTIME_EDITION;
 
 public class MuleConfigGeneratorTest {
-
-  private static final String VERSION = "v1";
 
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
   @Test
-  public void testGenerate() throws Exception {
-
-    Resource resource = mock(Resource.class);
-
-    when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-
-    Action action = mock(Action.class);
-
-    when(action.getType()).thenReturn(ActionType.GET);
-
-    Action postAction = mock(Action.class);
-
-    when(postAction.getType()).thenReturn(ActionType.POST);
-
-    API api = mock(API.class);
-    File raml = mock(File.class);
-    when(raml.getName()).thenReturn("hello.raml");
-    File file = folder.newFile("hello.xml");
-    HttpListener4xConfig listenerConfig =
-        new HttpListener4xConfig(HttpListener4xConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", API.DEFAULT_BASE_PATH);
-    when(api.getId()).thenReturn("hello");
-    when(api.getApiFilePath()).thenReturn("hello.raml");
-    when(api.getXmlFile(any(File.class))).thenReturn(file);
-    when(api.getPath()).thenReturn("/api/*");
-    when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
-
-    List<GenerationModel> entries = new ArrayList<>(Arrays.asList(new GenerationModel(api, VERSION, resource, action),
-                                                                  new GenerationModel(api, VERSION, resource, postAction)));
-
-
-    MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(new File(""), emptyList(), entries, null,
-                                DEFAULT_RUNTIME_EDITION);
-    muleConfigGenerator.generate(true);
-
-    assertTrue(file.exists());
-    assertTrue(file.isFile());
-
-    String s = IOUtils.toString(new FileInputStream(file));
-    assertTrue(s.length() > 0);
-  }
-
-  @Test
   public void testGenerateFlowWithJsonExample() throws Exception {
     GenerationModel flowEntry = mock(GenerationModel.class);
     when(flowEntry.getFlowName()).thenReturn("get:\\pet");
-    when(flowEntry.getContentType()).thenReturn("application/json");
     when(flowEntry.getExampleWrapper()).thenReturn("{\"name\": \"John\", \"kind\": \"dog\"}");
 
     Document doc = new Document();
@@ -112,7 +57,6 @@ public class MuleConfigGeneratorTest {
   public void testGenerateFlowWithXmlExample() throws Exception {
     GenerationModel flowEntry = mock(GenerationModel.class);
     when(flowEntry.getFlowName()).thenReturn("get:\\pet");
-    when(flowEntry.getContentType()).thenReturn("application/xml");
     when(flowEntry.getExampleWrapper()).thenReturn("<Pet> <name>John</name> <lastname>Doe</lastname> </Pet>");
 
     Document doc = new Document();
@@ -133,7 +77,6 @@ public class MuleConfigGeneratorTest {
   public void testGenerateFlowWithRamlExample() throws Exception {
     GenerationModel flowEntry = mock(GenerationModel.class);
     when(flowEntry.getFlowName()).thenReturn("get:\\pet");
-    when(flowEntry.getContentType()).thenReturn("application/json");
     when(flowEntry.getExampleWrapper()).thenReturn("name: John\nkind: dog");
 
     Document doc = new Document();
@@ -151,101 +94,52 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
-  public void blankDocumentWithoutLCInDomain() throws Exception {
-
-    HttpListener4xConfig listenerConfig =
-        new HttpListener4xConfig(HttpListener4xConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
-    API api = mock(API.class);
+  public void blankDocumentWithoutLCInDomain() {
+    HttpListenerConfig listenerConfig =
+        new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     when(api.getPath()).thenReturn("/api/*");
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
     File raml = mock(File.class);
     when(raml.getName()).thenReturn("hello.raml");
     when(api.getApiFilePath()).thenReturn("hello.raml");
     when(api.getId()).thenReturn("hello");
-    File file = folder.newFile("hello.xml");
-    when(api.getXmlFile(any(File.class))).thenReturn(file);
+    doCallRealMethod().when(api).setId(anyString());
+    doCallRealMethod().when(api).setApiFilePath(anyString());
+    doCallRealMethod().when(api).setDefaultAPIKitConfig();
+    doCallRealMethod().when(api).getConfig();
+
+    api.setId("hello");
+    api.setApiFilePath("hello.raml");
+    List<ApikitMainFlowContainer> apis = new ArrayList<>();
+    apis.add(api);
 
     MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(new File(""), emptyList(), new ArrayList<>(),
-                                null, DEFAULT_RUNTIME_EDITION);
+        new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(), RuntimeEdition.CE);
 
-    Document document = muleConfigGenerator.getOrCreateDocument(new HashMap<>(), api);
+    Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
+//    Document document = muleConfigGenerator.getMuleConfig(api).getContentAsDocument();
 
     Element rootElement = document.getRootElement();
     assertEquals("mule", rootElement.getName());
     Element xmlListenerConfig = rootElement.getChildren().get(0);
     assertEquals("listener-config", xmlListenerConfig.getName());
 
-    Element mainFlow = rootElement.getChildren().get(1);
+    Element apikitConfig = rootElement.getChildren().get(1);
+    assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
+
+    Element mainFlow = rootElement.getChildren().get(2);
 
     assertEquals("flow", mainFlow.getName());
     assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
     assertEquals("httpListenerConfig", mainFlow.getChildren().get(0).getAttribute("config-ref").getValue());
     assertEquals("/api/*", mainFlow.getChildren().get(0).getAttribute("path").getValue());
 
-    Element apikitConfig = mainFlow.getChildren().get(1);
-    assertEquals(0, apikitConfig.getChildren().size());
-
-    Element consoleFlow = rootElement.getChildren().get(2);
+    Element consoleFlow = rootElement.getChildren().get(3);
     assertEquals("flow", consoleFlow.getName());
     assertEquals("hello-console", consoleFlow.getAttribute("name").getValue());
     assertEquals("httpListenerConfig", consoleFlow.getChildren().get(0).getAttribute("config-ref").getValue());
     assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
     assertEquals("console", consoleFlow.getChildren().get(1).getName());
-
-    //Element globalExceptionStrategy = rootElement.getChildren().get(3);
-    //assertEquals("mapping-exception-strategy", globalExceptionStrategy.getName());
-    //assertEquals("hello-apiKitGlobalExceptionMapping", globalExceptionStrategy.getAttribute("name").getValue());
-
-  }
-
-  @Test
-  public void blankDocumentWithLCInDomain() throws Exception {
-
-    HttpListener4xConfig listenerConfig =
-        new HttpListener4xConfig(HttpListener4xConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
-    API api = mock(API.class);
-    when(api.getPath()).thenReturn("/api/*");
-    when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
-    File raml = mock(File.class);
-    when(raml.getName()).thenReturn("hello.raml");
-    when(api.getApiFilePath()).thenReturn("hello.raml");
-    when(api.getId()).thenReturn("hello");
-    File file = folder.newFile("hello.xml");
-    when(api.getXmlFile(any(File.class))).thenReturn(file);
-
-
-    MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(new File(""), emptyList(), new ArrayList<>(),
-                                null, DEFAULT_RUNTIME_EDITION);
-
-    Document document = muleConfigGenerator.getOrCreateDocument(new HashMap<>(), api);
-
-    Element rootElement = document.getRootElement();
-    assertEquals("mule", rootElement.getName());
-    Element xmlListenerConfig = rootElement.getChildren().get(0);
-    assertEquals("listener-config", xmlListenerConfig.getName());
-
-    Element mainFlow = rootElement.getChildren().get(1);
-
-    assertEquals("flow", mainFlow.getName());
-    assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
-    assertEquals("httpListenerConfig", mainFlow.getChildren().get(0).getAttribute("config-ref").getValue());
-    assertEquals("/api/*", mainFlow.getChildren().get(0).getAttribute("path").getValue());
-
-    Element apikitConfig = mainFlow.getChildren().get(1);
-    assertEquals(0, apikitConfig.getChildren().size());
-
-    Element consoleFlow = rootElement.getChildren().get(2);
-    assertEquals("flow", consoleFlow.getName());
-    assertEquals("hello-console", consoleFlow.getAttribute("name").getValue());
-    assertEquals("httpListenerConfig", consoleFlow.getChildren().get(0).getAttribute("config-ref").getValue());
-    assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
-    assertEquals("console", consoleFlow.getChildren().get(1).getName());
-
-    //Element globalExceptionStrategy = rootElement.getChildren().get(3);
-    //assertEquals("mapping-exception-strategy", globalExceptionStrategy.getName());
-    //assertEquals("hello-apiKitGlobalExceptionMapping", globalExceptionStrategy.getAttribute("name").getValue());
-
   }
 }

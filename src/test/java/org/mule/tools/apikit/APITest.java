@@ -8,7 +8,7 @@ package org.mule.tools.apikit;
 
 import static org.mule.tools.apikit.Helper.testEqualsHelper;
 
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIFactory;
 
 import java.io.File;
@@ -31,17 +31,17 @@ public class APITest {
     return file;
   }
 
-  public static API createAPIBinding(File a, File b) {
-    return new APIFactory().createAPIBindingInboundEndpoint(a.getName(), b, "http://localhost:80", "/api/*", null);
+  public static ApikitMainFlowContainer createAPIBinding(File a) {
+    return new APIFactory().createAPIBindingInboundEndpoint(a.getName(), "http://localhost:80", "/api/*", null);
   }
 
   @Test
   public void testEquals() throws Exception {
     testEqualsHelper(APITest.class.getMethod("createFileA"),
                      APITest.class.getMethod("createFileB"),
-                     APITest.class.getMethod("createAPIBinding", File.class, File.class));
+                     APITest.class.getMethod("createAPIBinding", File.class));
     testEqualsHelper(APITest.class.getMethod("createSameFile"),
                      APITest.class.getMethod("createFileB"),
-                     APITest.class.getMethod("createAPIBinding", File.class, File.class));
+                     APITest.class.getMethod("createAPIBinding", File.class));
   }
 }

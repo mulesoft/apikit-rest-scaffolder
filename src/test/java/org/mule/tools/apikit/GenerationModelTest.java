@@ -22,7 +22,7 @@ import org.mule.apikit.model.Action;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.Response;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.output.GenerationModel;
 
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("GET", new GenerationModel(api, VERSION, resource, action).getVerb());
   }
 
@@ -47,7 +47,7 @@ public class GenerationModelTest {
   public void testGetStringFromActionType() throws Exception {
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
 
     Action action = mock(Action.class);
     when(action.getType()).thenReturn(GET);
@@ -87,7 +87,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("{\n\"hello\": \">world<\"\n}",
                  new GenerationModel(api, VERSION, resource, action).getExampleWrapper());
   }
@@ -109,7 +109,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("<hello>world</hello>",
                  new GenerationModel(api, VERSION, resource, action).getExampleWrapper());
   }
@@ -131,7 +131,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("<hello>world</hello>",
                  new GenerationModel(api, VERSION, resource, action).getExampleWrapper());
   }
@@ -142,7 +142,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals(null, new GenerationModel(api, VERSION, resource, action).getExampleWrapper());
   }
 
@@ -152,7 +152,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("retrievePet", new GenerationModel(api, VERSION, resource, action).getName());
   }
 
@@ -163,7 +163,7 @@ public class GenerationModelTest {
     Resource resource = mock(Resource.class);
     when(resource.getDisplayName()).thenReturn("Animal");
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("retrieveAnimal", new GenerationModel(api, VERSION, resource, action).getName());
   }
 
@@ -173,7 +173,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(POST);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     GenerationModel model1 = new GenerationModel(api, VERSION, resource, action, "text/xml");
     GenerationModel model2 = new GenerationModel(api, VERSION, resource, action, "application/json");
     assertTrue(model1.compareTo(model2) != 0);
@@ -187,7 +187,7 @@ public class GenerationModelTest {
     when(action.getType()).thenReturn(GET);
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
-    API api = mock(API.class);
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     assertEquals("/pet", new GenerationModel(api, VERSION, resource, action).getRelativeURI());
   }
 }

@@ -8,29 +8,23 @@ package org.mule.tools.apikit.output.scopes;
 
 import static org.mule.tools.apikit.output.MuleConfigGenerator.HTTP_NAMESPACE;
 
-import org.mule.tools.apikit.model.API;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
+import org.mule.tools.apikit.model.HttpListenerConfig;
 
 import org.jdom2.Element;
 
 
-public class HttpListenerConfigMule4Scope implements Scope {
+public class HttpListenerConfigScope implements Scope {
 
-  private final Element mule;
   private final Element httpListenerConfig;
 
-  public HttpListenerConfigMule4Scope(API api, Element mule) {
-    this.mule = mule;
-
-    final HttpListener4xConfig httpListenerConfig = api.getHttpListenerConfig();
+  public HttpListenerConfigScope(HttpListenerConfig httpListenerConfig) {
     if (httpListenerConfig != null) {
-      this.httpListenerConfig = new Element(HttpListener4xConfig.ELEMENT_NAME, HTTP_NAMESPACE.getNamespace());
+      this.httpListenerConfig = new Element(HttpListenerConfig.ELEMENT_NAME, HTTP_NAMESPACE.getNamespace());
       this.httpListenerConfig.setAttribute("name", httpListenerConfig.getName());
       String basePath = httpListenerConfig.getBasePath();
       if (basePath != null && basePath != "/" && basePath != "") {
         this.httpListenerConfig.setAttribute("basePath", httpListenerConfig.getBasePath());
       }
-      mule.addContent(this.httpListenerConfig);
       Element connection = new Element("listener-connection", HTTP_NAMESPACE.getNamespace());
       connection.setAttribute("host", httpListenerConfig.getHost());
       connection.setAttribute("port", httpListenerConfig.getPort());
@@ -44,6 +38,5 @@ public class HttpListenerConfigMule4Scope implements Scope {
   @Override
   public Element generate() {
     return httpListenerConfig;
-
   }
 }

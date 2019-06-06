@@ -10,17 +10,17 @@ import org.apache.commons.lang.Validate;
 
 public class ResourceActionMimeTypeTriplet {
 
-  private final API api;
+  private final ApikitMainFlowContainer api;
   private final String uri;
   private final String verb;
   private final String mimeType;
 
 
-  public ResourceActionMimeTypeTriplet(API api, String uri, String verb) {
+  public ResourceActionMimeTypeTriplet(ApikitMainFlowContainer api, String uri, String verb) {
     this(api, uri, verb, null);
   }
 
-  public ResourceActionMimeTypeTriplet(API api, String uri, String verb, String mimeType) {
+  public ResourceActionMimeTypeTriplet(ApikitMainFlowContainer api, String uri, String verb, String mimeType) {
     Validate.notNull(api);
     Validate.notNull(uri);
     Validate.notNull(verb);
@@ -72,7 +72,7 @@ public class ResourceActionMimeTypeTriplet {
     return result;
   }
 
-  public API getApi() {
+  public ApikitMainFlowContainer getApi() {
     return api;
   }
 

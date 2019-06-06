@@ -13,12 +13,6 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Objects;
 
 public class HttpListenerConnection {
-
-  public static final String ELEMENT_NAME = "listener-connection";
-  public static final String HOST_ATTRIBUTE = "host";
-  public static final String PORT_ATTRIBUTE = "port";
-  public static final String PROTOCOL_ATTRIBUTE = "protocol";
-
   private String host;
   private String port;
   private String protocol;
@@ -43,9 +37,9 @@ public class HttpListenerConnection {
     }
 
     public Builder() {
-      this.host = APIKitTools.getHostFromUri(API.DEFAULT_BASE_URI);
-      this.port = APIKitTools.getPortFromUri(API.DEFAULT_BASE_URI);;
-      this.protocol = API.DEFAULT_PROTOCOL;
+      this.host = APIKitTools.getHostFromUri(ApikitMainFlowContainer.DEFAULT_BASE_URI);
+      this.port = APIKitTools.getPortFromUri(ApikitMainFlowContainer.DEFAULT_BASE_URI);;
+      this.protocol = ApikitMainFlowContainer.DEFAULT_PROTOCOL;
     }
 
     public Builder setHost(String host) {

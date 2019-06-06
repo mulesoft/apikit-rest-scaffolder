@@ -7,7 +7,7 @@
 package org.mule.tools.apikit.output;
 
 import org.mule.tools.apikit.input.APIDiff;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 
 import java.util.ArrayList;
@@ -21,9 +21,10 @@ public class GenerationStrategy {
   public GenerationStrategy() {}
 
   public List<GenerationModel> generate(Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlFilesEntries,
-                                        Set<API> apisInConfigs, Set<ResourceActionMimeTypeTriplet> flowEntries) {
+                                        Set<ApikitMainFlowContainer> apisInConfigs,
+                                        Set<ResourceActionMimeTypeTriplet> flowEntries) {
 
-    Set<API> apisInMuleConfigs = apisInConfigs;
+    Set<ApikitMainFlowContainer> apisInMuleConfigs = apisInConfigs;
 
     Set<ResourceActionMimeTypeTriplet> ramlEntries = ramlFilesEntries.keySet();
 
@@ -38,8 +39,8 @@ public class GenerationStrategy {
         // there are implemented APIs without a RAML file. NOMB.
         String xmlFilesWithoutRaml = "";
 
-        for (API api : apisInMuleConfigs) {
-          xmlFilesWithoutRaml = xmlFilesWithoutRaml + " " + api.getXmlFile().getAbsolutePath();
+        for (ApikitMainFlowContainer api : apisInMuleConfigs) {
+           xmlFilesWithoutRaml = xmlFilesWithoutRaml + " " + api.getPath();
         }
         generationModels.addAll(ramlFilesEntries.values());
       } else {

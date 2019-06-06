@@ -6,140 +6,98 @@
  */
 package org.mule.tools.apikit;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
 import org.junit.After;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.stubbing.Stubber;
 import org.mule.apikit.implv2.ParserV2Utils;
-import org.mule.tools.apikit.misc.FileListUtils;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.MuleDomain;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.model.RuntimeEdition;
 
-import static java.util.Collections.EMPTY_MAP;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
-import static org.mule.tools.apikit.model.RuntimeEdition.EE;
+import static org.junit.Assert.assertTrue;
 
 public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTestCase {
-
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
-  private FileListUtils fileListUtils = new FileListUtils();
-  protected Log logger;
-
 
   @After
   public void after() {
     System.clearProperty(ParserV2Utils.PARSER_V2_PROPERTY);
   }
 
-  protected File createTmpFile(final String resource) throws IOException {
-    final String[] parts = resource.split("/");
-
-    final String[] folderNames = Arrays.copyOf(parts, parts.length - 1);
-
-    final File tmpFolder = folder.newFolder(folderNames);
-
-    return createTmpFile(tmpFolder, resource);
-  }
-
-  protected File createTmpFile(final File tmpFolder, final String resource) throws IOException {
-    final Path path = Paths.get(resource);
-    final String fileName = path.getFileName().toString();
-
-    final File tmpFile = new File(tmpFolder, fileName);
-    tmpFile.createNewFile();
-    InputStream resourceAsStream = ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(resource);
-    IOUtils.copy(resourceAsStream, new FileOutputStream(tmpFile));
-    return tmpFile;
-  }
-
-
-  protected final Map<File, InputStream> getFileInputStreamMap(List<File> ramls) {
-    if (ramls == null) {
-      return EMPTY_MAP;
+  protected List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
+    List<MuleConfig> muleConfigs = new ArrayList<>();
+    for(String location : ramlLocations) {
+      InputStream muleConfigInputStream = AbstractScaffolderTestCase.class.getClassLoader().getResourceAsStream(location);
+      muleConfigs.add(MuleConfigBuilder.fromStream(muleConfigInputStream));
     }
-    return fileListUtils.toFiles(ramls, element -> element);
+    return muleConfigs;
   }
 
-  protected File createTmpMuleXmlOutFolder() throws IOException {
-    return createTmpMuleXmlOutFolder(folder.newFolder("mule-xml-out"));
+  protected MuleDomain createMuleDomainFromLocation(String location) throws Exception {
+    if(location == null)
+      return null;
+
+    String muleDomainFilePath = ScaffolderMule4Test.class.getClassLoader().getResource(location).getFile();
+    InputStream muleDomainInputStream = new FileInputStream(muleDomainFilePath);
+    return MuleDomain.fromInputStream(muleDomainInputStream);
   }
 
-  protected File createTmpMuleXmlOutFolder(final File folder) throws IOException {
-    createTmpFile(folder, "mule-artifact.json");
-    return folder;
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation) throws Exception {
+    return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), null);
+  }
+
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, List<String> existingMuleConfigsLocation) throws Exception {
+    return scaffoldApi(runtimeEdition, ramlLocation, existingMuleConfigsLocation, null);
+  }
+
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, String muleDomainLocation) throws Exception {
+    return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), muleDomainLocation);
+  }
+
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
+                                        List<String> existingMuleConfigsLocations, String muleDomainLocation) throws Exception {
+    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(runtimeEdition).build();
+    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+
+    List<MuleConfig> muleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
+    MuleDomain muleDomain = createMuleDomainFromLocation(muleDomainLocation);
+    ScaffoldingConfiguration scaffoldingConfiguration = getScaffoldingConfiguration(ramlLocation, muleConfigs, muleDomain);
+
+
+    ScaffoldingResult scaffoldingResult = muleScaffolder.run(scaffoldingConfiguration);
+    assertTrue(scaffoldingResult.isSuccess());
+    return scaffoldingResult;
+  }
+
+  protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
+                                                                         MuleDomain muleDomain) {
+    ApiReference apiReference = ApiReference.create(apiPath);
+    ParseResult parseResult = new ParserService().parse(apiReference);
+    ScaffoldingConfiguration.Builder configuration = new ScaffoldingConfiguration.Builder();
+    configuration.withApi(parseResult.get());
+    if (muleConfigs != null) {
+      configuration.withMuleConfigurations(muleConfigs);
+    }
+
+    if (muleDomain != null) {
+      configuration.withDomain(muleDomain);
+    }
+    return configuration.build();
   }
 
   protected static String fileNameWhithOutExtension(final String path) {
     return FilenameUtils.removeExtension(Paths.get(path).getFileName().toString());
-  }
-
-  protected Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut)
-      throws FileNotFoundException {
-    return createScaffolder(ramls, xmls, muleXmlOut, null, null);
-  }
-
-  protected Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut, File domainFile)
-      throws FileNotFoundException {
-    return createScaffolder(ramls, xmls, muleXmlOut, domainFile, null);
-  }
-
-  protected Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut, File domainFile,
-                                        Set<File> ramlsWithExtensionEnabled)
-      throws FileNotFoundException {
-    return createScaffolder(ramls, xmls, muleXmlOut, domainFile, ramlsWithExtensionEnabled, DEFAULT_MULE_VERSION, EE);
-  }
-
-  protected Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut, File domainFile,
-                                        Set<File> ramlsWithExtensionEnabled, String muleVersion, RuntimeEdition runtimeEdition)
-      throws FileNotFoundException {
-
-    Map<File, InputStream> ramlMap = null;
-    if (ramls != null) {
-      ramlMap = getFileInputStreamMap(ramls);
-    }
-    Map<File, InputStream> xmlMap = getFileInputStreamMap(xmls);
-    InputStream domainStream = null;
-    if (domainFile != null) {
-      domainStream = new FileInputStream(domainFile);
-    }
-    return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
-                          runtimeEdition);
-  }
-
-  private Log getLogger() {
-    if (logger == null) {
-      logger = mock(Log.class);
-      getStubber("[INFO] ").when(logger).info(anyString());
-      getStubber("[WARNING] ").when(logger).warn(anyString());
-      getStubber("[ERROR] ").when(logger).error(anyString());
-    }
-
-    return logger;
-  }
-
-  private static Stubber getStubber(final String prefix) {
-    return doAnswer(invocation -> {
-      Object[] args = invocation.getArguments();
-      System.out.println(prefix + args[0].toString());
-      return null;
-    });
   }
 }

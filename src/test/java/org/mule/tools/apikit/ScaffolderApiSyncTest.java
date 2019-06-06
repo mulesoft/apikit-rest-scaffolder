@@ -6,27 +6,25 @@
  */
 package org.mule.tools.apikit;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.model.Dependency;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.mule.tools.apikit.model.ScaffolderReport;
-import org.mule.tools.apikit.model.ScaffolderResourceLoader;
+import org.mule.apikit.loader.ResourceLoader;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.model.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -34,14 +32,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
-import static org.mule.tools.apikit.model.Status.*;
 
 public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
-  private final static String MULE_4_VERSION = "4.0.0";
   private final static ScaffolderResourceLoader scaffolderResourceLoaderMock = Mockito.mock(ScaffolderResourceLoader.class);
 
-  private final Dependency dependency = createDependency("com.mycompany", "raml-api", "1.0.0", "raml", "zip");
   private final static String ROOT_RAML_RESOURCE_URL = "resource::com.mycompany:raml-api:1.0.0:raml:zip:";
   private final static String DEPENDENCIES_RESOURCE_URL = "resource::com.mycompany:raml-library:1.1.0:raml-fragment:zip:";
 
@@ -50,7 +45,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerationV08() throws Exception {
-    final String ramlFolder = "src/test/resources/scaffolder/";
+    final String ramlFolder = "scaffolder/";
     final String rootRaml = "simpleV10";
 
     testSimple(ramlFolder, rootRaml);
@@ -59,48 +54,47 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerationV10() throws Exception {
+    final String ramlFolder = "scaffolder/";
     final String rootRaml = "simpleV10";
-    final String ramlFolder = "src/test/resources/scaffolder/";
 
     testSimple(ramlFolder, rootRaml);
   }
 
   @Test
   public void testRAMLWithoutResources() throws Exception {
-    File api = generateApi("src/test/resources/api-sync/empty-api", "without-resources",
-                           SUCCESS.toString());
+    MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/empty-api", "without-resources");
 
-    assertTrue(api.exists());
-    assertEquals("Files are different", FileUtils
-        .readFileToString(new File(
-                                   getClass().getClassLoader().getResource("api-sync/empty-api/expected-result.xml")
-                                       .getFile()))
-        .replaceAll("\\s+", ""),
-                 FileUtils.readFileToString(api).replaceAll("\\s+", ""));
+    InputStream expectedInputStream =
+        ScaffolderApiSyncTest.class.getClassLoader().getResourceAsStream("api-sync/empty-api/expected-result.xml");
+    InputStream generatedInputStream = muleConfig.getContent();
+
+    XMLUnit.setIgnoreWhitespace(true);
+    Diff diff = XMLUnit.compareXML(IOUtils.toString(expectedInputStream), IOUtils.toString(generatedInputStream));
+    assertTrue(diff.identical());
   }
 
   @Test
   public void testRAMLWithCharset() throws Exception {
-    File api = generateApi("src/test/resources/api-sync/api-raml-with-charset",
-                           "api", SUCCESS.toString());
+    MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/api-raml-with-charset", "api");
 
-    assertTrue(api.exists());
-    assertEquals("Files are different", FileUtils
-        .readFileToString(new File(getClass().getClassLoader()
-            .getResource("api-sync/api-raml-with-charset/expected-result.xml").getFile()))
-        .replaceAll("\\s+", ""), FileUtils.readFileToString(api).replaceAll("\\s+", ""));
+    InputStream expectedInputStream =
+        ScaffolderApiSyncTest.class.getClassLoader().getResourceAsStream("api-sync/api-raml-with-charset/expected-result.xml");
+    InputStream generatedInputStream = muleConfig.getContent();
+
+    XMLUnit.setIgnoreWhitespace(true);
+    Diff diff = XMLUnit.compareXML(IOUtils.toString(expectedInputStream), IOUtils.toString(generatedInputStream));
+    assertTrue(diff.identical());
   }
 
   @Test
   public void generateWithIncludes10() throws Exception {
+    String rootRaml = "api";
+    String ramlFolder = "src/test/resources/api-sync/scaffolder-include-10/";
 
-    final String rootRaml = "api";
-    final String ramlFolder = "src/test/resources/api-sync/scaffolder-include-10/";
+    MuleConfig muleConfig = generateMuleConfigForApiSync(ramlFolder, rootRaml);
+    InputStream generatedInputStream = muleConfig.getContent();
+    String s = IOUtils.toString(generatedInputStream);
 
-    File xmlOut = generateScaffolder(ramlFolder, rootRaml, Collections.singletonList("included.raml"));
-
-    assertTrue(xmlOut.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlOut));
     assertNotNull(s);
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
@@ -117,15 +111,6 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
-  @Test
-  public void apiWithErrors() throws Exception {
-
-    final String rootRaml = "simpleV10-with-errors";
-    final String ramlFolder = "src/test/resources/api-sync/with-errors/";
-
-    generateScaffolder(ramlFolder, rootRaml, null, ramlFolder, null, FAILED.toString());
-  }
-
 
   @Test
   public void libraryReferenceToRoot() throws Exception {
@@ -134,77 +119,45 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     final String libraryFolder = "src/test/resources/api-sync/library-reference-to-root/library/";
     final List<String> libraryFiles = Arrays.asList("library.raml", "reused-fragment.raml");
 
-    File xmlOut =
-        generateScaffolder(ramlFolder, rootRaml, libraryFiles, libraryFolder, Collections.singletonList("library.raml"), null);
-
-    assertTrue(xmlOut.exists());
-
-  }
-
-  private void testSimple(String ramlFolder, String rootRaml) throws Exception {
-    List<Dependency> dependencyList = new ArrayList<>();
-    dependencyList.add(dependency);
-    File muleXmlSimple = generateScaffolder(ramlFolder, rootRaml);
-
-    assertTrue(muleXmlSimple.exists());
-    String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
-
-    assertSimple(s, rootRaml);
-  }
-
-  private File generateScaffolder(String ramlFolder, String rootRaml)
-      throws Exception {
-    return generateScaffolder(ramlFolder, rootRaml, null);
-  }
-
-  private File generateScaffolder(String ramlFolder, String rootRaml, List<String> referencedFiles) throws Exception {
-    return generateScaffolder(ramlFolder, rootRaml, referencedFiles, ramlFolder, null, null);
-  }
-
-  private File generateScaffolder(String ramlFolder, String rootRaml, List<String> referencedFiles, String referencedFilesFolder,
-                                  List<String> rootRamlFiles, String expectedStatus)
-      throws Exception {
     final String exchangeJsonResourceURL = ROOT_RAML_RESOURCE_URL + "exchange.json";
     final String rootRamlResourceURL = ROOT_RAML_RESOURCE_URL + rootRaml + ".raml";
-
-    if (expectedStatus == null)
-      expectedStatus = SUCCESS.toString();
 
     mockScaffolderResourceLoader(exchangeJsonResourceURL, ramlFolder, rootRaml + ".json");
     mockScaffolderResourceLoader(rootRamlResourceURL, ramlFolder, rootRaml + ".raml");
 
-    if (rootRamlFiles != null) {
-      for (String rootRamlFile : rootRamlFiles) {
-        mockScaffolderResourceLoader(DEPENDENCIES_RESOURCE_URL + rootRamlFile, ramlFolder, rootRamlFile);
-      }
+    for (String rootRamlFile : libraryFiles) {
+      mockScaffolderResourceLoader(DEPENDENCIES_RESOURCE_URL + rootRamlFile, libraryFolder, rootRamlFile);
     }
 
-    if (referencedFiles != null) {
-      for (String file : referencedFiles) {
-        mockScaffolderResourceLoader(DEPENDENCIES_RESOURCE_URL + file, referencedFilesFolder, file);
-      }
-    }
+    ApiReference apiReference = ApiReference.create(ROOT_RAML_RESOURCE_URL + rootRaml + ".raml", scaffolderResourceLoaderMock);
+    ParseResult parseResult = new ParserService().parse(apiReference);
+    assertTrue(parseResult.success());
 
-    File muleXmlOut = folder.newFolder("mule-xml-out");
+    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(EE).build();
+    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
 
-    ScaffolderReport scaffolderReport = new ScaffolderAPI().run(Collections.singletonList(dependency),
-                                                                scaffolderResourceLoaderMock, muleXmlOut, null, MULE_4_VERSION,
-                                                                EE);
+    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingResult result = muleScaffolder.run(configuration);
+    assertTrue(result.isSuccess());
 
-    assertEquals(expectedStatus, scaffolderReport.getStatus());
-    return new File(muleXmlOut, rootRaml + ".xml");
+    String expectedMuleConfigContent = IOUtils.toString(ScaffolderApiSyncTest.class.getClassLoader()
+        .getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
+    String generatedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+
+    XMLUnit.setIgnoreWhitespace(true);
+    Diff diff = XMLUnit.compareXML(expectedMuleConfigContent, generatedMuleConfigContent);
+    assertTrue(diff.identical());
   }
 
-  private void mockScaffolderResourceLoader(String resourceURL, String folder, String file) throws Exception {
-    Mockito.doReturn(getToBeReturned(folder, file)).when(scaffolderResourceLoaderMock)
-        .getResource(resourceURL);
-    Mockito.doReturn(getInputStream(folder + file)).doReturn(getInputStream(folder + file))
-        .doReturn(getInputStream(folder + file)).when(scaffolderResourceLoaderMock)
-        .getResourceAsStream(resourceURL);
-  }
+  private void testSimple(String ramlFolder, String rootRaml) throws Exception {
+    String ramlFilePath = ramlFolder + rootRaml + ".raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, ramlFilePath);
 
-  private URI getToBeReturned(String folder, String file) {
-    return new File(folder + file).toURI();
+    assertTrue(result.isSuccess());
+    assertEquals(1, result.getGeneratedConfigs().size());
+
+    String resultAsString = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    assertSimple(resultAsString, rootRaml);
   }
 
   private void assertSimple(String s, String listenerConfigName) {
@@ -242,46 +195,50 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
-  private InputStream getInputStream(String resourcePath) throws FileNotFoundException {
-    return new FileInputStream(resourcePath);
-  }
-
-  private static Dependency createDependency(String groupId, String artifactId, String version, String classifier, String type) {
-    Dependency dependency = new Dependency();
-
-    dependency.setGroupId(groupId);
-    dependency.setArtifactId(artifactId);
-    dependency.setVersion(version);
-    dependency.setClassifier(classifier);
-    dependency.setType(type);
-
-    return dependency;
-  }
-
 
   @Test
   public void testRaml08Fallback() throws Exception {
-    if (isAmf()) {
-      generateApi("src/test/resources/api-sync/fallback-raml-08", "api", FAILED.toString());
-    } else {
-      assertTrue(generateApi("src/test/resources/api-sync/fallback-raml-08", "api", SUCCESS.toString()).exists());
+    if (!isAmf()) {
+      MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/fallback-raml-08", "api");
+      InputStream expectedInputStream =
+          ScaffolderApiSyncTest.class.getClassLoader().getResourceAsStream("api-sync/fallback-raml-08/expected.xml");
+      String expectedString = IOUtils.toString(expectedInputStream);
+      String generatedContentString = IOUtils.toString(muleConfig.getContent());
+
+      XMLUnit.setIgnoreWhitespace(true);
+      Diff diff = XMLUnit.compareXML(expectedString, generatedContentString);
+      assertTrue(diff.identical());
     }
   }
 
-  private File generateApi(String ramlFolder, String rootRaml, String expectedStatus)
-      throws Exception {
+  private MuleConfig generateMuleConfigForApiSync(String ramlFolder, String rootRaml) {
+    ResourceLoader resourceLoader = new TestScaffolderResourceLoader(ramlFolder);
+    ApiReference apiReference = ApiReference.create(ROOT_RAML_RESOURCE_URL + rootRaml + ".raml", resourceLoader);
+    ParseResult parseResult = new ParserService().parse(apiReference);
+    assertTrue(parseResult.success());
 
-    if (expectedStatus == null)
-      expectedStatus = SUCCESS_WITH_ERRORS.toString();
+    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(EE).build();
+    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
 
-    File muleXmlOut = folder.newFolder("mule-xml-out");
+    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingResult result = muleScaffolder.run(configuration);
+    assertTrue(result.isSuccess());
+    return result.getGeneratedConfigs().get(0);
+  }
 
-    ScaffolderReport scaffolderReport = new ScaffolderAPI().run(Collections.singletonList(dependency),
-                                                                new TestScaffolderResourceLoader(ramlFolder), muleXmlOut, null,
-                                                                MULE_4_VERSION,
-                                                                EE);
+  private void mockScaffolderResourceLoader(String resourceURL, String folder, String file) throws Exception {
+    Mockito.doReturn(getToBeReturned(folder, file)).when(scaffolderResourceLoaderMock)
+        .getResource(resourceURL);
+    Mockito.doReturn(getInputStream(folder + file)).doReturn(getInputStream(folder + file))
+        .doReturn(getInputStream(folder + file)).when(scaffolderResourceLoaderMock)
+        .getResourceAsStream(resourceURL);
+  }
 
-    assertEquals(expectedStatus, scaffolderReport.getStatus());
-    return new File(muleXmlOut, rootRaml + ".xml");
+  private URI getToBeReturned(String folder, String file) {
+    return new File(folder + file).toURI();
+  }
+
+  private InputStream getInputStream(String resourcePath) throws FileNotFoundException {
+    return new FileInputStream(resourcePath);
   }
 }

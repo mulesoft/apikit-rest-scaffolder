@@ -6,11 +6,18 @@
  */
 package org.mule.tools.apikit.model;
 
-/**
- * Represents scaffolding result status
- */
-public enum Status {
-  FAILED,
-  SUCCESS,
-  SUCCESS_WITH_ERRORS
+import org.jdom2.Element;
+import org.mule.tools.apikit.output.scopes.Scope;
+
+public class Flow implements Scope {
+
+  private Element content;
+
+  public Flow(Element content) {
+    this.content = content;
+  }
+
+  public Element generate() {
+    return content;
+  }
 }

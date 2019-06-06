@@ -6,8 +6,8 @@
  */
 package org.mule.tools.apikit.input;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +18,7 @@ import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.Resource;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
@@ -27,19 +27,19 @@ public class RAMLFilesParser {
 
   public static final String MULE_APIKIT_PARSER = "mule.apikit.parser";
   private final APIFactory apiFactory;
-  private final Set<API> apis = new HashSet<>();
+  private final Set<ApikitMainFlowContainer> apis = new HashSet<>();
   private Map<ResourceActionMimeTypeTriplet, GenerationModel> entries = new HashMap<>();
 
   public RAMLFilesParser(APIFactory apiFactory, ApiSpecification apiSpec) {
     this.apiFactory = apiFactory;
-    collectResources(apiSpec.getLocation(), apiSpec.getResources(), API.DEFAULT_BASE_URI, apiSpec.getVersion());
+    collectResources(apiSpec.getLocation(), apiSpec.getResources(), ApikitMainFlowContainer.DEFAULT_BASE_URI, apiSpec.getVersion());
   }
 
-  public Set<API> getApis() {
+  public Set<ApikitMainFlowContainer> getApis() {
     return apis;
   }
 
-  public List<API> getApisAsList(){
+  public List<ApikitMainFlowContainer> getApisAsList(){
     return Lists.newArrayList(apis);
   }
 
@@ -48,8 +48,9 @@ public class RAMLFilesParser {
   }
 
   private void collectResources(String filePath, Map<String, Resource> resourceMap, String baseUri, String version) {
-    API api = apiFactory.createAPIBinding(filePath, null, baseUri, APIKitTools.getPathFromUri(baseUri, false), null,
-                                          null);
+    ApikitMainFlowContainer
+        api = apiFactory.createAPIBinding(filePath, baseUri, APIKitTools.getPathFromUri(baseUri, false), null,
+                                          null, null);
     apis.add(api);
     for (Resource resource : resourceMap.values()) {
       for (Action action : resource.getActions().values()) {
@@ -78,7 +79,7 @@ public class RAMLFilesParser {
     }
   }
 
-  private void addResource(API api, Resource resource, Action action, String mimeType, String version) {
+  private void addResource(ApikitMainFlowContainer api, Resource resource, Action action, String mimeType, String version) {
 
     String completePath = APIKitTools
       .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());

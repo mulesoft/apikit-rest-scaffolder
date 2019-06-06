@@ -11,7 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;
 
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 
 import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
 
@@ -20,14 +20,15 @@ public class ConsoleFlowScope implements Scope {
   private final Element consoleFlow;
 
 
-  public ConsoleFlowScope(Element mule, API api, String configRef, String httpListenerConfigRef, boolean isMuleEE) {
-
+  public ConsoleFlowScope(ApikitMainFlowContainer api, boolean isMuleEE) {
     consoleFlow = new Element("flow", XMLNS_NAMESPACE.getNamespace());
     consoleFlow.setAttribute("name", api.getId() + "-" + "console");
 
-    MainFlowsUtils.generateListenerSource(httpListenerConfigRef, API.DEFAULT_CONSOLE_PATH, consoleFlow);
+    String httpListenerConfigRef = api.getHttpListenerConfig().getName();
+    consoleFlow.addContent(MainFlowsUtils.generateListenerSource(httpListenerConfigRef, ApikitMainFlowContainer.DEFAULT_CONSOLE_PATH));
 
     Element restProcessor = new Element("console", APIKitTools.API_KIT_NAMESPACE.getNamespace());
+    String configRef = api.getConfig() != null ? api.getConfig().getName() : null;
     if (!StringUtils.isEmpty(configRef)) {
       restProcessor.setAttribute("config-ref", configRef);
     }
@@ -35,9 +36,6 @@ public class ConsoleFlowScope implements Scope {
 
     Element errorHandler = ErrorHandlerScope.createForConsoleFlow(isMuleEE).generate();
     consoleFlow.addContent(errorHandler);
-
-    mule.addContent(consoleFlow);
-
   }
 
   @Override

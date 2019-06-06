@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import org.mule.module.apikit.spi.ScaffolderService;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 
 import java.lang.reflect.Field;
 
@@ -25,7 +25,7 @@ public class APIKitToolsTest {
   public void getPartsFromUris() {
     String uri = "http://localhost";
     Assert.assertEquals("localhost", APIKitTools.getHostFromUri(uri));
-    Assert.assertEquals(Integer.toString(API.DEFAULT_PORT), APIKitTools.getPortFromUri(uri));
+    Assert.assertEquals(Integer.toString(ApikitMainFlowContainer.DEFAULT_PORT), APIKitTools.getPortFromUri(uri));
     Assert.assertEquals("/*", APIKitTools.getPathFromUri(uri, true));
     Assert.assertEquals("/", APIKitTools.getPathFromUri(uri, false));
 

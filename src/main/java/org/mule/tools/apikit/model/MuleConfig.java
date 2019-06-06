@@ -1,88 +1,60 @@
+/*
+ * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * The software in this package is published under the terms of the CPAL v1.0
+ * license, a copy of which has been included with this distribution in the
+ * LICENSE.txt file.
+ */
 package org.mule.tools.apikit.model;
 
-import org.jdom2.Content;
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.DOMOutputter;
-import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import org.jdom2.output.XMLOutputter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
-  private String name;
-  private Document content;
+  private Document originalContent;
   private List<HttpListenerConfig> configurations;
+  private Map<String, APIKitConfig> apikitConfigs;
   private List<Flow> flows;
   private List<Test> tests;
 
-  private MuleConfig(Document content, List<HttpListenerConfig> configurations, List<Flow> flows, List<Test> test) {
-    this.content = content;
+  protected MuleConfig(List<HttpListenerConfig> configurations, Map<String, APIKitConfig> apikitConfigs,
+                       List<Flow> flows, List<Test> test) {
     this.configurations = configurations;
+    this.apikitConfigs = apikitConfigs;
     this.flows = flows;
     this.tests = test;
   }
 
-  public static MuleConfig fromStream(InputStream input) throws Exception {
-    SAXBuilder builder = new SAXBuilder();
-    Document inputAsDocument = builder.build(input);
-    return fromDoc(inputAsDocument);
+  protected MuleConfig(List<HttpListenerConfig> httpListenerConfigs, Map<String, APIKitConfig> apikitConfigs, List<Flow> flows,
+                       List<Test> tests, Document content) {
+    this(httpListenerConfigs, apikitConfigs, flows, tests);
+    this.originalContent = content;
   }
 
-  private static MuleConfig fromDoc(Document doc) {
-    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser();
-    List<HttpListenerConfig> configurations = httpConfigParser.parse(doc);
-
-    List<Flow> flowsInConfig = new ArrayList<>();
-    List<Test> testsInConfig = new ArrayList<>();
-
-    for (int i = 0; i < doc.getRootElement().getContentSize(); i++) {
-      Content content = doc.getRootElement().getContent(i);
-      if (content instanceof Element && "flow".equals(((Element) content).getName())) {
-        flowsInConfig.add(Flow.fromDocument(content.getDocument()));
-      }
-
-      if (content instanceof Element && "munit:test".equals(((Element) content).getName())) {
-        testsInConfig.add(Test.fromDocument(content.getDocument()));
-      }
-    }
-
-    return new MuleConfig(doc, configurations, flowsInConfig, testsInConfig);
-  }
-
-  @Override
   public String getName() {
-    return name;
+    return "";
+  }
+
+  public Document getContentAsDocument() {
+    return originalContent;
   }
 
   @Override
   public InputStream getContent() {
-    try {
-      org.w3c.dom.Document outputDoc = new DOMOutputter().output(content);
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      Source xmlSource = new DOMSource(outputDoc);
-      Result outputTarget = new StreamResult(outputStream);
-      TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
-      InputStream contentAsInputStream = new ByteArrayInputStream(outputStream.toByteArray());
-      return contentAsInputStream;
-    } catch (Exception e) {
-      // todo handle exception
-    }
-    return null;
+    XMLOutputter xout = new XMLOutputter();
+    String contentAsString = xout.outputString(originalContent);
+    return IOUtils.toInputStream(contentAsString);
   }
 
   @Override
-  public List<HttpListenerConfig> getConfigs() {
+  public List<HttpListenerConfig> getHttpListenerConfigs() {
     return configurations;
   }
 
@@ -96,4 +68,48 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     return tests;
   }
 
+  public Map<String, APIKitConfig> getApikitConfigs() {
+    return apikitConfigs;
+  }
+
+  public Document buildContent() {
+    Document document = new Document();
+    Element rootElement = originalContent.getRootElement().clone().detach();
+    rootElement.setContent(new ArrayList<>()); // we only need the root element, not its content.
+    document.setRootElement(rootElement);
+
+    for (HttpListenerConfig config : configurations) {
+      if (!config.isPeristed())
+        addContent(document, config.generate());
+    }
+    apikitConfigs.values().forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
+    flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
+
+    return document;
+  }
+
+  public void addFlow(Flow flow) {
+    this.flows.add(flow);
+  }
+
+  private void addContent(Document document, Element element) {
+    document.getRootElement().getContent().add(element);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    MuleConfig that = (MuleConfig) o;
+    return Objects.equals(originalContent, that.originalContent) &&
+        Objects.equals(configurations, that.configurations) &&
+        Objects.equals(apikitConfigs, that.apikitConfigs);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(originalContent, configurations, apikitConfigs);
+  }
 }

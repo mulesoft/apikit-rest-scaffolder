@@ -6,7 +6,11 @@
  */
 package org.mule.tools.apikit.model;
 
-public class APIKitConfig {
+import org.jdom2.Element;
+import org.mule.tools.apikit.output.scopes.APIKitConfigScope;
+import org.mule.tools.apikit.output.scopes.Scope;
+
+public class APIKitConfig implements Scope {
 
   public static final String ELEMENT_NAME = "config";
   public static final String NAME_ATTRIBUTE = "name";
@@ -94,5 +98,10 @@ public class APIKitConfig {
 
   public void setRaml(String raml) {
     this.raml = raml;
+  }
+
+  public Element generate() {
+    APIKitConfigScope apiKitConfigScope = new APIKitConfigScope(this);
+    return apiKitConfigScope.generate();
   }
 }

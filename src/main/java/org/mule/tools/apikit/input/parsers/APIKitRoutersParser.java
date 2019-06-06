@@ -9,16 +9,11 @@ package org.mule.tools.apikit.input.parsers;
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.tools.apikit.input.APIKitFlow;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.API;
-import org.mule.tools.apikit.model.APIFactory;
-import org.mule.tools.apikit.model.APIKitConfig;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
+import org.mule.tools.apikit.model.*;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -30,26 +25,26 @@ import org.jdom2.xpath.XPathFactory;
 public class APIKitRoutersParser implements MuleConfigFileParser {
 
   private final Map<String, APIKitConfig> apikitConfigs;
-  private final List<HttpListener4xConfig> httpListenerConfigs;
-  private final Set<String> apiFilePaths;
-  private final File file;
+  private final List<HttpListenerConfig> httpListenerConfigs;
+  private final String apiFilePath;
   private final APIFactory apiFactory;
+  private MuleConfig muleConfig;
 
   public APIKitRoutersParser(final Map<String, APIKitConfig> apikitConfigs,
-                             final List<HttpListener4xConfig> httpListenerConfigs,
-                             final Set<String> apiFilePaths,
-                             final File file,
-                             final APIFactory apiFactory) {
+                             final List<HttpListenerConfig> httpListenerConfigs,
+                             final String apiFilePath,
+                             final APIFactory apiFactory,
+                             MuleConfig config) {
     this.apikitConfigs = apikitConfigs;
     this.httpListenerConfigs = httpListenerConfigs;
-    this.apiFilePaths = apiFilePaths;
-    this.file = file;
+    this.apiFilePath = apiFilePath;
     this.apiFactory = apiFactory;
+    this.muleConfig = config;
   }
 
   @Override
-  public Map<String, API> parse(Document document) {
-    Map<String, API> includedApis = new HashMap<>();
+  public Map<String, ApikitMainFlowContainer> parse(Document document) {
+    Map<String, ApikitMainFlowContainer> includedApis = new HashMap<>();
 
     XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='router']",
                                                                   Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
@@ -57,20 +52,18 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     for (Element element : elements) {
       APIKitConfig config = getApikitConfig(element);
 
-      for (String apiFilePath : apiFilePaths) {
-        String apiPath = config.getApi() == null ? config.getRaml() : config.getApi();
-        if (compareApisLocation(apiPath, apiFilePath)) {
-          Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
-          String configId = config.getName() != null ? config.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
+      String apiPath = config.getApi() == null ? config.getRaml() : config.getApi();
+      if (compareApisLocation(apiPath, apiFilePath)) {
+        Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
+        String configId = config.getName() != null ? config.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
 
-          if ("listener".equals(source.getName())) {
-            includedApis.put(configId, handleListenerSource(source, apiFilePath, config));
-          } else if ("inbound-endpoint".equals(source.getName())) {
-            includedApis.put(configId, handleInboundEndpointSource(source, apiFilePath, config));
-          } else {
-            throw new IllegalStateException("The first element of the main flow must be an " +
-                "inbound-endpoint or listener");
-          }
+        if ("listener".equals(source.getName())) {
+          includedApis.put(configId, handleListenerSource(source, apiFilePath, config));
+        } else if ("inbound-endpoint".equals(source.getName())) {
+          includedApis.put(configId, handleInboundEndpointSource(source, apiFilePath, config));
+        } else {
+          throw new IllegalStateException("The first element of the main flow must be an " +
+                                              "inbound-endpoint or listener");
         }
       }
     }
@@ -96,14 +89,14 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     return config;
   }
 
-  public API handleListenerSource(Element source, String apiFilePath, APIKitConfig config) {
-    HttpListener4xConfig httpListenerConfig = getHTTPListenerConfig(source);
+  public ApikitMainFlowContainer handleListenerSource(Element source, String apiFilePath, APIKitConfig config) {
+    HttpListenerConfig httpListenerConfig = getHTTPListenerConfig(source);
     String path = getPathFromInbound(source);
-    //TODO PARSE HTTPSTATUSVARNAME AND OUTBOUNDHEADERSMAPNAME
-    return apiFactory.createAPIBinding(apiFilePath, file, null, path, config, httpListenerConfig);
+    // TODO PARSE HTTPSTATUSVARNAME AND OUTBOUNDHEADERSMAPNAME
+    return apiFactory.createAPIBinding(apiFilePath, null, path, config, httpListenerConfig, muleConfig);
   }
 
-  public API handleInboundEndpointSource(Element source, String apiFilePath, APIKitConfig config) {
+  public ApikitMainFlowContainer handleInboundEndpointSource(Element source, String apiFilePath, APIKitConfig config) {
     String baseUri = null;
     String path = source.getAttributeValue("path");
 
@@ -120,7 +113,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     } else if (!path.startsWith("/")) {
       path = "/" + path;
     }
-    return apiFactory.createAPIBinding(apiFilePath, file, baseUri, path, config, null);
+    return apiFactory.createAPIBinding(apiFilePath, baseUri, path, config, null, muleConfig);
   }
 
   private Element findListenerOrInboundEndpoint(List<Element> elements) {
@@ -132,12 +125,12 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     throw new IllegalStateException("The main flow must have an inbound-endpoint or listener");
   }
 
-  private HttpListener4xConfig getHTTPListenerConfig(Element inbound) {
+  private HttpListenerConfig getHTTPListenerConfig(Element inbound) {
     Attribute httpListenerConfigRef = inbound.getAttribute("config-ref");
     String httpListenerConfigId =
-        httpListenerConfigRef != null ? httpListenerConfigRef.getValue() : HttpListener4xConfig.DEFAULT_CONFIG_NAME;
+        httpListenerConfigRef != null ? httpListenerConfigRef.getValue() : HttpListenerConfig.DEFAULT_CONFIG_NAME;
 
-    HttpListener4xConfig httpListenerConfig = httpListenerConfigs.stream()
+    HttpListenerConfig httpListenerConfig = httpListenerConfigs.stream()
         .filter(config -> config.getName().equals(httpListenerConfigId))
         .findFirst().orElse(null);
     if (httpListenerConfig == null) {

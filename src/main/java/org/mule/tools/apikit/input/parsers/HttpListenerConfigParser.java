@@ -21,7 +21,7 @@ import org.jdom2.filter.Filters;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
-public class HttpListener4xConfigParser implements MuleConfigFileParser {
+public class HttpListenerConfigParser implements MuleConfigFileParser {
 
   public static final String ELEMENT_NAME = "listener-config";
 

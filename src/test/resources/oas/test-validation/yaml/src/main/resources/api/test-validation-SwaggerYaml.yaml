@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '1.0'
-  title: Simple API
+  title: Simple ApikitMainFlowContainer
   contact: {}
 host: localhost:8081
 basePath: /
