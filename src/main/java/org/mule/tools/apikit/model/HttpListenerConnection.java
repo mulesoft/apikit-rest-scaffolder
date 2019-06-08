@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Objects;
 
 public class HttpListenerConnection {
+
   private String host;
   private String port;
   private String protocol;

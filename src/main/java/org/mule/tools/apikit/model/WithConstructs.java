@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface WithConstructs {
 
-    List<Flow> getFlows();
+  List<Flow> getFlows();
 
-    List<Test> getTests();
+  List<Test> getTests();
 
 }

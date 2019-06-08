@@ -38,7 +38,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
   protected List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
     List<MuleConfig> muleConfigs = new ArrayList<>();
-    for(String location : ramlLocations) {
+    for (String location : ramlLocations) {
       InputStream muleConfigInputStream = AbstractScaffolderTestCase.class.getClassLoader().getResourceAsStream(location);
       muleConfigs.add(MuleConfigBuilder.fromStream(muleConfigInputStream));
     }
@@ -46,7 +46,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   }
 
   protected MuleDomain createMuleDomainFromLocation(String location) throws Exception {
-    if(location == null)
+    if (location == null)
       return null;
 
     String muleDomainFilePath = ScaffolderMule4Test.class.getClassLoader().getResource(location).getFile();
@@ -58,16 +58,20 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), null);
   }
 
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, List<String> existingMuleConfigsLocation) throws Exception {
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
+                                          List<String> existingMuleConfigsLocation)
+      throws Exception {
     return scaffoldApi(runtimeEdition, ramlLocation, existingMuleConfigsLocation, null);
   }
 
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, String muleDomainLocation) throws Exception {
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, String muleDomainLocation)
+      throws Exception {
     return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), muleDomainLocation);
   }
 
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                        List<String> existingMuleConfigsLocations, String muleDomainLocation) throws Exception {
+                                          List<String> existingMuleConfigsLocations, String muleDomainLocation)
+      throws Exception {
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(runtimeEdition).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
 
@@ -82,7 +86,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   }
 
   protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
-                                                                         MuleDomain muleDomain) {
+                                                                 MuleDomain muleDomain) {
     ApiReference apiReference = ApiReference.create(apiPath);
     ParseResult parseResult = new ParserService().parse(apiReference);
     ScaffoldingConfiguration.Builder configuration = new ScaffoldingConfiguration.Builder();

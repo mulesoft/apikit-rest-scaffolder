@@ -10,11 +10,11 @@ import java.util.List;
 
 public interface ScaffoldingResult {
 
-    boolean isSuccess();
+  boolean isSuccess();
 
-    List<MuleConfig> getGeneratedConfigs();
+  List<MuleConfig> getGeneratedConfigs();
 
-    List<ScaffolderResource> getGeneratedResources();
+  List<ScaffolderResource> getGeneratedResources();
 
-    List<ScaffoldingError> getErrors();
+  List<ScaffoldingError> getErrors();
 }

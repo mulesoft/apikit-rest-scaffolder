@@ -109,7 +109,7 @@ public class HttpListenerConfig implements Scope {
     return Objects.hash(name, basePath, connection, isPeristed);
   }
 
-  public Element generate(){
+  public Element generate() {
     HttpListenerConfigScope httpListenerScope = new HttpListenerConfigScope(this);
     return httpListenerScope.generate();
   }

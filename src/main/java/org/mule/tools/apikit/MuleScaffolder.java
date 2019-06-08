@@ -67,7 +67,7 @@ public class MuleScaffolder implements Scaffolder {
   }
 
   private MuleConfigParser resolveMuleConfigParser() {
-    if(muleConfigParser != null)
+    if (muleConfigParser != null)
       return muleConfigParser;
 
     return new MuleConfigParser(apiFactory);

@@ -30,12 +30,15 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig1 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
-    MuleConfig muleConfig2 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
+    MuleConfig muleConfig1 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
+    MuleConfig muleConfig2 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig1);
     muleConfigs.add(muleConfig2);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -53,12 +56,15 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig1 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
-    MuleConfig muleConfig2 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
+    MuleConfig muleConfig1 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
+    MuleConfig muleConfig2 = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig2);
     muleConfigs.add(muleConfig1);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -86,10 +92,12 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-extension/simple-extension-not-present-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-extension/simple-extension-not-present-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -123,10 +131,12 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing/simple-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing/simple-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -160,11 +170,14 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-custom-lc/simple-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-custom-lc/simple-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
-    MuleDomain muleDomain = MuleDomain.fromInputStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
+    MuleDomain muleDomain = MuleDomain.fromInputStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
+    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -199,11 +212,14 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
-    MuleDomain muleDomain = MuleDomain.fromInputStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
+    MuleDomain muleDomain = MuleDomain.fromInputStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
+    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -237,10 +253,12 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-existing/mule-config-no-api-flows-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder-existing/mule-config-no-api-flows-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -274,10 +292,12 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader().getResourceAsStream("scaffolder/multipleMimeTypes-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(ScaffolderWithExistingConfigMule4Test.class.getClassLoader()
+        .getResourceAsStream("scaffolder/multipleMimeTypes-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
 
     ScaffolderResult result = (ScaffolderResult) muleScaffolder.run(configuration);
     assertTrue(result.isSuccess());

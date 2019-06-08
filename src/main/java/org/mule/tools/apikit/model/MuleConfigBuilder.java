@@ -60,11 +60,11 @@ public class MuleConfigBuilder {
       if (content instanceof Element) {
         Element contentElement = (Element) content;
 
-        if("flow".equals(contentElement.getName())){
+        if ("flow".equals(contentElement.getName())) {
           flowsInConfig.add(new Flow(contentElement));
         }
 
-        if("munit:test".equals(contentElement.getName())){
+        if ("munit:test".equals(contentElement.getName())) {
           testsInConfig.add(new Test(contentElement));
         }
       }

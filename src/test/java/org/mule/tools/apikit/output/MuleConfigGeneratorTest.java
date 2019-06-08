@@ -118,7 +118,7 @@ public class MuleConfigGeneratorTest {
         new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(), RuntimeEdition.CE);
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
-//    Document document = muleConfigGenerator.getMuleConfig(api).getContentAsDocument();
+    //    Document document = muleConfigGenerator.getMuleConfig(api).getContentAsDocument();
 
     Element rootElement = document.getRootElement();
     assertEquals("mule", rootElement.getName());

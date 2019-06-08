@@ -46,15 +46,16 @@ public class MuleConfigParser {
     apikitConfigs.putAll(config.getApikitConfigs());
 
     config.getHttpListenerConfigs().stream().forEach(httpConfig -> {
-      if(!apiFactory.getHttpListenerConfigs().contains(httpConfig)) {
+      if (!apiFactory.getHttpListenerConfigs().contains(httpConfig)) {
         apiFactory.getHttpListenerConfigs().add(httpConfig);
       }
     });
   }
 
   protected void parseApis(Document document, String apiFilePath, MuleConfig config) {
-    includedApis.putAll(new APIKitRoutersParser(apikitConfigs, apiFactory.getHttpListenerConfigs(), apiFilePath, apiFactory, config)
-        .parse(document));
+    includedApis
+        .putAll(new APIKitRoutersParser(apikitConfigs, apiFactory.getHttpListenerConfigs(), apiFilePath, apiFactory, config)
+            .parse(document));
   }
 
   protected void parseFlows(List<MuleConfig> configs) {

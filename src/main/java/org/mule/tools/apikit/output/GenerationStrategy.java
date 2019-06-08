@@ -40,7 +40,7 @@ public class GenerationStrategy {
         String xmlFilesWithoutRaml = "";
 
         for (ApikitMainFlowContainer api : apisInMuleConfigs) {
-           xmlFilesWithoutRaml = xmlFilesWithoutRaml + " " + api.getPath();
+          xmlFilesWithoutRaml = xmlFilesWithoutRaml + " " + api.getPath();
         }
         generationModels.addAll(ramlFilesEntries.values());
       } else {

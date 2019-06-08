@@ -32,7 +32,8 @@ public class ApikitMainFlowContainer {
   }
 
 
-  public ApikitMainFlowContainer(String id, String apiFileName, String baseUri, String path, APIKitConfig config, MuleConfig muleConfig) {
+  public ApikitMainFlowContainer(String id, String apiFileName, String baseUri, String path, APIKitConfig config,
+                                 MuleConfig muleConfig) {
     this(id, apiFileName, baseUri, path);
     this.config = config;
     this.muleConfig = muleConfig;

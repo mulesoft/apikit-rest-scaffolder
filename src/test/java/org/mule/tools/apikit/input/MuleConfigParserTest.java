@@ -105,7 +105,8 @@ public class MuleConfigParserTest {
     final String ramlPath = "separate-config/simple.raml";
 
     List<MuleConfig> muleConfigList =
-        Arrays.asList(MuleConfigBuilder.fromDoc(getDocument(api.openStream())), MuleConfigBuilder.fromDoc(getDocument(config.openStream())));
+        Arrays.asList(MuleConfigBuilder.fromDoc(getDocument(api.openStream())),
+                      MuleConfigBuilder.fromDoc(getDocument(config.openStream())));
     MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory());
     muleConfigParser.parse(ramlPath, muleConfigList);
 
@@ -114,7 +115,8 @@ public class MuleConfigParserTest {
     assertEquals(1, muleConfigParser.getApikitConfigs().size());
 
     List<MuleConfig> muleConfigListReverse =
-        Arrays.asList(MuleConfigBuilder.fromDoc(getDocument(config.openStream())), MuleConfigBuilder.fromDoc(getDocument(api.openStream())));
+        Arrays.asList(MuleConfigBuilder.fromDoc(getDocument(config.openStream())),
+                      MuleConfigBuilder.fromDoc(getDocument(api.openStream())));
     muleConfigParser = new MuleConfigParser(new APIFactory());
     muleConfigParser.parse(ramlPath, muleConfigListReverse);
 

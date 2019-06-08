@@ -64,17 +64,17 @@ public class ConsoleFlowTest {
 
     String s = IOUtils.toString(generatedConfig.getContent());
 
-     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
-     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
-     assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
-     assertEquals(1, countOccurences(s, "get:\\pet:simpleV10-config"));
-     assertEquals(2, countOccurences(s, "post:\\pet:simpleV10-config"));
-     assertEquals(1, countOccurences(s, "get:\\:simpleV10-config\""));
-     assertEquals(2, countOccurences(s, "get:\\users"));
-     assertEquals(0, countOccurences(s, "extensionEnabled"));
-     assertEquals(0, countOccurences(s, "<flow name=\"simple-enabled-console\">"));
-     assertEquals(0, countOccurences(s, "apikit:console"));
-     assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
+    assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
+    assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
+    assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
+    assertEquals(1, countOccurences(s, "get:\\pet:simpleV10-config"));
+    assertEquals(2, countOccurences(s, "post:\\pet:simpleV10-config"));
+    assertEquals(1, countOccurences(s, "get:\\:simpleV10-config\""));
+    assertEquals(2, countOccurences(s, "get:\\users"));
+    assertEquals(0, countOccurences(s, "extensionEnabled"));
+    assertEquals(0, countOccurences(s, "<flow name=\"simple-enabled-console\">"));
+    assertEquals(0, countOccurences(s, "apikit:console"));
+    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   private MuleScaffolder getScaffolder() {

@@ -45,7 +45,7 @@ public class APIKitFlowsParser implements MuleConfigFileParser {
       try {
         flow = APIKitFlow.buildFromName(name, includedApis.keySet());
       } catch (IllegalArgumentException iae) {
-//        log.info("Flow named '" + name + "' is not an APIKit Flow because it does not follow APIKit naming convention.");
+        //        log.info("Flow named '" + name + "' is not an APIKit Flow because it does not follow APIKit naming convention.");
         continue;
       }
 

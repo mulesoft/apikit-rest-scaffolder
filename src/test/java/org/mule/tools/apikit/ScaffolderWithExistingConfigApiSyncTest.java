@@ -56,7 +56,8 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
 
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
-    ParseResult parseResult = new ParserService().parse(ApiReference.create(ROOT_RAML_RESOURCE_URL + raml, testScaffolderResourceLoader));
+    ParseResult parseResult =
+        new ParserService().parse(ApiReference.create(ROOT_RAML_RESOURCE_URL + raml, testScaffolderResourceLoader));
     assertTrue(parseResult.success());
 
     ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
@@ -64,7 +65,8 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String expected = IOUtils.toString(ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream("rescaffolding-apisync-version/v1/api.xml"));
+    String expected = IOUtils.toString(ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader()
+        .getResourceAsStream("rescaffolding-apisync-version/v1/api.xml"));
     String generated = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
 
     XMLUnit.setIgnoreWhitespace(true);
@@ -74,7 +76,8 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     List<MuleConfig> muleConfigs = new ArrayList<>(result.getGeneratedConfigs());
 
     // In the second ScaffoldingConfiguration, we have to include the mule config generated previously
-    ScaffoldingConfiguration secondScaffoldingConfiguration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    ScaffoldingConfiguration secondScaffoldingConfiguration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
     ScaffoldingResult secondScaffoldingResult = muleScaffolder.run(secondScaffoldingConfiguration);
 
     assertTrue(secondScaffoldingResult.isSuccess());
@@ -89,8 +92,9 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     String ramlFolderV2 = "src/test/resources/rescaffolding-apisync-version/v2";
     XMLUnit.setIgnoreWhitespace(true);
 
-    ScaffoldingResult result = scaffoldApiSync(raml, ramlFolderV1, ROOT_RAML_RESOURCE_URL,null);
-    String expected = IOUtils.toString(ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream("rescaffolding-apisync-version/v1/api.xml"));
+    ScaffoldingResult result = scaffoldApiSync(raml, ramlFolderV1, ROOT_RAML_RESOURCE_URL, null);
+    String expected = IOUtils.toString(ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader()
+        .getResourceAsStream("rescaffolding-apisync-version/v1/api.xml"));
     String generated = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
 
     Diff diff = XMLUnit.compareXML(expected, generated);
@@ -99,22 +103,25 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     List<MuleConfig> muleConfigs = new ArrayList<>(result.getGeneratedConfigs());
     ScaffoldingResult secondScaffoldingResult = scaffoldApiSync(raml, ramlFolderV2, ROOT_RAML_RESOURCE_URL_V2, muleConfigs);
 
-    String secondScaffoldingExpected = IOUtils.toString(ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream("rescaffolding-apisync-version/v2/api.xml"));
+    String secondScaffoldingExpected = IOUtils.toString(ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader()
+        .getResourceAsStream("rescaffolding-apisync-version/v2/api.xml"));
     String secondScaffoldingGenerated = IOUtils.toString(secondScaffoldingResult.getGeneratedConfigs().get(0).getContent());
     Diff secondScaffoldingDiff = XMLUnit.compareXML(secondScaffoldingExpected, secondScaffoldingGenerated);
     assertTrue(secondScaffoldingDiff.identical());
   }
 
-  private ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl, List<MuleConfig> muleConfigs) {
+  private ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
+                                            List<MuleConfig> muleConfigs) {
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build();
     MuleScaffolder muleScaffolder = new MuleScaffolder(context);
 
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
-    ParseResult parseResult = new ParserService().parse(ApiReference.create(rootRamlResourceUrl + raml, testScaffolderResourceLoader));
+    ParseResult parseResult =
+        new ParserService().parse(ApiReference.create(rootRamlResourceUrl + raml, testScaffolderResourceLoader));
     assertTrue(parseResult.success());
 
     ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
-    if(muleConfigs != null) {
+    if (muleConfigs != null) {
       configurationBuilder.withMuleConfigurations(muleConfigs);
     }
 

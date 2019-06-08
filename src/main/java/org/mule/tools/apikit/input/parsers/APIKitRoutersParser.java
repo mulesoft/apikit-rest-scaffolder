@@ -63,7 +63,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
           includedApis.put(configId, handleInboundEndpointSource(source, apiFilePath, config));
         } else {
           throw new IllegalStateException("The first element of the main flow must be an " +
-                                              "inbound-endpoint or listener");
+              "inbound-endpoint or listener");
         }
       }
     }

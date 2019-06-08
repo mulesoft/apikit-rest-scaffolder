@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface WithConfigs {
 
-    List<HttpListenerConfig> getHttpListenerConfigs();
+  List<HttpListenerConfig> getHttpListenerConfigs();
 }

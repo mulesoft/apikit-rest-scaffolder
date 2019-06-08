@@ -32,14 +32,15 @@ public class RAMLFilesParser {
 
   public RAMLFilesParser(APIFactory apiFactory, ApiSpecification apiSpec) {
     this.apiFactory = apiFactory;
-    collectResources(apiSpec.getLocation(), apiSpec.getResources(), ApikitMainFlowContainer.DEFAULT_BASE_URI, apiSpec.getVersion());
+    collectResources(apiSpec.getLocation(), apiSpec.getResources(), ApikitMainFlowContainer.DEFAULT_BASE_URI,
+                     apiSpec.getVersion());
   }
 
   public Set<ApikitMainFlowContainer> getApis() {
     return apis;
   }
 
-  public List<ApikitMainFlowContainer> getApisAsList(){
+  public List<ApikitMainFlowContainer> getApisAsList() {
     return Lists.newArrayList(apis);
   }
 
@@ -48,9 +49,8 @@ public class RAMLFilesParser {
   }
 
   private void collectResources(String filePath, Map<String, Resource> resourceMap, String baseUri, String version) {
-    ApikitMainFlowContainer
-        api = apiFactory.createAPIBinding(filePath, baseUri, APIKitTools.getPathFromUri(baseUri, false), null,
-                                          null, null);
+    ApikitMainFlowContainer api = apiFactory.createAPIBinding(filePath, baseUri, APIKitTools.getPathFromUri(baseUri, false), null,
+                                                              null, null);
     apis.add(api);
     for (Resource resource : resourceMap.values()) {
       for (Action action : resource.getActions().values()) {
@@ -60,7 +60,7 @@ public class RAMLFilesParser {
         if (mimeTypes != null && !mimeTypes.isEmpty()) {
           for (MimeType mimeType : mimeTypes.values()) {
             if (mimeType.getSchema() != null
-              || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty())) {
+                || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty())) {
               addResource(api, resource, action, mimeType.getType(), version);
             } else {
               addGenericAction = true;
@@ -82,12 +82,12 @@ public class RAMLFilesParser {
   private void addResource(ApikitMainFlowContainer api, Resource resource, Action action, String mimeType, String version) {
 
     String completePath = APIKitTools
-      .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
+        .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
 
     ResourceActionMimeTypeTriplet resourceActionTriplet =
-      new ResourceActionMimeTypeTriplet(api, completePath + resource.getResolvedUri(version),
-                                        action.getType().toString(),
-                                        mimeType);
+        new ResourceActionMimeTypeTriplet(api, completePath + resource.getResolvedUri(version),
+                                          action.getType().toString(),
+                                          mimeType);
     entries.put(resourceActionTriplet, new GenerationModel(api, version, resource, action, mimeType));
   }
 }

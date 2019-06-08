@@ -25,7 +25,8 @@ public class ConsoleFlowScope implements Scope {
     consoleFlow.setAttribute("name", api.getId() + "-" + "console");
 
     String httpListenerConfigRef = api.getHttpListenerConfig().getName();
-    consoleFlow.addContent(MainFlowsUtils.generateListenerSource(httpListenerConfigRef, ApikitMainFlowContainer.DEFAULT_CONSOLE_PATH));
+    consoleFlow
+        .addContent(MainFlowsUtils.generateListenerSource(httpListenerConfigRef, ApikitMainFlowContainer.DEFAULT_CONSOLE_PATH));
 
     Element restProcessor = new Element("console", APIKitTools.API_KIT_NAMESPACE.getNamespace());
     String configRef = api.getConfig() != null ? api.getConfig().getName() : null;

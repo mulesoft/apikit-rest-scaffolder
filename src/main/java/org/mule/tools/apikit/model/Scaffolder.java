@@ -8,6 +8,6 @@ package org.mule.tools.apikit.model;
 
 public interface Scaffolder {
 
-    ScaffoldingResult run(ScaffoldingConfiguration config);
+  ScaffoldingResult run(ScaffoldingConfiguration config);
 
 }

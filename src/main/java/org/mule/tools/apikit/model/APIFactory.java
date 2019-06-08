@@ -53,7 +53,7 @@ public class APIFactory {
 
     if (apis.containsKey(relativePath)) {
       ApikitMainFlowContainer api = apis.get(relativePath);
-      if(api.getMuleConfig() == null && muleConfig != null) {
+      if (api.getMuleConfig() == null && muleConfig != null) {
         api.setMuleConfig(muleConfig);
       }
       return api;

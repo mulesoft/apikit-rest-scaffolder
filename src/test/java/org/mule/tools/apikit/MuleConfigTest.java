@@ -149,7 +149,8 @@ public class MuleConfigTest {
     assertTrue(flowShouldNotExist == null);
 
     // Verify the new flow is in the updated MuleConfig
-    Element newFlowInMuleConfig = findElementByAttribute(generatedContent.getRootElement().getContent(), "name", "new-customers:api-config");
+    Element newFlowInMuleConfig =
+        findElementByAttribute(generatedContent.getRootElement().getContent(), "name", "new-customers:api-config");
     assertTrue(newFlowInMuleConfig != null);
   }
 

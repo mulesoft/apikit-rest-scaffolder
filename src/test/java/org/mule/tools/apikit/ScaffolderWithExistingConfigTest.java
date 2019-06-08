@@ -68,7 +68,8 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
   @Test
   @Ignore
   public void testAlreadyExistsOldWithAddressGenerate() throws Exception {
-    MuleConfig muleConfig = scaffoldApi("scaffolder-existing-old-address/complex.raml", "scaffolder-existing-old-address/complex.xml");
+    MuleConfig muleConfig =
+        scaffoldApi("scaffolder-existing-old-address/complex.raml", "scaffolder-existing-old-address/complex.xml");
     String s = IOUtils.toString(muleConfig.getContent());
     assertEquals(0, countOccurences(s, "http:listener-config"));
     assertEquals(0, countOccurences(s, "http:listener"));
@@ -141,8 +142,9 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
 
     ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
 
-    if(existingMuleConfigPath != null) {
-      InputStream muleConfigIS = ScaffolderWithExistingConfigTest.class.getClassLoader().getResourceAsStream(existingMuleConfigPath);
+    if (existingMuleConfigPath != null) {
+      InputStream muleConfigIS =
+          ScaffolderWithExistingConfigTest.class.getClassLoader().getResourceAsStream(existingMuleConfigPath);
       MuleConfig existingMuleConfig = MuleConfigBuilder.fromStream(muleConfigIS);
       configurationBuilder.withMuleConfigurations(Arrays.asList(existingMuleConfig));
     }

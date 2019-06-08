@@ -13,11 +13,11 @@ public class Test implements Scope {
 
   private Element content;
 
-  public Test(Element content){
+  public Test(Element content) {
     this.content = content;
   }
 
-  public Element getContent(){
+  public Element getContent() {
     return content;
   }
 
