@@ -83,12 +83,12 @@ public class MuleConfigParserTest {
 
     MuleConfig muleConfigWithFlows = MuleConfigBuilder.fromDoc(documentWithFlows);
     muleConfigParser.parseConfigs(muleConfigWithFlows);
-    muleConfigParser.parseApis(documentWithFlows, "leagues.raml", muleConfigWithFlows);
+    muleConfigParser.parseApis(muleConfigWithFlows, "leagues.raml");
     muleConfigParser.parseFlows(Arrays.asList(muleConfigWithFlows));
 
     MuleConfig muleConfigWithoutFlows = MuleConfigBuilder.fromDoc(documentWithoutFlows);
     muleConfigParser.parseConfigs(muleConfigWithoutFlows);
-    muleConfigParser.parseApis(documentWithoutFlows, "api.raml", muleConfigWithFlows);
+    muleConfigParser.parseApis(muleConfigWithoutFlows, "api.raml");
     muleConfigParser.parseFlows(Arrays.asList(muleConfigWithoutFlows));
 
     assertEquals(6, muleConfigParser.getEntries().size());

@@ -35,7 +35,7 @@ public class MuleConfigParser {
     }
 
     for (MuleConfig config : muleConfigs) {
-      parseApis(config.getContentAsDocument(), apiLocation, config);
+      parseApis(config, apiLocation);
     }
     parseFlows(muleConfigs);
 
@@ -52,10 +52,10 @@ public class MuleConfigParser {
     });
   }
 
-  protected void parseApis(Document document, String apiFilePath, MuleConfig config) {
+  protected void parseApis(MuleConfig muleConfig, String apiFilePath) {
     includedApis
-        .putAll(new APIKitRoutersParser(apikitConfigs, apiFactory.getHttpListenerConfigs(), apiFilePath, apiFactory, config)
-            .parse(document));
+        .putAll(new APIKitRoutersParser(apikitConfigs, apiFactory, apiFilePath, muleConfig)
+            .parse(muleConfig.getContentAsDocument()));
   }
 
   protected void parseFlows(List<MuleConfig> configs) {

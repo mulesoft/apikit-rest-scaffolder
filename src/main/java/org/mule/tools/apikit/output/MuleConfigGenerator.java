@@ -83,7 +83,6 @@ public class MuleConfigGenerator {
     if (flowEntries.isEmpty()) {
       apis.forEach(api -> {
         MuleConfig muleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
-        setDefaultApikitAndListenersConfigs(api, muleConfig);
         configs.add(muleConfig);
       });
     } else {

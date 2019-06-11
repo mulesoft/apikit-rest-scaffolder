@@ -29,7 +29,7 @@ public class HttpListenerConfigScope implements Scope {
       connection.setAttribute("host", httpListenerConfig.getHost());
       connection.setAttribute("port", httpListenerConfig.getPort());
       this.httpListenerConfig.addContent(connection);
-      httpListenerConfig.setPeristed(true);
+      httpListenerConfig.setPersisted(true);
     } else {
       this.httpListenerConfig = null;
     }

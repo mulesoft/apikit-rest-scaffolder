@@ -57,7 +57,7 @@ public class HttpListenerConfigParser implements MuleConfigFileParser {
           }
           final HttpListenerConfig httpListenerConfig =
               new HttpListenerConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
-          httpListenerConfig.setPeristed(true);
+          httpListenerConfig.setPersisted(true);
           httpListenerConfigMap.add(httpListenerConfig);
         }
       }

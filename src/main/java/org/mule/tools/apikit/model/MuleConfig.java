@@ -79,7 +79,7 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     document.setRootElement(rootElement);
 
     for (HttpListenerConfig config : configurations) {
-      if (!config.isPeristed())
+      if (!config.isPersisted())
         addContent(document, config.generate());
     }
     apikitConfigs.values().forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));

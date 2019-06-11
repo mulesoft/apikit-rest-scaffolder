@@ -31,12 +31,11 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
   private MuleConfig muleConfig;
 
   public APIKitRoutersParser(final Map<String, APIKitConfig> apikitConfigs,
-                             final List<HttpListenerConfig> httpListenerConfigs,
-                             final String apiFilePath,
                              final APIFactory apiFactory,
+                             final String apiFilePath,
                              MuleConfig config) {
     this.apikitConfigs = apikitConfigs;
-    this.httpListenerConfigs = httpListenerConfigs;
+    this.httpListenerConfigs = apiFactory.getHttpListenerConfigs();
     this.apiFilePath = apiFilePath;
     this.apiFactory = apiFactory;
     this.muleConfig = config;

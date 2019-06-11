@@ -26,7 +26,7 @@ public class HttpListenerConfig implements Scope {
   private String name;
   private String basePath;
   private HttpListenerConnection connection;
-  private boolean isPeristed = false;
+  private boolean isPersisted = false;
 
   public HttpListenerConfig(final String name,
                             final String baseUri) {
@@ -83,12 +83,12 @@ public class HttpListenerConfig implements Scope {
     this.basePath = basePath;
   }
 
-  public boolean isPeristed() {
-    return isPeristed;
+  public boolean isPersisted() {
+    return isPersisted;
   }
 
-  public void setPeristed(boolean isGenerated) {
-    this.isPeristed = isGenerated;
+  public void setPersisted(boolean isGenerated) {
+    this.isPersisted = isGenerated;
   }
 
   @Override
@@ -98,7 +98,7 @@ public class HttpListenerConfig implements Scope {
     if (o == null || getClass() != o.getClass())
       return false;
     HttpListenerConfig that = (HttpListenerConfig) o;
-    return isPeristed == that.isPeristed &&
+    return isPersisted == that.isPersisted &&
         Objects.equals(name, that.name) &&
         Objects.equals(basePath, that.basePath) &&
         Objects.equals(connection, that.connection);
@@ -106,7 +106,7 @@ public class HttpListenerConfig implements Scope {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, basePath, connection, isPeristed);
+    return Objects.hash(name, basePath, connection, isPersisted);
   }
 
   public Element generate() {
