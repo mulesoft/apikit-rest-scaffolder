@@ -7,13 +7,15 @@
 package org.mule.tools.apikit.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class ScaffolderResult implements ScaffoldingResult {
 
-  private List<MuleConfig> generatedConfigs;
-  private List<ScaffolderResource> generatedResources;
-  private List<ScaffoldingError> errors;
+  private final List<MuleConfig> generatedConfigs;
+  private final List<ScaffolderResource> generatedResources;
+  private final List<ScaffoldingError> errors;
 
   private ScaffolderResult(List<MuleConfig> generatedConfigs, List<ScaffolderResource> generatedResources,
                            List<ScaffoldingError> errors) {
@@ -24,22 +26,26 @@ public class ScaffolderResult implements ScaffoldingResult {
 
   @Override
   public boolean isSuccess() {
-    return this.errors.size() == 0;
+    return this.errors.isEmpty();
   }
 
   @Override
   public List<MuleConfig> getGeneratedConfigs() {
-    return generatedConfigs;
+    return Collections.unmodifiableList(generatedConfigs);
   }
 
   @Override
   public List<ScaffolderResource> getGeneratedResources() {
-    return generatedResources;
+    return Collections.unmodifiableList(generatedResources);
   }
 
   @Override
   public List<ScaffoldingError> getErrors() {
-    return errors;
+    return Collections.unmodifiableList(errors);
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static class Builder {

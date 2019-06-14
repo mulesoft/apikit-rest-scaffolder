@@ -20,10 +20,7 @@ import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.output.GenerationStrategy;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +33,7 @@ public class GenerationStrategyTest {
   @Before
   public void setUp() {
     generationStrategy = new GenerationStrategy();
-    apiFactory = new APIFactory();
+    apiFactory = new APIFactory(Collections.emptyList());
   }
 
   @Test

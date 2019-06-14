@@ -11,10 +11,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
@@ -22,19 +19,17 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   private List<HttpListenerConfig> configurations;
   private Map<String, APIKitConfig> apikitConfigs;
   private List<Flow> flows;
-  private List<Test> tests;
 
   protected MuleConfig(List<HttpListenerConfig> configurations, Map<String, APIKitConfig> apikitConfigs,
-                       List<Flow> flows, List<Test> test) {
+                       List<Flow> flows) {
     this.configurations = configurations;
     this.apikitConfigs = apikitConfigs;
     this.flows = flows;
-    this.tests = test;
   }
 
   protected MuleConfig(List<HttpListenerConfig> httpListenerConfigs, Map<String, APIKitConfig> apikitConfigs, List<Flow> flows,
-                       List<Test> tests, Document content) {
-    this(httpListenerConfigs, apikitConfigs, flows, tests);
+                       Document content) {
+    this(httpListenerConfigs, apikitConfigs, flows);
     this.originalContent = content;
   }
 
@@ -55,21 +50,24 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
   @Override
   public List<HttpListenerConfig> getHttpListenerConfigs() {
-    return configurations;
+    return Collections.unmodifiableList(configurations);
+  }
+
+  public void addHttpListener(HttpListenerConfig config) {
+    this.configurations.add(config);
   }
 
   @Override
   public List<Flow> getFlows() {
-    return flows;
-  }
-
-  @Override
-  public List<Test> getTests() {
-    return tests;
+    return Collections.unmodifiableList(flows);
   }
 
   public Map<String, APIKitConfig> getApikitConfigs() {
-    return apikitConfigs;
+    return Collections.unmodifiableMap(apikitConfigs);
+  }
+
+  public void putApikitConfig(String key, APIKitConfig value) {
+    this.apikitConfigs.put(key, value);
   }
 
   public Document buildContent() {
@@ -98,10 +96,12 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     MuleConfig that = (MuleConfig) o;
     return Objects.equals(originalContent, that.originalContent) &&
         Objects.equals(configurations, that.configurations) &&

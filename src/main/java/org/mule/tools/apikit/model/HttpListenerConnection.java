@@ -18,6 +18,10 @@ public class HttpListenerConnection {
   private String port;
   private String protocol;
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public static class Builder {
 
     private String host;

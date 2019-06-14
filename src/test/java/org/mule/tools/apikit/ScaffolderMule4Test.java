@@ -7,6 +7,7 @@ package org.mule.tools.apikit;
  * LICENSE.txt file.
  */
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
@@ -426,7 +427,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     final String testFolder = "scaffolder-from-two-apis/with-existent-config/";
     MuleConfig muleConfig =
         MuleConfigBuilder.fromStream(ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(testFolder + "api.xml"));
-    List<MuleConfig> muleConfigs = Arrays.asList(muleConfig);
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
 
     testScaffoldTwoApis(testFolder, muleConfigs, null);
   }
@@ -441,20 +442,22 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     XMLUnit.setIgnoreWhitespace(true);
 
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ScaffoldingConfiguration firstScaffoldingConfiguration = getScaffoldingConfiguration(api1, existingMuleConfigs, domainFile);
-    ScaffoldingResult result = muleScaffolder.run(firstScaffoldingConfiguration);
+    ScaffoldingResult result = mainAppScaffolder.run(firstScaffoldingConfiguration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
+    MuleConfig generatedMuleConfig = result.getGeneratedConfigs().get(0);
 
-    String firstGeneratedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String firstGeneratedMuleConfigContent = IOUtils.toString(generatedMuleConfig.getContent());
     Diff firstMuleConfigDiff = XMLUnit
         .compareXML(firstGeneratedMuleConfigContent,
                     IOUtils.toString(ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(testFolder + "api.xml")));
 
+    existingMuleConfigs.add(generatedMuleConfig);
     ScaffoldingConfiguration secondScaffoldingConfiguration = getScaffoldingConfiguration(api2, existingMuleConfigs, domainFile);
-    result = muleScaffolder.run(secondScaffoldingConfiguration);
+    result = mainAppScaffolder.run(secondScaffoldingConfiguration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
@@ -822,7 +825,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     // In the new Scaffolder API you can't scaffold more than one ApiSpecification at a time.
     // If you want to scaffold more than one ApiSpec, you have to call the scaffolder N times.
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ParserService parserService = new ParserService();
     ParseResult firstRamlParsingResult = parserService.parse(ApiReference.create("double-root-raml/simple.raml"));
@@ -836,7 +839,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     ScaffoldingConfiguration secondScaffoldingConfiguration =
         new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).build();
 
-    ScaffoldingResult result = muleScaffolder.run(firstScaffoldingConfiguration);
+    ScaffoldingResult result = mainAppScaffolder.run(firstScaffoldingConfiguration);
     assertTrue(result.isSuccess());
     assertTrue(result.getGeneratedConfigs().size() == 1);
 
@@ -855,7 +858,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     assertEquals(7, countOccurences(s, "<ee:set-variable"));
     assertEquals(7, countOccurences(s, "<ee:set-payload>"));
 
-    result = muleScaffolder.run(secondScaffoldingConfiguration);
+    result = mainAppScaffolder.run(secondScaffoldingConfiguration);
     assertTrue(result.isSuccess());
     assertTrue(result.getGeneratedConfigs().size() == 1);
 

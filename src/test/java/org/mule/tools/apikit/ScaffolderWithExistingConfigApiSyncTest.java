@@ -53,7 +53,7 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     String ramlFolder = "src/test/resources/rescaffolding-apisync-version/v1";
 
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
     ParseResult parseResult =
@@ -61,7 +61,7 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     assertTrue(parseResult.success());
 
     ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
-    ScaffoldingResult result = muleScaffolder.run(configuration);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
@@ -78,7 +78,7 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     // In the second ScaffoldingConfiguration, we have to include the mule config generated previously
     ScaffoldingConfiguration secondScaffoldingConfiguration =
         new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
-    ScaffoldingResult secondScaffoldingResult = muleScaffolder.run(secondScaffoldingConfiguration);
+    ScaffoldingResult secondScaffoldingResult = mainAppScaffolder.run(secondScaffoldingConfiguration);
 
     assertTrue(secondScaffoldingResult.isSuccess());
     assertEquals(1, secondScaffoldingResult.getGeneratedConfigs().size());
@@ -113,7 +113,7 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
   private ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
                                             List<MuleConfig> muleConfigs) {
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
     ParseResult parseResult =
@@ -125,7 +125,7 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
       configurationBuilder.withMuleConfigurations(muleConfigs);
     }
 
-    ScaffoldingResult result = muleScaffolder.run(configurationBuilder.build());
+    ScaffoldingResult result = mainAppScaffolder.run(configurationBuilder.build());
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
     return result;

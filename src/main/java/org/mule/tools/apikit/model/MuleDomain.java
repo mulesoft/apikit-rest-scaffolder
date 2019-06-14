@@ -11,6 +11,7 @@ import org.jdom2.input.SAXBuilder;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MuleDomain implements NamedContent, WithConfigs {
@@ -42,5 +43,32 @@ public class MuleDomain implements NamedContent, WithConfigs {
     Document contentAsDocument = new SAXBuilder().build(content);
     List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
     return new MuleDomain(content, httpListenerConfigs);
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private InputStream content;
+    private List<HttpListenerConfig> configurations;
+
+    public Builder() {
+      this.configurations = new ArrayList<>();
+    }
+
+    public Builder withContent(InputStream content) {
+      this.content = content;
+      return this;
+    }
+
+    public Builder withConfigurations(List<HttpListenerConfig> configurations) {
+      this.configurations = configurations;
+      return this;
+    }
+
+    public MuleDomain build() {
+      return new MuleDomain(content, configurations);
+    }
   }
 }

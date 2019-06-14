@@ -12,6 +12,7 @@ import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIFactory;
 
 import java.io.File;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -32,7 +33,7 @@ public class APITest {
   }
 
   public static ApikitMainFlowContainer createAPIBinding(File a) {
-    return new APIFactory().createAPIBindingInboundEndpoint(a.getName(), "http://localhost:80", "/api/*", null);
+    return new APIFactory(Collections.emptyList()).createAPIBindingInboundEndpoint(a.getName(), "http://localhost:80", "/api/*", null);
   }
 
   @Test

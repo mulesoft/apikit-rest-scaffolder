@@ -33,11 +33,7 @@ public class APIFactory {
   private List<HttpListenerConfig> httpListenerConfigs;
 
   public APIFactory(List<HttpListenerConfig> httpListenerConfigs) {
-    this.httpListenerConfigs = httpListenerConfigs;
-  }
-
-  public APIFactory() {
-    httpListenerConfigs = new ArrayList<>();
+    this.httpListenerConfigs = new ArrayList<>(httpListenerConfigs);
   }
 
   public ApikitMainFlowContainer createAPIBindingInboundEndpoint(String apiFileName, String baseUri, String path,

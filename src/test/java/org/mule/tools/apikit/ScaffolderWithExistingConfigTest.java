@@ -138,7 +138,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     assertTrue(parseResult.success());
 
     ScaffolderContext scaffolderContext = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(scaffolderContext);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(scaffolderContext);
 
     ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
 
@@ -150,7 +150,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     }
 
     ScaffoldingConfiguration configuration = configurationBuilder.build();
-    ScaffoldingResult scaffoldingResult = muleScaffolder.run(configuration);
+    ScaffoldingResult scaffoldingResult = mainAppScaffolder.run(configuration);
     assertTrue(scaffoldingResult.isSuccess());
     assertEquals(1, scaffoldingResult.getGeneratedConfigs().size());
     return scaffoldingResult.getGeneratedConfigs().get(0);

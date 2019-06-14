@@ -52,7 +52,6 @@ public class MuleConfigTest {
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(input);
     assertEquals(muleConfig.getFlows().size(), 8);
     assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
-    assertEquals(muleConfig.getTests().size(), 0);
     input.close();
   }
 
@@ -63,7 +62,6 @@ public class MuleConfigTest {
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(input);
     assertEquals(muleConfig.getFlows().size(), 7);
     assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
-    assertEquals(muleConfig.getTests().size(), 0);
     input.close();
   }
 
@@ -75,7 +73,6 @@ public class MuleConfigTest {
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(input);
     assertEquals(muleConfig.getFlows().size(), 4);
     assertEquals(muleConfig.getHttpListenerConfigs().size(), 0);
-    assertEquals(muleConfig.getTests().size(), 0);
     input.close();
   }
 
@@ -87,7 +84,6 @@ public class MuleConfigTest {
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(input);
     assertEquals(muleConfig.getFlows().size(), 0);
     assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
-    assertEquals(muleConfig.getTests().size(), 0);
     input.close();
   }
 

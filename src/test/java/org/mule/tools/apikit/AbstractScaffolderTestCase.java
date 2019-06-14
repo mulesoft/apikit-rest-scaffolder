@@ -73,14 +73,14 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
                                           List<String> existingMuleConfigsLocations, String muleDomainLocation)
       throws Exception {
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(runtimeEdition).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     List<MuleConfig> muleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
     MuleDomain muleDomain = createMuleDomainFromLocation(muleDomainLocation);
     ScaffoldingConfiguration scaffoldingConfiguration = getScaffoldingConfiguration(ramlLocation, muleConfigs, muleDomain);
 
 
-    ScaffoldingResult scaffoldingResult = muleScaffolder.run(scaffoldingConfiguration);
+    ScaffoldingResult scaffoldingResult = mainAppScaffolder.run(scaffoldingConfiguration);
     assertTrue(scaffoldingResult.isSuccess());
     return scaffoldingResult;
   }

@@ -24,7 +24,6 @@ public class MuleConfigBuilder {
   private final List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
   private final Map<String, APIKitConfig> apiKitConfigs = new HashMap<>();
   private final List<Flow> flows = new ArrayList<>();
-  private final List<Test> tests = new ArrayList<>();
 
   public void addHttpListenerConfig(HttpListenerConfig config) {
     httpListenerConfigs.add(config);
@@ -38,12 +37,8 @@ public class MuleConfigBuilder {
     flows.add(flow);
   }
 
-  public void addTest(Test test) {
-    tests.add(test);
-  }
-
   public MuleConfig build() {
-    return new MuleConfig(httpListenerConfigs, apiKitConfigs, flows, tests);
+    return new MuleConfig(httpListenerConfigs, apiKitConfigs, flows);
   }
 
   public static MuleConfig fromDoc(Document muleConfigContent) {
@@ -54,23 +49,17 @@ public class MuleConfigBuilder {
     Map<String, APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
 
     List<Flow> flowsInConfig = new ArrayList<>();
-    List<Test> testsInConfig = new ArrayList<>();
 
     for (Content content : muleConfigContent.getRootElement().getContent()) {
       if (content instanceof Element) {
         Element contentElement = (Element) content;
-
         if ("flow".equals(contentElement.getName())) {
           flowsInConfig.add(new Flow(contentElement));
-        }
-
-        if ("munit:test".equals(contentElement.getName())) {
-          testsInConfig.add(new Test(contentElement));
         }
       }
     }
 
-    return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, testsInConfig, muleConfigContent);
+    return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, muleConfigContent);
   }
 
   public static MuleConfig fromStream(InputStream input) throws Exception {

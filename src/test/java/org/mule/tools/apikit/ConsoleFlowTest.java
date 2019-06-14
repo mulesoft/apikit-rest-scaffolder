@@ -41,9 +41,9 @@ public class ConsoleFlowTest {
   @Test
   public void scaffoldWithoutMuleConfigs() throws Exception {
     File ramlFile = getFile("console-flow/simple-console.raml");
-    MuleScaffolder muleScaffolder = getScaffolder();
+    MainAppScaffolder mainAppScaffolder = getScaffolder();
     ScaffoldingConfiguration configuration = getScaffolderConfiguration(getFile("console-flow/simple.xml"), ramlFile);
-    ScaffoldingResult result = muleScaffolder.run(configuration);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
   }
 
@@ -52,9 +52,9 @@ public class ConsoleFlowTest {
     File xmlFile = getFile("console-flow/simple.xml");
     File ramlFile = getFile("console-flow/simple-console.raml");
 
-    MuleScaffolder muleScaffolder = getScaffolder();
+    MainAppScaffolder mainAppScaffolder = getScaffolder();
     ScaffoldingConfiguration configuration = getScaffolderConfiguration(xmlFile, ramlFile);
-    ScaffoldingResult result = muleScaffolder.run(configuration);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
 
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
@@ -77,11 +77,11 @@ public class ConsoleFlowTest {
     assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
-  private MuleScaffolder getScaffolder() {
+  private MainAppScaffolder getScaffolder() {
     ScaffolderContext context = new ScaffolderContext.Builder()
         .withRuntimeEdition(RuntimeEdition.EE)
         .build();
-    return new MuleScaffolder(context);
+    return new MainAppScaffolder(context);
   }
 
   private ScaffoldingConfiguration getScaffolderConfiguration(File xmlFile, File ramlFile) throws Exception {

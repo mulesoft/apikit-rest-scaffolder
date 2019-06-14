@@ -18,6 +18,7 @@ import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +43,7 @@ public class RAMLFilesParserTest {
     ParseResult parseResult = parserService.parse(apiRef);
     assertTrue(parseResult.success());
 
-    RAMLFilesParser ramlFilesParser = new RAMLFilesParser(new APIFactory(), parseResult.get());
+    RAMLFilesParser ramlFilesParser = new RAMLFilesParser(new APIFactory(Collections.emptyList()), parseResult.get());
 
     Map<ResourceActionMimeTypeTriplet, GenerationModel> entries = ramlFilesParser.getEntries();
     assertNotNull(entries);
@@ -83,7 +84,7 @@ public class RAMLFilesParserTest {
 
     assertTrue(parseResult.success());
 
-    RAMLFilesParser ramlFilesParser = new RAMLFilesParser(new APIFactory(), parseResult.get());
+    RAMLFilesParser ramlFilesParser = new RAMLFilesParser(new APIFactory(Collections.emptyList()), parseResult.get());
     Map<ResourceActionMimeTypeTriplet, GenerationModel> entries = ramlFilesParser.getEntries();
 
     assertNotNull(entries);

@@ -20,6 +20,7 @@ import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class APIDiffTest {
 
   @Before
   public void setUp() {
-    this.apiFactory = new APIFactory();
+    this.apiFactory = new APIFactory(Collections.emptyList());
   }
 
   private Set<ResourceActionMimeTypeTriplet> computeDifferenceSetHelper(HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a,

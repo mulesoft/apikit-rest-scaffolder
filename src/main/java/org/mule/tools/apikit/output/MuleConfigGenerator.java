@@ -87,14 +87,15 @@ public class MuleConfigGenerator {
       });
     } else {
       Set<MuleConfig> muleConfigs = new HashSet<>();
+      ApikitMainFlowContainer api = flowEntries.get(0).getApi();
+      MuleConfig muleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
+
       for (GenerationModel flowEntry : flowEntries) {
-        ApikitMainFlowContainer api = flowEntry.getApi();
-        MuleConfig muleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
         Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
 
         int newFlowPositionIndex = getLastFlowIndex(muleConfig.getContentAsDocument()) + 1;
         muleConfig.getContentAsDocument().getRootElement().getContent().add(newFlowPositionIndex, apikitFlowScope);
-        muleConfig.getFlows().add(new Flow(apikitFlowScope));
+        muleConfig.addFlow(new Flow(apikitFlowScope));
         updateApikitConfig(api, muleConfig);
         muleConfigs.add(muleConfig);
       }
@@ -149,11 +150,11 @@ public class MuleConfigGenerator {
 
   private void generateAPIKitAndListenerConfig(ApikitMainFlowContainer api, MuleConfig muleConfig) {
     if (!muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
-      muleConfig.getHttpListenerConfigs().add(api.getHttpListenerConfig());
+      muleConfig.addHttpListener(api.getHttpListenerConfig());
     }
     api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
 
-    muleConfig.getApikitConfigs().put(api.getConfig().getName(), api.getConfig());
+    muleConfig.putApikitConfig(api.getConfig().getName(), api.getConfig());
     muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
     muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
   }

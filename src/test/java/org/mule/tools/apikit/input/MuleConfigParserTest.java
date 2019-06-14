@@ -79,7 +79,7 @@ public class MuleConfigParserTest {
     ramlNames.add("leagues.raml");
     ramlNames.add("api.raml");
 
-    MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory());
+    MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory(Collections.emptyList()));
 
     MuleConfig muleConfigWithFlows = MuleConfigBuilder.fromDoc(documentWithFlows);
     muleConfigParser.parseConfigs(muleConfigWithFlows);
@@ -107,7 +107,7 @@ public class MuleConfigParserTest {
     List<MuleConfig> muleConfigList =
         Arrays.asList(MuleConfigBuilder.fromDoc(getDocument(api.openStream())),
                       MuleConfigBuilder.fromDoc(getDocument(config.openStream())));
-    MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory());
+    MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory(Collections.emptyList()));
     muleConfigParser.parse(ramlPath, muleConfigList);
 
     assertEquals(2, muleConfigParser.getEntries().size());
@@ -117,7 +117,7 @@ public class MuleConfigParserTest {
     List<MuleConfig> muleConfigListReverse =
         Arrays.asList(MuleConfigBuilder.fromDoc(getDocument(config.openStream())),
                       MuleConfigBuilder.fromDoc(getDocument(api.openStream())));
-    muleConfigParser = new MuleConfigParser(new APIFactory());
+    muleConfigParser = new MuleConfigParser(new APIFactory(Collections.emptyList()));
     muleConfigParser.parse(ramlPath, muleConfigListReverse);
 
     assertEquals(2, muleConfigParser.getEntries().size());
@@ -131,6 +131,5 @@ public class MuleConfigParserTest {
     xmlWithFlows.close();
     return document;
   }
-
 
 }

@@ -11,34 +11,31 @@ import org.mule.tools.apikit.input.RAMLFilesParser;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.MuleConfig;
-import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.Scaffolder;
 import org.mule.tools.apikit.model.ScaffolderContext;
-import org.mule.tools.apikit.model.ScaffolderResult;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
+import org.mule.tools.apikit.model.ScaffolderResult;
 import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.output.GenerationStrategy;
 import org.mule.tools.apikit.output.MuleConfigGenerator;
 
 import java.util.List;
 
-public class MuleScaffolder implements Scaffolder {
+public final class MainAppScaffolder implements Scaffolder {
 
-  private ScaffolderContext scaffolderContext;
-  private APIFactory apiFactory;
-  private MuleConfigParser muleConfigParser;
+  private final ScaffolderContext scaffolderContext;
 
-  public MuleScaffolder(ScaffolderContext scaffolderContext) {
+  public MainAppScaffolder(ScaffolderContext scaffolderContext) {
     this.scaffolderContext = scaffolderContext;
   }
 
   @Override
   public ScaffoldingResult run(ScaffoldingConfiguration config) {
-    apiFactory = resolveAPIFactory(config.getDomain());
+    APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs());
     List<MuleConfig> muleConfigs = config.getMuleConfigurations();
 
-    muleConfigParser = resolveMuleConfigParser();
+    MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory);
     muleConfigParser.parse(config.getApi().getLocation(), muleConfigs);
     RAMLFilesParser ramlFilesParser = new RAMLFilesParser(apiFactory, config.getApi());
 
@@ -50,26 +47,10 @@ public class MuleScaffolder implements Scaffolder {
         new MuleConfigGenerator(includedApis, generationModels, muleConfigs, scaffolderContext.getRuntimeEdition());
     List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
 
-    return new ScaffolderResult.Builder()
+    return ScaffolderResult.builder()
         .withGeneratedConfigs(generatedConfigs)
         .withErrors(muleConfigGenerator.getScaffoldingErrors())
         .withGeneratedResources(muleConfigGenerator.getGeneratedResources())
         .build();
-  }
-
-  private APIFactory resolveAPIFactory(MuleDomain domain) {
-    if (apiFactory != null)
-      return apiFactory;
-    if (domain == null || domain.getHttpListenerConfigs() == null || domain.getHttpListenerConfigs().size() == 0)
-      return new APIFactory();
-
-    return new APIFactory(domain.getHttpListenerConfigs());
-  }
-
-  private MuleConfigParser resolveMuleConfigParser() {
-    if (muleConfigParser != null)
-      return muleConfigParser;
-
-    return new MuleConfigParser(apiFactory);
   }
 }

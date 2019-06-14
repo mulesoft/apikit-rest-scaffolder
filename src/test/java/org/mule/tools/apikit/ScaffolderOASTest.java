@@ -89,13 +89,13 @@ public class ScaffolderOASTest {
 
   private MuleConfig scaffoldApi(Path api) {
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(EE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ApiReference apiReference = ApiReference.create(api.toUri());
     ParseResult parseResult = new ParserService().parse(apiReference);
     assertTrue(parseResult.success());
     ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
-    ScaffoldingResult scaffolderResult = muleScaffolder.run(configuration);
+    ScaffoldingResult scaffolderResult = mainAppScaffolder.run(configuration);
     assertEquals(1, scaffolderResult.getGeneratedConfigs().size());
     return scaffolderResult.getGeneratedConfigs().get(0);
   }

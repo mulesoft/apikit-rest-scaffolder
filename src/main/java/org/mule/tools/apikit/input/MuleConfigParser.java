@@ -53,9 +53,8 @@ public class MuleConfigParser {
   }
 
   protected void parseApis(MuleConfig muleConfig, String apiFilePath) {
-    includedApis
-        .putAll(new APIKitRoutersParser(apikitConfigs, apiFactory, apiFilePath, muleConfig)
-            .parse(muleConfig.getContentAsDocument()));
+    includedApis.putAll(new APIKitRoutersParser(apikitConfigs, apiFactory, apiFilePath, muleConfig)
+        .parse(muleConfig.getContentAsDocument()));
   }
 
   protected void parseFlows(List<MuleConfig> configs) {

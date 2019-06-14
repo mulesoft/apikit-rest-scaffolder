@@ -13,9 +13,9 @@ import java.util.List;
 
 public class ScaffoldingConfiguration {
 
-  private ApiSpecification api;
-  private List<MuleConfig> configurations;
-  private MuleDomain domain;
+  private final ApiSpecification api;
+  private final List<MuleConfig> configurations;
+  private final MuleDomain domain;
 
   private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain) {
     this.api = api;
@@ -35,6 +35,10 @@ public class ScaffoldingConfiguration {
     return domain;
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
   public static class Builder {
 
     private ApiSpecification api;
@@ -43,6 +47,7 @@ public class ScaffoldingConfiguration {
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
+      domain = MuleDomain.builder().build();
     }
 
     public Builder withApi(ApiSpecification api) {
@@ -51,7 +56,7 @@ public class ScaffoldingConfiguration {
     }
 
     public Builder withMuleConfigurations(List<MuleConfig> configurations) {
-      this.muleConfigurations = configurations;
+      this.muleConfigurations.addAll(configurations);
       return this;
     }
 

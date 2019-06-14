@@ -6,6 +6,7 @@
  */
 package org.mule.tools.apikit.input.parsers;
 
+import com.google.common.collect.Sets;
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.tools.apikit.input.APIKitFlow;
 import org.mule.tools.apikit.misc.APIKitTools;
@@ -14,6 +15,7 @@ import org.mule.tools.apikit.model.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -43,6 +45,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
 
   @Override
   public Map<String, ApikitMainFlowContainer> parse(Document document) {
+    Set<String> allApisPathsInApplication = getAllApisPathsInApplication();
     Map<String, ApikitMainFlowContainer> includedApis = new HashMap<>();
 
     XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='router']",
@@ -51,18 +54,20 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     for (Element element : elements) {
       APIKitConfig config = getApikitConfig(element);
 
-      String apiPath = config.getApi() == null ? config.getRaml() : config.getApi();
-      if (compareApisLocation(apiPath, apiFilePath)) {
-        Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
-        String configId = config.getName() != null ? config.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
+      String currentApiPath = config.getApi() == null ? config.getRaml() : config.getApi();
+      for(String apiPath : allApisPathsInApplication) {
+        if (compareApisLocation(currentApiPath, apiPath)) {
+          Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
+          String configId = config.getName() != null ? config.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
 
-        if ("listener".equals(source.getName())) {
-          includedApis.put(configId, handleListenerSource(source, apiFilePath, config));
-        } else if ("inbound-endpoint".equals(source.getName())) {
-          includedApis.put(configId, handleInboundEndpointSource(source, apiFilePath, config));
-        } else {
-          throw new IllegalStateException("The first element of the main flow must be an " +
-              "inbound-endpoint or listener");
+          if ("listener".equals(source.getName())) {
+            includedApis.put(configId, handleListenerSource(source, apiPath, config));
+          } else if ("inbound-endpoint".equals(source.getName())) {
+            includedApis.put(configId, handleInboundEndpointSource(source, apiPath, config));
+          } else {
+            throw new IllegalStateException("The first element of the main flow must be an " +
+                                                "inbound-endpoint or listener");
+          }
         }
       }
     }
@@ -150,5 +155,16 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
       path = "/" + path;
     }
     return path;
+  }
+
+  private Set<String> getAllApisPathsInApplication() {
+    Set<String> paths = Sets.newHashSet(apiFilePath);
+    apikitConfigs.values().stream().forEach(config -> {
+      String apiPath = config.getApi() != null ? config.getApi() : config.getRaml();
+      if(!paths.stream().anyMatch(path -> path.endsWith(apiPath))) {
+        paths.add(apiPath);
+      }
+    });
+    return paths;
   }
 }

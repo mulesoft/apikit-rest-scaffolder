@@ -35,12 +35,12 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private static final String OAS_DEFAULT_STATUS_CODE = "default";
 
   private final String verb;
-  private Action action;
-  private Resource resource;
-  private String mimeType;
-  private String version;
-  private List<String> splitPath;
-  private ApikitMainFlowContainer api;
+  private final Action action;
+  private final Resource resource;
+  private final String mimeType;
+  private final String version;
+  private final List<String> splitPath;
+  private final ApikitMainFlowContainer api;
 
   public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action) {
     this(api, version, resource, action, null);

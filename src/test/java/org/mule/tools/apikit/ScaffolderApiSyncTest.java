@@ -134,10 +134,10 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertTrue(parseResult.success());
 
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(EE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
-    ScaffoldingResult result = muleScaffolder.run(configuration);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
 
     String expectedMuleConfigContent = IOUtils.toString(ScaffolderApiSyncTest.class.getClassLoader()
@@ -218,10 +218,10 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertTrue(parseResult.success());
 
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(EE).build();
-    MuleScaffolder muleScaffolder = new MuleScaffolder(context);
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
-    ScaffoldingResult result = muleScaffolder.run(configuration);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     return result.getGeneratedConfigs().get(0);
   }

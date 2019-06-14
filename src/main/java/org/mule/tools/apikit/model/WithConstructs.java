@@ -12,6 +12,4 @@ public interface WithConstructs {
 
   List<Flow> getFlows();
 
-  List<Test> getTests();
-
 }
