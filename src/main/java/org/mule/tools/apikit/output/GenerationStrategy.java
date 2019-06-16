@@ -6,6 +6,8 @@
  */
 package org.mule.tools.apikit.output;
 
+import static java.util.Collections.sort;
+
 import org.mule.tools.apikit.input.APIDiff;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
@@ -24,27 +26,16 @@ public class GenerationStrategy {
                                         Set<ApikitMainFlowContainer> apisInConfigs,
                                         Set<ResourceActionMimeTypeTriplet> flowEntries) {
 
-    Set<ApikitMainFlowContainer> apisInMuleConfigs = apisInConfigs;
-
     Set<ResourceActionMimeTypeTriplet> ramlEntries = ramlFilesEntries.keySet();
-
-    Set<ResourceActionMimeTypeTriplet> muleFlowEntries = flowEntries;
-
     List<GenerationModel> generationModels = new ArrayList<>();
 
-    if (apisInMuleConfigs.isEmpty()) {
+    if (apisInConfigs.isEmpty()) {
       generationModels.addAll(ramlFilesEntries.values());
     } else {
       if (ramlEntries.isEmpty()) {
-        // there are implemented APIs without a RAML file. NOMB.
-        String xmlFilesWithoutRaml = "";
-
-        for (ApikitMainFlowContainer api : apisInMuleConfigs) {
-          xmlFilesWithoutRaml = xmlFilesWithoutRaml + " " + api.getPath();
-        }
         generationModels.addAll(ramlFilesEntries.values());
       } else {
-        Set<ResourceActionMimeTypeTriplet> diffTriplets = new APIDiff(ramlEntries, muleFlowEntries).getEntries();
+        Set<ResourceActionMimeTypeTriplet> diffTriplets = new APIDiff(ramlEntries, flowEntries).getEntries();
         for (ResourceActionMimeTypeTriplet entry : diffTriplets) {
           if (ramlFilesEntries.containsKey(entry)) {
             generationModels.add(ramlFilesEntries.get(entry));
@@ -53,7 +44,7 @@ public class GenerationStrategy {
       }
     }
 
-    Collections.sort(generationModels);
+    sort(generationModels);
     return generationModels;
   }
 }

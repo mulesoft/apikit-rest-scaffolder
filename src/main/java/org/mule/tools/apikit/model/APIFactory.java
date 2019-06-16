@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static java.io.File.separator;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.StringUtils.isNumeric;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_BASE_PATH;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_HOST;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PROTOCOL;
@@ -26,8 +27,7 @@ import static org.mule.tools.apikit.model.APIKitConfig.DEFAULT_CONFIG_NAME;
 
 public class APIFactory {
 
-  private static final String RESOURCE_API_FOLDER =
-      "src" + separator + "main" + separator + "resources" + separator + "api" + separator;
+  private static final String RESOURCE_API_FOLDER = "src/main/resources/api/".replace("/", separator);
 
   private Map<String, ApikitMainFlowContainer> apis = new HashMap<>();
   private List<HttpListenerConfig> httpListenerConfigs;
@@ -85,7 +85,7 @@ public class APIFactory {
     return new HttpListenerConfig(httpListenerConfigName, DEFAULT_BASE_PATH, listenerConnection);
   }
 
-  private static String getNextPort(List<HttpListenerConfig> httpListenerConfigs) {
+  private String getNextPort(List<HttpListenerConfig> httpListenerConfigs) {
     final List<HttpListenerConfig> numericPortListeners = getNumericPortListenersAsList(httpListenerConfigs);
     if (numericPortListeners.size() > 0) {
       final String greaterPort = numericPortListeners.get(numericPortListeners.size() - 1).getPort();
@@ -151,7 +151,7 @@ public class APIFactory {
 
     final List<HttpListenerConfig> usedListeners = apis.entrySet().stream()
         .filter(e -> {
-          final String apiPath = e.getValue().getPath();
+          String apiPath = e.getValue().getPath();
           return path.equals(apiPath) || (path + "/*").equals(apiPath);
         })
         .map(e -> e.getValue().getHttpListenerConfig())
@@ -168,23 +168,19 @@ public class APIFactory {
         .orElse(null);
   }
 
-  private static List<HttpListenerConfig> getNumericPortListenersAsList(List<HttpListenerConfig> httpListenerConfigs) {
-    final List<HttpListenerConfig> numericPortsList = httpListenerConfigs.stream()
-        .filter(config -> StringUtils.isNumeric(config.getPort()))
-        .collect(toList());
-
-    numericPortsList.sort((o1, o2) -> {
-      Integer i1 = Integer.parseInt(o1.getPort());
-      Integer i2 = Integer.parseInt(o2.getPort());
-      return i1.compareTo(i2);
-    });
-
-    return numericPortsList;
+  private List<HttpListenerConfig> getNumericPortListenersAsList(List<HttpListenerConfig> httpListenerConfigs) {
+    return httpListenerConfigs.stream()
+      .filter(config -> isNumeric(config.getPort()))
+      .sorted((o1, o2) -> {
+        Integer i1 = Integer.parseInt(o1.getPort());
+        Integer i2 = Integer.parseInt(o2.getPort());
+        return i1.compareTo(i2);
+      }).collect(toList());
   }
 
-  private static List<HttpListenerConfig> getNonNumericPortListeners(List<HttpListenerConfig> httpListenerConfigs) {
+  private List<HttpListenerConfig> getNonNumericPortListeners(List<HttpListenerConfig> httpListenerConfigs) {
     return httpListenerConfigs.stream()
-        .filter(config -> StringUtils.isNumeric(config.getPort()))
+        .filter(config -> !isNumeric(config.getPort()))
         .collect(toList());
   }
 }

@@ -6,6 +6,7 @@
  */
 package org.mule.tools.apikit.model;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -17,19 +18,17 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
   private Document originalContent;
   private List<HttpListenerConfig> configurations;
-  private Map<String, APIKitConfig> apikitConfigs;
+  private List<APIKitConfig> apikitConfigs;
   private List<Flow> flows;
 
-  protected MuleConfig(List<HttpListenerConfig> configurations, Map<String, APIKitConfig> apikitConfigs,
-                       List<Flow> flows) {
+  protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows) {
     this.configurations = configurations;
     this.apikitConfigs = apikitConfigs;
     this.flows = flows;
   }
 
-  protected MuleConfig(List<HttpListenerConfig> httpListenerConfigs, Map<String, APIKitConfig> apikitConfigs, List<Flow> flows,
-                       Document content) {
-    this(httpListenerConfigs, apikitConfigs, flows);
+  protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows, Document content) {
+    this(httpConfigs, apikitConfigs, flows);
     this.originalContent = content;
   }
 
@@ -62,12 +61,12 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     return Collections.unmodifiableList(flows);
   }
 
-  public Map<String, APIKitConfig> getApikitConfigs() {
-    return Collections.unmodifiableMap(apikitConfigs);
+  public void addConfig(APIKitConfig value) {
+    this.apikitConfigs.add(value);
   }
 
-  public void putApikitConfig(String key, APIKitConfig value) {
-    this.apikitConfigs.put(key, value);
+  public List<APIKitConfig> getApikitConfigs() {
+    return Lists.newArrayList(apikitConfigs);
   }
 
   public Document buildContent() {
@@ -80,7 +79,7 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
       if (!config.isPersisted())
         addContent(document, config.generate());
     }
-    apikitConfigs.values().forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
+    apikitConfigs.forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
     flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
 
     return document;

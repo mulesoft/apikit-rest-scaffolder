@@ -6,6 +6,9 @@
  */
 package org.mule.tools.apikit.input;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_BASE_URI;
+
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
@@ -32,16 +35,11 @@ public class RAMLFilesParser {
 
   public RAMLFilesParser(APIFactory apiFactory, ApiSpecification apiSpec) {
     this.apiFactory = apiFactory;
-    collectResources(apiSpec.getLocation(), apiSpec.getResources(), ApikitMainFlowContainer.DEFAULT_BASE_URI,
-                     apiSpec.getVersion());
-  }
-
-  public Set<ApikitMainFlowContainer> getApis() {
-    return apis;
+    collectResources(apiSpec.getLocation(), apiSpec.getResources(), DEFAULT_BASE_URI, apiSpec.getVersion());
   }
 
   public List<ApikitMainFlowContainer> getApisAsList() {
-    return Lists.newArrayList(apis);
+    return newArrayList(apis);
   }
 
   public Map<ResourceActionMimeTypeTriplet, GenerationModel> getEntries() {

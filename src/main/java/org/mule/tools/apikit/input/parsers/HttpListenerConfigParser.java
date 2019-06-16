@@ -21,15 +21,19 @@ import org.jdom2.filter.Filters;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
-public class HttpListenerConfigParser implements MuleConfigFileParser {
+public class HttpListenerConfigParser implements MuleConfigFileParser<List<HttpListenerConfig>> {
 
-  public static final String ELEMENT_NAME = "listener-config";
+  private static final String ELEMENT_NAME = "listener-config";
+  private static final XPathExpression<Element> LISTENER_COMPILED_EXPRESSION = getCompiledExpression();
+
+  private static XPathExpression<Element> getCompiledExpression() {
+    return XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
+                                           Filters.element(HTTP_NAMESPACE.getNamespace()));
+  }
 
   public List<HttpListenerConfig> parse(Document document) {
     List<HttpListenerConfig> httpListenerConfigMap = new ArrayList<>();
-    XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
-                                                                  Filters.element(HTTP_NAMESPACE.getNamespace()));
-    List<Element> elements = xp.evaluate(document);
+    List<Element> elements = LISTENER_COMPILED_EXPRESSION.evaluate(document);
     for (Element element : elements) {
       String name = element.getAttributeValue("name");
       if (name == null) {

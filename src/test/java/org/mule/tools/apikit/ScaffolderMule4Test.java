@@ -35,6 +35,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.assertXmls;
+import static org.mule.tools.apikit.TestUtils.getResourceAsString;
 
 public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
 
@@ -131,17 +133,10 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
   public void generateWithExamples() throws Exception {
     String apiLocation = "scaffolder-with-examples/src/main/resources/api/api.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
     assertEquals(1, result.getGeneratedConfigs().size());
-
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
-
-
-    final String expected =
-        IOUtils.toString(ScaffolderMule4Test.class.getClassLoader().getResourceAsStream("scaffolder-with-examples/api.xml"));
-    XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(s, expected);
-    assertTrue(diff.identical());
+    String actual = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String expected = getResourceAsString("scaffolder-with-examples/api.xml");
+    assertXmls(actual, expected);
   }
 
   @Test
@@ -885,7 +880,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder/without-resources.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    assertTrue(result.getGeneratedConfigs().size() == 1);
+    assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
     assertEquals("Files are different", FileUtils

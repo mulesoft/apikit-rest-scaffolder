@@ -24,6 +24,7 @@ import java.util.List;
 
 public final class MainAppScaffolder implements Scaffolder {
 
+  private static final GenerationStrategy GENERATOR = new GenerationStrategy();
   private final ScaffolderContext scaffolderContext;
 
   public MainAppScaffolder(ScaffolderContext scaffolderContext) {
@@ -35,16 +36,19 @@ public final class MainAppScaffolder implements Scaffolder {
     APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs());
     List<MuleConfig> muleConfigs = config.getMuleConfigurations();
 
-    MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory);
-    muleConfigParser.parse(config.getApi().getLocation(), muleConfigs);
+    MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory, config.getApi().getLocation(), muleConfigs);
     RAMLFilesParser ramlFilesParser = new RAMLFilesParser(apiFactory, config.getApi());
 
     List<ApikitMainFlowContainer> includedApis = ramlFilesParser.getApisAsList();
-    List<GenerationModel> generationModels = new GenerationStrategy()
-        .generate(ramlFilesParser.getEntries(), muleConfigParser.getIncludedApis(), muleConfigParser.getEntries());
+    List<GenerationModel> generationModels = GENERATOR.generate(ramlFilesParser.getEntries(),
+                                                                muleConfigParser.getIncludedApis(),
+                                                                muleConfigParser.getEntries());
 
-    MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(includedApis, generationModels, muleConfigs, scaffolderContext.getRuntimeEdition());
+    MuleConfigGenerator muleConfigGenerator = new MuleConfigGenerator(includedApis,
+                                                                      generationModels,
+                                                                      muleConfigs,
+                                                                      scaffolderContext.getRuntimeEdition());
+
     List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
 
     return ScaffolderResult.builder()

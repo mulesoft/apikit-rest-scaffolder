@@ -13,14 +13,10 @@ import java.util.Set;
 
 public class APIDiff {
 
-  private final Set<ResourceActionMimeTypeTriplet> ramlEntries;
-  private final Set<ResourceActionMimeTypeTriplet> muleFlowEntries;
   private final Set<ResourceActionMimeTypeTriplet> difference;
 
   public APIDiff(Set<ResourceActionMimeTypeTriplet> ramlEntries, Set<ResourceActionMimeTypeTriplet> muleFlowEntries) {
-    this.ramlEntries = ramlEntries;
-    this.muleFlowEntries = muleFlowEntries;
-    this.difference = computeDifference(this.ramlEntries, this.muleFlowEntries);
+    this.difference = computeDifference(ramlEntries, muleFlowEntries);
   }
 
   public Set<ResourceActionMimeTypeTriplet> getEntries() {

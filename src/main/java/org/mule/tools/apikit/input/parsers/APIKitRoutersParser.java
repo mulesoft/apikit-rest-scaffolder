@@ -26,16 +26,20 @@ import org.jdom2.xpath.XPathFactory;
 
 public class APIKitRoutersParser implements MuleConfigFileParser {
 
-  private final Map<String, APIKitConfig> apikitConfigs;
+  private static final XPathExpression<Element> COMPILED_ROUTER_EXPRESSION = getCompiledExpression();
+
+  private static XPathExpression<Element> getCompiledExpression() {
+    return XPathFactory.instance().compile("//*/*[local-name()='router']",
+                                           Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
+  }
+
+  private final List<APIKitConfig> apikitConfigs;
   private final List<HttpListenerConfig> httpListenerConfigs;
   private final String apiFilePath;
   private final APIFactory apiFactory;
   private MuleConfig muleConfig;
 
-  public APIKitRoutersParser(final Map<String, APIKitConfig> apikitConfigs,
-                             final APIFactory apiFactory,
-                             final String apiFilePath,
-                             MuleConfig config) {
+  public APIKitRoutersParser(List<APIKitConfig> apikitConfigs, APIFactory apiFactory, String apiFilePath, MuleConfig config) {
     this.apikitConfigs = apikitConfigs;
     this.httpListenerConfigs = apiFactory.getHttpListenerConfigs();
     this.apiFilePath = apiFilePath;
@@ -48,9 +52,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     Set<String> allApisPathsInApplication = getAllApisPathsInApplication();
     Map<String, ApikitMainFlowContainer> includedApis = new HashMap<>();
 
-    XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='router']",
-                                                                  Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
-    List<Element> elements = xp.evaluate(document);
+    List<Element> elements = COMPILED_ROUTER_EXPRESSION.evaluate(document);
     for (Element element : elements) {
       APIKitConfig config = getApikitConfig(element);
 
@@ -82,25 +84,23 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     return currentRootRaml.endsWith(configRaml);
   }
 
-  public APIKitConfig getApikitConfig(Element element) throws IllegalStateException {
+  private APIKitConfig getApikitConfig(Element element) throws IllegalStateException {
     Attribute configRef = element.getAttribute("config-ref");
     String configId = configRef != null ? configRef.getValue() : APIKitFlow.UNNAMED_CONFIG_NAME;
 
-    APIKitConfig config = apikitConfigs.get(configId);
-    if (config == null) {
-      throw new IllegalStateException("An Apikit configuration is mandatory.");
-    }
-    return config;
+    return apikitConfigs.stream()
+      .filter(c -> c.getName().equals(configId)).findFirst()
+      .orElseThrow(() -> new IllegalStateException("An Apikit configuration is mandatory."));
   }
 
-  public ApikitMainFlowContainer handleListenerSource(Element source, String apiFilePath, APIKitConfig config) {
+  private ApikitMainFlowContainer handleListenerSource(Element source, String apiFilePath, APIKitConfig config) {
     HttpListenerConfig httpListenerConfig = getHTTPListenerConfig(source);
     String path = getPathFromInbound(source);
     // TODO PARSE HTTPSTATUSVARNAME AND OUTBOUNDHEADERSMAPNAME
     return apiFactory.createAPIBinding(apiFilePath, null, path, config, httpListenerConfig, muleConfig);
   }
 
-  public ApikitMainFlowContainer handleInboundEndpointSource(Element source, String apiFilePath, APIKitConfig config) {
+  private ApikitMainFlowContainer handleInboundEndpointSource(Element source, String apiFilePath, APIKitConfig config) {
     String baseUri = null;
     String path = source.getAttributeValue("path");
 
@@ -159,9 +159,9 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
 
   private Set<String> getAllApisPathsInApplication() {
     Set<String> paths = Sets.newHashSet(apiFilePath);
-    apikitConfigs.values().stream().forEach(config -> {
+    apikitConfigs.forEach(config -> {
       String apiPath = config.getApi() != null ? config.getApi() : config.getRaml();
-      if(!paths.stream().anyMatch(path -> path.endsWith(apiPath))) {
+      if(paths.stream().noneMatch(path -> path.endsWith(apiPath))) {
         paths.add(apiPath);
       }
     });

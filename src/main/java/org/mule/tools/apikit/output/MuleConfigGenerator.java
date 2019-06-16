@@ -154,7 +154,7 @@ public class MuleConfigGenerator {
     }
     api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
 
-    muleConfig.putApikitConfig(api.getConfig().getName(), api.getConfig());
+    muleConfig.addConfig(api.getConfig());
     muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
     muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
   }

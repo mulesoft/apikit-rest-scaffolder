@@ -16,7 +16,6 @@ import java.util.List;
 
 public class MuleDomain implements NamedContent, WithConfigs {
 
-  private String name;
   private InputStream content;
   private List<HttpListenerConfig> configurations;
 
@@ -26,7 +25,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
   }
 
   public String getName() {
-    return name;
+    return "APP_DOMAIN";
   }
 
   @Override

@@ -16,13 +16,14 @@ import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class MuleConfigBuilder {
 
   private final List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
-  private final Map<String, APIKitConfig> apiKitConfigs = new HashMap<>();
+  private final List<APIKitConfig> apiKitConfigs = new LinkedList<>();
   private final List<Flow> flows = new ArrayList<>();
 
   public void addHttpListenerConfig(HttpListenerConfig config) {
@@ -30,7 +31,7 @@ public class MuleConfigBuilder {
   }
 
   public void addApiKitConfig(APIKitConfig config) {
-    apiKitConfigs.put(config.getName(), config);
+    apiKitConfigs.add(config);
   }
 
   public void addFlow(Flow flow) {
@@ -46,8 +47,7 @@ public class MuleConfigBuilder {
     APIKitConfigParser apiKitConfigParser = new APIKitConfigParser();
 
     List<HttpListenerConfig> httpListenerConfigs = httpConfigParser.parse(muleConfigContent);
-    Map<String, APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
-
+    List<APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
     List<Flow> flowsInConfig = new ArrayList<>();
 
     for (Content content : muleConfigContent.getRootElement().getContent()) {

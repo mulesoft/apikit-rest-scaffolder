@@ -9,8 +9,8 @@ package org.mule.tools.apikit.input.parsers;
 
 import org.jdom2.Document;
 
-public interface MuleConfigFileParser {
+public interface MuleConfigFileParser<T> {
 
-  Object parse(Document document);
+  T parse(Document document);
 
 }
