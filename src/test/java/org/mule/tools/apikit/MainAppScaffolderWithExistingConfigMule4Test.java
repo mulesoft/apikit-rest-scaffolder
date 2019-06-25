@@ -31,8 +31,10 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-    MuleConfig muleConfig1 = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
-    MuleConfig muleConfig2 = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
+    MuleConfig muleConfig1 =
+        MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
+    MuleConfig muleConfig2 =
+        MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig1);
     muleConfigs.add(muleConfig2);
@@ -56,8 +58,10 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-    MuleConfig muleConfig1 = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
-    MuleConfig muleConfig2 = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
+    MuleConfig muleConfig1 =
+        MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
+    MuleConfig muleConfig2 =
+        MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig2);
     muleConfigs.add(muleConfig1);
@@ -91,7 +95,8 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-extension/simple-extension-not-present-4.xml"));
+    MuleConfig muleConfig =
+        MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-extension/simple-extension-not-present-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
     ScaffoldingConfiguration configuration =
@@ -210,7 +215,8 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc-4.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder
+        .fromStream(getResourceAsStream("scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
     MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
@@ -250,7 +256,8 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing/mule-config-no-api-flows-4.xml"));
+    MuleConfig muleConfig =
+        MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing/mule-config-no-api-flows-4.xml"));
     List<MuleConfig> muleConfigs = new ArrayList<>();
     muleConfigs.add(muleConfig);
     ScaffoldingConfiguration configuration =
