@@ -25,6 +25,8 @@ import java.util.Set;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.TestUtils.getResourceAsString;
+import static org.mule.tools.apikit.TestUtils.getResourceAsUrl;
 
 public class RAMLFilesParserTest {
 
@@ -32,13 +34,7 @@ public class RAMLFilesParserTest {
 
   @Test
   public void testCreation() {
-
-    final URL resourceUrl =
-        RAMLFilesParserTest.class.getClassLoader().getResource("scaffolder/simple.raml");
-
-    assertNotNull(resourceUrl);
-
-    ApiReference apiRef = ApiReference.create(resourceUrl.toString());
+    ApiReference apiRef = ApiReference.create(getResourceAsUrl("scaffolder/simple.raml").toString());
 
     ParseResult parseResult = parserService.parse(apiRef);
     assertTrue(parseResult.success());
@@ -75,11 +71,8 @@ public class RAMLFilesParserTest {
 
   @Test
   public void oasCreation() {
-
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    URL url = cl.getResource("oas/OpenAPI-Specification/examples/v2.0/json/src/main/resources/api/petstore.json");
-
-    ApiReference apiReference = ApiReference.create(url.toString());
+    String path = "oas/OpenAPI-Specification/examples/v2.0/json/src/main/resources/api/petstore.json";
+    ApiReference apiReference = ApiReference.create(getResourceAsUrl(path).getPath());
     ParseResult parseResult = parserService.parse(apiReference);
 
     assertTrue(parseResult.success());

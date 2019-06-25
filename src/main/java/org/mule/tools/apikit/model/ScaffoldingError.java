@@ -7,4 +7,14 @@
 package org.mule.tools.apikit.model;
 
 public class ScaffoldingError {
+
+  private String reason;
+
+  public ScaffoldingError(String reason) {
+    this.reason = reason;
+  }
+
+  public String getReason() {
+    return reason;
+  }
 }

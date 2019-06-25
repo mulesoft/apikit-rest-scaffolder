@@ -6,6 +6,48 @@
  */
 package org.mule.tools.apikit.model;
 
-public class ScaffolderResource {
+import java.io.InputStream;
+import java.util.Objects;
 
+public class ScaffolderResource implements NamedContent {
+
+  private String directory;
+  private String name;
+  private InputStream content;
+
+  public ScaffolderResource(String directory, String name, InputStream content) {
+    this.directory = directory;
+    this.name = name;
+    this.content = content;
+  }
+
+  public String getDirectory() {
+    return directory;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public InputStream getContent() {
+    return content;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ScaffolderResource resource = (ScaffolderResource) o;
+    return Objects.equals(directory, resource.directory) &&
+        Objects.equals(name, resource.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(directory, name);
+  }
 }

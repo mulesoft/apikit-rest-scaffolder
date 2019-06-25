@@ -13,7 +13,6 @@ import org.mule.tools.apikit.model.APIKitConfig;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.jdom2.Attribute;
 import org.jdom2.Document;

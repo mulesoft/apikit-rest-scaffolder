@@ -1,0 +1,24 @@
+[
+  {
+    "versionId": "54eb384de4b0c6c876208bc7",
+    "name": "cec-salesforce-pulse-cgstaging",
+    "status": "STARTED",
+    "vCores": 0.1, 
+    "runtime": "3.6.2",
+    "staticIP": false,
+    "lastUpdated": 1463528999472,
+    "staticIPCount": 0,
+    "staticIPAdresses": ""
+  },
+  {
+    "versionId": "5593c171e4b0619c886651b1",
+    "name": "tolipton-dw-customer-to-sfdc-cgstaging",
+    "status": "UNDEPLOYED",
+    "vCores": 0.1,
+    "runtime": "3.6.1",
+    "staticIP": false,
+    "lastUpdated": 1441886802667,
+    "staticIPCount": 0,
+    "staticIPAdresses": ""
+  }
+]

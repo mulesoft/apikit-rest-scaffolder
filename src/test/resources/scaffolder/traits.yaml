@@ -1,0 +1,25 @@
+#%RAML 0.8
+---
+title: Sample API
+version: v1
+traits:
+    - hasNotFound:
+        responses:
+            404:
+                body:
+                    application/json:
+                        example: |
+                          {"ll":"not found"}
+    - hasResponseItem:
+        responses:
+            200:
+                body:
+                    application/json:
+                        example: |
+                            {"itemId":1,"itemName":"aName"}
+
+baseUri: http://localhost/api
+/pet:
+    displayName: Leagues
+    get:
+        is: [ hasResponseItem, hasNotFound ]

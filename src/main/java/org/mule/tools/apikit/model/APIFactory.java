@@ -170,12 +170,12 @@ public class APIFactory {
 
   private List<HttpListenerConfig> getNumericPortListenersAsList(List<HttpListenerConfig> httpListenerConfigs) {
     return httpListenerConfigs.stream()
-      .filter(config -> isNumeric(config.getPort()))
-      .sorted((o1, o2) -> {
-        Integer i1 = Integer.parseInt(o1.getPort());
-        Integer i2 = Integer.parseInt(o2.getPort());
-        return i1.compareTo(i2);
-      }).collect(toList());
+        .filter(config -> isNumeric(config.getPort()))
+        .sorted((o1, o2) -> {
+          Integer i1 = Integer.parseInt(o1.getPort());
+          Integer i2 = Integer.parseInt(o2.getPort());
+          return i1.compareTo(i2);
+        }).collect(toList());
   }
 
   private List<HttpListenerConfig> getNonNumericPortListeners(List<HttpListenerConfig> httpListenerConfigs) {

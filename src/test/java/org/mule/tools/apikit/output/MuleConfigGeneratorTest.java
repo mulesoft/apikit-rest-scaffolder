@@ -17,6 +17,7 @@ import org.mule.tools.apikit.Helper;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 
 import java.io.File;
@@ -115,7 +116,8 @@ public class MuleConfigGeneratorTest {
     apis.add(api);
 
     MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(), RuntimeEdition.CE);
+        new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
+                                new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build());
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
     //    Document document = muleConfigGenerator.getMuleConfig(api).getContentAsDocument();

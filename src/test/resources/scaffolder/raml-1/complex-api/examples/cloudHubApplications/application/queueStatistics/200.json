@@ -1,0 +1,22 @@
+{
+  "queues": [
+    {
+      "id": "542a803ee4b003a1d34c077c_56c9ce26e4b0aaaf2eef7b7f_28DABFBBABEEE4684CC6CF670BC9E0",
+      "name": "seda.queue(fifoPoller.stage1)",
+      "added": 3,
+      "queued": 0,
+      "inFlight": 0,
+      "dequeued": 2,
+      "status": "NORMAL"
+    },
+    {
+      "id": "542a803ee4b003a1d34c077c_56c9ce26e4b0aaaf2eef7b7f_28DABFBBABEEE4684CC6CF670BC9E1",
+      "name": "seda.queue(fifoPoller.stage2)",
+      "added": 3,
+      "queued": 2,
+      "inFlight": 4,
+      "dequeued": 2,
+      "status": "NORMAL"
+    }
+  ]    
+}

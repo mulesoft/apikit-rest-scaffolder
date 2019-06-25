@@ -1,0 +1,18 @@
+#%RAML 1.0
+title: Customers API
+version: v1
+#baseUri: http://0.0.0.0:8081
+baseUri: http://mocksvc.mulesoft.com/mocks/0572c6b5-2784-4cc0-97fa-3fdd1daf506a
+types:
+  customer: !include http://52.23.199.200:7070/dataDefinitions/customer/schemas/customer_schema.json
+/customers:
+  displayName: Customers
+  /{id}:
+    get:
+      description: |
+        Retrieve all the Customers.
+      responses:
+        200:
+          body:
+            application/json:
+              type: customer

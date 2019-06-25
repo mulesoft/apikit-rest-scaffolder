@@ -1,0 +1,5 @@
+paged:
+  queryParameters:
+    start:
+      type: number
+      example: 25

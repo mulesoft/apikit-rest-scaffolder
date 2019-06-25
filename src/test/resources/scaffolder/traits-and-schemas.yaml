@@ -1,0 +1,32 @@
+#%RAML 0.8
+---
+title: Sample API
+version: v1
+schemas:
+  - avenger-schema: |
+      {
+         "title": "Type-1 Schema",
+         "type": "object",
+         "properties": {
+            "avengerId":{
+                "type": "string"
+            },
+            "avengerName": {
+                "type": "string",
+                "required": true
+            }
+         }
+      }
+traits:
+    - noAvengerFound:
+        responses:
+            404:
+                body:
+                    application/json:
+                        schema: avenger-schema
+
+baseUri: http://localhost/api
+/assemble:
+    displayName: S.H.I.E.L.D
+    get:
+        is: [ noAvengerFound ]

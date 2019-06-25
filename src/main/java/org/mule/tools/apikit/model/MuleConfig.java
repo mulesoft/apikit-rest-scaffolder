@@ -16,6 +16,7 @@ import java.util.*;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
+  private String name;
   private Document originalContent;
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
@@ -27,13 +28,18 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     this.flows = flows;
   }
 
-  protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows, Document content) {
+  protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows,
+                       Document content) {
     this(httpConfigs, apikitConfigs, flows);
     this.originalContent = content;
   }
 
   public String getName() {
     return "";
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public Document getContentAsDocument() {

@@ -8,10 +8,17 @@ package org.mule.tools.apikit.model;
 
 public class ScaffolderContext {
 
-  private final RuntimeEdition runtimeEdition;
+  private RuntimeEdition runtimeEdition;
+  private boolean shouldCreateMunitResources;
+  private String munitSuiteName;
+  private String apikitMainFlowName;
 
-  private ScaffolderContext(RuntimeEdition runtimeEdition) {
+  private ScaffolderContext(RuntimeEdition runtimeEdition, boolean shouldCreateMunitResources, String munitSuiteName,
+                            String apikitMainFlowName) {
     this.runtimeEdition = runtimeEdition;
+    this.shouldCreateMunitResources = shouldCreateMunitResources;
+    this.munitSuiteName = munitSuiteName;
+    this.apikitMainFlowName = apikitMainFlowName;
   }
 
   public RuntimeEdition getRuntimeEdition() {
@@ -22,17 +29,47 @@ public class ScaffolderContext {
     return new Builder();
   }
 
+  public boolean shouldCreateMunitResources() {
+    return shouldCreateMunitResources;
+  }
+
+  public String getApikitMainFlowName() {
+    return apikitMainFlowName;
+  }
+
+  public String getMunitSuiteName() {
+    return munitSuiteName;
+  }
+
   public static class Builder {
 
     private RuntimeEdition runtimeEdition = RuntimeEdition.CE;
+    private boolean shouldCreateMunitResources = false;
+    private String munitSuiteName;
+    private String apikitMainFlowName;
 
     public Builder withRuntimeEdition(RuntimeEdition runtimeEdition) {
       this.runtimeEdition = runtimeEdition;
       return this;
     }
 
+    public Builder shouldCreateMunitResources(boolean shouldCreateMunitResources) {
+      this.shouldCreateMunitResources = shouldCreateMunitResources;
+      return this;
+    }
+
+    public Builder withMunitSuiteName(String suiteName) {
+      munitSuiteName = suiteName;
+      return this;
+    }
+
+    public Builder withApikitMainFlowName(String apikitMainFlowName) {
+      this.apikitMainFlowName = apikitMainFlowName;
+      return this;
+    }
+
     public ScaffolderContext build() {
-      return new ScaffolderContext(runtimeEdition);
+      return new ScaffolderContext(runtimeEdition, shouldCreateMunitResources, munitSuiteName, apikitMainFlowName);
     }
   }
 }

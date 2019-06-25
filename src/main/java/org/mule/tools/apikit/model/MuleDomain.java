@@ -49,6 +49,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
   }
 
   public static class Builder {
+
     private InputStream content;
     private List<HttpListenerConfig> configurations;
 

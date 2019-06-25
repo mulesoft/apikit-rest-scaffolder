@@ -1,0 +1,14 @@
+#%RAML 0.8
+---
+title: La Liga
+version: 1.0
+baseUri: http://localhost:8080/api
+/teams:
+  displayName: Teams
+  get:
+    description: Obtain information from a collection of teams simultaneously
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include examples/teams-example.json

@@ -1,0 +1,14 @@
+#%RAML 1.0
+title: Example of importing libraries
+/files:
+  get:
+    queryParameters:
+      qty:
+        type: integer
+        examples:
+         qty20:
+          value: 20
+         qty30:
+          value: 30
+    responses:
+      200:

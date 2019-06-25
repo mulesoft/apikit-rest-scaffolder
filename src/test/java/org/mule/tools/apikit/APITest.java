@@ -33,7 +33,8 @@ public class APITest {
   }
 
   public static ApikitMainFlowContainer createAPIBinding(File a) {
-    return new APIFactory(Collections.emptyList()).createAPIBindingInboundEndpoint(a.getName(), "http://localhost:80", "/api/*", null);
+    return new APIFactory(Collections.emptyList()).createAPIBindingInboundEndpoint(a.getName(), "http://localhost:80", "/api/*",
+                                                                                   null);
   }
 
   @Test

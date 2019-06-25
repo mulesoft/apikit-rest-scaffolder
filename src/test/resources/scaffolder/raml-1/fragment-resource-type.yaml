@@ -1,0 +1,13 @@
+#%RAML 1.0
+title: Products API
+resourceTypes:
+  collection: !include resources/resourceTypes/collection.raml
+/products:
+  type: collection
+  description: All products
+  post:
+    responses:
+      201:
+        body:
+          application/json:
+            example: 44W

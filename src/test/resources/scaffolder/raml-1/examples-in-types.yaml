@@ -1,0 +1,19 @@
+#%RAML 1.0
+title: Example of request bodies
+mediaType: application/json
+types:
+  User:
+    properties:
+      firstName: string
+      lastName: string
+    example:
+      firstName: John
+      lastName: Doe
+
+/users/{userId}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: User

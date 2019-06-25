@@ -54,22 +54,14 @@ public class RAMLFilesParser {
       for (Action action : resource.getActions().values()) {
 
         Map<String, MimeType> mimeTypes = action.getBody();
-        boolean addGenericAction = false;
         if (mimeTypes != null && !mimeTypes.isEmpty()) {
           for (MimeType mimeType : mimeTypes.values()) {
-            if (mimeType.getSchema() != null
-                || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty())) {
-              addResource(api, resource, action, mimeType.getType(), version);
-            } else {
-              addGenericAction = true;
-            }
+            boolean shouldIncludeMimeTypeInName = mimeType.getSchema() != null ||
+                (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty());
+            addResource(api, resource, action, mimeType.getType(), version, shouldIncludeMimeTypeInName);
           }
         } else {
-          addGenericAction = true;
-        }
-
-        if (addGenericAction) {
-          addResource(api, resource, action, null, version);
+          addResource(api, resource, action, null, version, false);
         }
       }
 
@@ -77,7 +69,8 @@ public class RAMLFilesParser {
     }
   }
 
-  private void addResource(ApikitMainFlowContainer api, Resource resource, Action action, String mimeType, String version) {
+  private void addResource(ApikitMainFlowContainer api, Resource resource, Action action,
+                           String mimeType, String version, boolean shouldIncludeMimeTypeInName) {
 
     String completePath = APIKitTools
         .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
@@ -86,6 +79,7 @@ public class RAMLFilesParser {
         new ResourceActionMimeTypeTriplet(api, completePath + resource.getResolvedUri(version),
                                           action.getType().toString(),
                                           mimeType);
-    entries.put(resourceActionTriplet, new GenerationModel(api, version, resource, action, mimeType));
+    entries.put(resourceActionTriplet, new GenerationModel(api, version, resource, action,
+                                                           mimeType, shouldIncludeMimeTypeInName));
   }
 }

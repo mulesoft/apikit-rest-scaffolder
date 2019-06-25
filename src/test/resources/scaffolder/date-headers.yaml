@@ -1,0 +1,20 @@
+#%RAML 0.8
+---
+title: Ticketing API
+baseUri: http://ticketing/api/{version}
+version: v1.0
+mediaType: application/json
+
+/tickets:
+  get:
+    description: Creates a new email for a specific ticket
+    headers:
+      date:
+        type: date
+        example: 1/1/2015
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            example: 123

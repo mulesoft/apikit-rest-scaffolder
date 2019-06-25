@@ -11,10 +11,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.mule.tools.apikit.TestUtils.getDocumentFromStream;
-import static org.mule.tools.apikit.TestUtils.getResourceAsString;
+import static org.mule.tools.apikit.TestUtils.*;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
 
+import org.mule.tools.apikit.TestUtils;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
@@ -101,16 +101,13 @@ public class MuleConfigParserTest {
     assertEquals(1, muleConfigParser.getIncludedApis().size());
     assertEquals(1, muleConfigParser.getApikitConfigs().size());
 
-    List<MuleConfig> muleConfigListReverse = asList(fromDoc(getDocumentFromStream(new ByteArrayInputStream(config.getBytes()))), fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
+    List<MuleConfig> muleConfigListReverse = asList(fromDoc(getDocumentFromStream(new ByteArrayInputStream(config.getBytes()))),
+                                                    fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
     muleConfigParser = new MuleConfigParser(new APIFactory(emptyList()), ramlPath, muleConfigListReverse);
 
     assertEquals(2, muleConfigParser.getEntries().size());
     assertEquals(1, muleConfigParser.getIncludedApis().size());
     assertEquals(1, muleConfigParser.getApikitConfigs().size());
-  }
-
-  private InputStream getResourceAsStream(String s) {
-    return MuleConfigParser.class.getClassLoader().getResourceAsStream(s);
   }
 
 }
