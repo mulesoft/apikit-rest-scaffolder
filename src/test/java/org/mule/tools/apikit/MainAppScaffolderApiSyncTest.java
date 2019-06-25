@@ -139,8 +139,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
 
-    String expectedMuleConfigContent = IOUtils.toString(MainAppScaffolderApiSyncTest.class.getClassLoader()
-        .getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
+    String expectedMuleConfigContent = IOUtils.toString(getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
     String generatedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
 
     XMLUnit.setIgnoreWhitespace(true);
