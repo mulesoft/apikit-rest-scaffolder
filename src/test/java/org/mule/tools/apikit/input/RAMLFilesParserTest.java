@@ -25,6 +25,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.TestUtils.getResourceAsUrl;
 
 public class RAMLFilesParserTest {
 
@@ -33,8 +34,7 @@ public class RAMLFilesParserTest {
   @Test
   public void testCreation() {
 
-    final URL resourceUrl =
-        RAMLFilesParserTest.class.getClassLoader().getResource("scaffolder/simple.raml");
+    final URL resourceUrl = getResourceAsUrl("scaffolder/simple.raml");
 
     assertNotNull(resourceUrl);
 

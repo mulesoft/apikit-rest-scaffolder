@@ -26,18 +26,6 @@ public class MuleConfigBuilder {
   private final List<APIKitConfig> apiKitConfigs = new LinkedList<>();
   private final List<Flow> flows = new ArrayList<>();
 
-  public void addHttpListenerConfig(HttpListenerConfig config) {
-    httpListenerConfigs.add(config);
-  }
-
-  public void addApiKitConfig(APIKitConfig config) {
-    apiKitConfigs.add(config);
-  }
-
-  public void addFlow(Flow flow) {
-    flows.add(flow);
-  }
-
   public MuleConfig build() {
     return new MuleConfig(httpListenerConfigs, apiKitConfigs, flows);
   }

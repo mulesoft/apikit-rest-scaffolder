@@ -27,7 +27,8 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     this.flows = flows;
   }
 
-  protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows, Document content) {
+  protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows,
+                       Document content) {
     this(httpConfigs, apikitConfigs, flows);
     this.originalContent = content;
   }

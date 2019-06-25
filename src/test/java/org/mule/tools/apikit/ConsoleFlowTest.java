@@ -10,6 +10,7 @@ package org.mule.tools.apikit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
 import org.apache.commons.io.FileUtils;
 import org.mule.apikit.model.api.ApiReference;
@@ -110,7 +111,7 @@ public class ConsoleFlowTest {
     }
     File file = folder.newFile(s);
     file.createNewFile();
-    InputStream resourceAsStream = ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(s);
+    InputStream resourceAsStream = getResourceAsStream(s);
     IOUtils.copy(resourceAsStream,
                  new FileOutputStream(file));
     return file;

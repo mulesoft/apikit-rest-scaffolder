@@ -28,6 +28,7 @@ import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.model.RuntimeEdition;
 
 import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
 public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTestCase {
 
@@ -39,7 +40,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   protected List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
     List<MuleConfig> muleConfigs = new ArrayList<>();
     for (String location : ramlLocations) {
-      InputStream muleConfigInputStream = AbstractScaffolderTestCase.class.getClassLoader().getResourceAsStream(location);
+      InputStream muleConfigInputStream = getResourceAsStream(location);
       muleConfigs.add(MuleConfigBuilder.fromStream(muleConfigInputStream));
     }
     return muleConfigs;
@@ -49,8 +50,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     if (location == null)
       return null;
 
-    String muleDomainFilePath = ScaffolderMule4Test.class.getClassLoader().getResource(location).getFile();
-    InputStream muleDomainInputStream = new FileInputStream(muleDomainFilePath);
+    InputStream muleDomainInputStream = getResourceAsStream(location);
     return MuleDomain.fromInputStream(muleDomainInputStream);
   }
 

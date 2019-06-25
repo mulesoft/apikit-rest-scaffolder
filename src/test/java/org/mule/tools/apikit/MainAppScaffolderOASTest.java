@@ -45,13 +45,13 @@ import static org.mule.amf.impl.DocumentParser.VendorEx.OAS20_YAML;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 @RunWith(Parameterized.class)
-public class ScaffolderOASTest {
+public class MainAppScaffolderOASTest {
 
   private Path api;
 
   private static final PathMatcher API_MATCHER = FileSystems.getDefault().getPathMatcher("glob:*.{json,yaml, yml}");
 
-  public ScaffolderOASTest(final String folderName, final Path api) {
+  public MainAppScaffolderOASTest(final String folderName, final Path api) {
     this.api = api;
   }
 
@@ -104,7 +104,7 @@ public class ScaffolderOASTest {
   public static Collection<Object[]> getData() throws IOException, URISyntaxException {
 
     final List<Object[]> parameters = new ArrayList<>();
-    final Path basePath = Paths.get(ScaffolderOASTest.class.getResource("/oas").toURI());
+    final Path basePath = Paths.get(MainAppScaffolderOASTest.class.getResource("/oas").toURI());
 
     scan(basePath).forEach(path -> {
       try {
@@ -129,7 +129,7 @@ public class ScaffolderOASTest {
   private static List<Path> scan(final Path root) throws IOException {
     return Files.walk(root)
         .peek(path -> System.out.println("Path:" + path + " isApi:" + isOas(path)))
-        .filter(ScaffolderOASTest::isOas)
+        .filter(MainAppScaffolderOASTest::isOas)
         .collect(toList());
   }
 

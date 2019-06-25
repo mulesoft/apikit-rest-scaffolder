@@ -35,10 +35,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.assertXmls;
-import static org.mule.tools.apikit.TestUtils.getResourceAsString;
+import static org.mule.tools.apikit.TestUtils.*;
 
-public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
+public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
 
   @Test
@@ -410,9 +409,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
   @Test
   public void testGenerateFromTwoApisWithDomain() throws Exception {
     final String testFolder = "scaffolder-from-two-apis/with-domain/";
-    String muleDomainPath =
-        ScaffolderMule4Test.class.getClassLoader().getResource(testFolder + "domains/mule-domain-config.xml").getFile();
-    MuleDomain muleDomain = MuleDomain.fromInputStream(new FileInputStream(muleDomainPath));
+    MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream(testFolder + "domains/mule-domain-config.xml"));
 
     testScaffoldTwoApis(testFolder, new ArrayList<>(), muleDomain);
   }
@@ -420,8 +417,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
   @Test
   public void testGenerateFromTwoApisWithExistentConfig() throws Exception {
     final String testFolder = "scaffolder-from-two-apis/with-existent-config/";
-    MuleConfig muleConfig =
-        MuleConfigBuilder.fromStream(ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(testFolder + "api.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream(testFolder + "api.xml"));
     List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
 
     testScaffoldTwoApis(testFolder, muleConfigs, null);
@@ -446,9 +442,8 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     MuleConfig generatedMuleConfig = result.getGeneratedConfigs().get(0);
 
     String firstGeneratedMuleConfigContent = IOUtils.toString(generatedMuleConfig.getContent());
-    Diff firstMuleConfigDiff = XMLUnit
-        .compareXML(firstGeneratedMuleConfigContent,
-                    IOUtils.toString(ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(testFolder + "api.xml")));
+    Diff firstMuleConfigDiff = XMLUnit.compareXML(firstGeneratedMuleConfigContent,
+                                                  IOUtils.toString(getResourceAsStream(testFolder + "api.xml")));
 
     existingMuleConfigs.add(generatedMuleConfig);
     ScaffoldingConfiguration secondScaffoldingConfiguration = getScaffoldingConfiguration(api2, existingMuleConfigs, domainFile);
@@ -457,9 +452,8 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String secondGeneratedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
-    Diff secondMuleConfigDiff = XMLUnit
-        .compareXML(secondGeneratedMuleConfigContent,
-                    IOUtils.toString(ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(testFolder + "api-2.xml")));
+    Diff secondMuleConfigDiff = XMLUnit.compareXML(secondGeneratedMuleConfigContent,
+                                                   IOUtils.toString(getResourceAsStream(testFolder + "api-2.xml")));
 
     assertTrue(firstMuleConfigDiff.identical());
     assertTrue(secondMuleConfigDiff.identical());
@@ -883,9 +877,7 @@ public class ScaffolderMule4Test extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals("Files are different", FileUtils
-        .readFileToString(new File(getClass().getClassLoader().getResource("scaffolder/expected-result-without-resources.xml")
-            .getFile()))
+    assertEquals("Files are different", IOUtils.toString(getResourceAsStream("scaffolder/expected-result-without-resources.xml"))
         .replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""),
                  s.replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""));
   }

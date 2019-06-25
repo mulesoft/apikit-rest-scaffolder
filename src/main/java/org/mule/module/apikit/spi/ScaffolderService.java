@@ -6,9 +6,11 @@
  */
 package org.mule.module.apikit.spi;
 
-import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.apikit.model.ApiSpecification;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleDomain;
+import org.mule.tools.apikit.model.ScaffolderContext;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -17,15 +19,14 @@ import java.util.List;
 public interface ScaffolderService {
 
   /**
-   * Modifies or creates the Mule config files which are contained in the appDir directory
-   * by running the scaffolder on the ramlFiles passed as parameter.
+   * Modifies or creates the Mule config files which are contained in the app directory (passed through the muleConfigs parameter)
+   * by running the scaffolder on the apiSpec passed as parameter.
    *
-   * @param ramlFiles the ramlFiles to which the scaffolder will be run on
-   * @param appDir    the directory which contained the generated Mule config files
-   * @param domainDir the directory which contained the domain used by the mule config files
-   * @param muleVersion used to know which type of endpoint (InboundEndpoint or Listener) that the scaffolder should create in case the xml is not provided. If this param is null, listeners will be used.
-   * @param runtimeEdition used to know which runtime edition is running, "CE" or "EE". If this param is null, "CE" will be used.
+   * @param context     the context where the scaffolder will be executed. It includes, for example, the runtime version.
+   * @param apiSpec     the ApiSpecification that will be scaffolded
+   * @param muleConfigs all the mule configs contained in the app directory
+   * @param domain      the mule domain of the application
    */
-  void executeScaffolder(List<File> ramlFiles, File appDir, File domainDir, String muleVersion, RuntimeEdition runtimeEdition);
+  void executeScaffolder(ScaffolderContext context, ApiSpecification apiSpec, List<MuleConfig> muleConfigs, MuleDomain domain);
 
 }

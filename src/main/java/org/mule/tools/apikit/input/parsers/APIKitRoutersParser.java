@@ -57,7 +57,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
       APIKitConfig config = getApikitConfig(element);
 
       String currentApiPath = config.getApi() == null ? config.getRaml() : config.getApi();
-      for(String apiPath : allApisPathsInApplication) {
+      for (String apiPath : allApisPathsInApplication) {
         if (compareApisLocation(currentApiPath, apiPath)) {
           Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
           String configId = config.getName() != null ? config.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
@@ -68,7 +68,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
             includedApis.put(configId, handleInboundEndpointSource(source, apiPath, config));
           } else {
             throw new IllegalStateException("The first element of the main flow must be an " +
-                                                "inbound-endpoint or listener");
+                "inbound-endpoint or listener");
           }
         }
       }
@@ -89,8 +89,8 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     String configId = configRef != null ? configRef.getValue() : APIKitFlow.UNNAMED_CONFIG_NAME;
 
     return apikitConfigs.stream()
-      .filter(c -> c.getName().equals(configId)).findFirst()
-      .orElseThrow(() -> new IllegalStateException("An Apikit configuration is mandatory."));
+        .filter(c -> c.getName().equals(configId)).findFirst()
+        .orElseThrow(() -> new IllegalStateException("An Apikit configuration is mandatory."));
   }
 
   private ApikitMainFlowContainer handleListenerSource(Element source, String apiFilePath, APIKitConfig config) {
@@ -161,7 +161,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     Set<String> paths = Sets.newHashSet(apiFilePath);
     apikitConfigs.forEach(config -> {
       String apiPath = config.getApi() != null ? config.getApi() : config.getRaml();
-      if(paths.stream().noneMatch(path -> path.endsWith(apiPath))) {
+      if (paths.stream().noneMatch(path -> path.endsWith(apiPath))) {
         paths.add(apiPath);
       }
     });

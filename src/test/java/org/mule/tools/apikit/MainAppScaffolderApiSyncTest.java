@@ -31,9 +31,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
-public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
+public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   private final static ScaffolderResourceLoader scaffolderResourceLoaderMock = Mockito.mock(ScaffolderResourceLoader.class);
 
@@ -64,8 +65,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
   public void testRAMLWithoutResources() throws Exception {
     MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/empty-api", "without-resources");
 
-    InputStream expectedInputStream =
-        ScaffolderApiSyncTest.class.getClassLoader().getResourceAsStream("api-sync/empty-api/expected-result.xml");
+    InputStream expectedInputStream = getResourceAsStream("api-sync/empty-api/expected-result.xml");
     InputStream generatedInputStream = muleConfig.getContent();
 
     XMLUnit.setIgnoreWhitespace(true);
@@ -77,8 +77,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
   public void testRAMLWithCharset() throws Exception {
     MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/api-raml-with-charset", "api");
 
-    InputStream expectedInputStream =
-        ScaffolderApiSyncTest.class.getClassLoader().getResourceAsStream("api-sync/api-raml-with-charset/expected-result.xml");
+    InputStream expectedInputStream = getResourceAsStream("api-sync/api-raml-with-charset/expected-result.xml");
     InputStream generatedInputStream = muleConfig.getContent();
 
     XMLUnit.setIgnoreWhitespace(true);
@@ -140,8 +139,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
 
-    String expectedMuleConfigContent = IOUtils.toString(ScaffolderApiSyncTest.class.getClassLoader()
-        .getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
+    String expectedMuleConfigContent = IOUtils.toString(getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
     String generatedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
 
     XMLUnit.setIgnoreWhitespace(true);
@@ -200,8 +198,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
   public void testRaml08Fallback() throws Exception {
     if (!isAmf()) {
       MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/fallback-raml-08", "api");
-      InputStream expectedInputStream =
-          ScaffolderApiSyncTest.class.getClassLoader().getResourceAsStream("api-sync/fallback-raml-08/expected.xml");
+      InputStream expectedInputStream = getResourceAsStream("api-sync/fallback-raml-08/expected.xml");
       String expectedString = IOUtils.toString(expectedInputStream);
       String generatedContentString = IOUtils.toString(muleConfig.getContent());
 

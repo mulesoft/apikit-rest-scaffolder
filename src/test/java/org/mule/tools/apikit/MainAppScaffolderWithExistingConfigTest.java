@@ -26,8 +26,9 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
-public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase {
+public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testAlreadyExistsOldGenerateWithOldParser() throws Exception {
@@ -51,51 +52,6 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     assertEquals(2, countOccurences(s, "post:\\pet"));
     assertEquals(0, countOccurences(s, "extensionEnabled"));
     assertEquals(1, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-
-  @Test
-  public void testAlreadyExistsOldWithAddressGenerateWithOldParser() throws Exception {
-    testAlreadyExistsOldWithAddressGenerate();
-  }
-
-  @Test
-  public void testAlreadyExistsOldWithAddressGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
-    testAlreadyExistsOldWithAddressGenerate();
-  }
-
-  @Test
-  @Ignore
-  public void testAlreadyExistsOldWithAddressGenerate() throws Exception {
-    MuleConfig muleConfig =
-        scaffoldApi("scaffolder-existing-old-address/complex.raml", "scaffolder-existing-old-address/complex.xml");
-    String s = IOUtils.toString(muleConfig.getContent());
-    assertEquals(0, countOccurences(s, "http:listener-config"));
-    assertEquals(0, countOccurences(s, "http:listener"));
-    assertEquals(1, countOccurences(s, "http:inbound-endpoint address"));
-    assertEquals(1, countOccurences(s, "name=\"put:\\clients\\(clientId):complex-config"));
-    assertEquals(1, countOccurences(s, "put:\\invoices\\(invoiceId):complex-config"));
-    assertEquals(1, countOccurences(s, "name=\"put:\\items\\(itemId):application\\json:complex-config"));
-    assertEquals(2, countOccurences(s, "put:\\providers\\(providerId):complex-config"));
-    assertEquals(2, countOccurences(s, "delete:\\clients\\(clientId):complex-config"));
-    assertEquals(2, countOccurences(s, "delete:\\invoices\\(invoiceId):complex-config"));
-    assertEquals(2, countOccurences(s, "delete:\\items\\(itemId):multipart\\form-data:complex-config"));
-    assertEquals(2, countOccurences(s, "delete:\\providers\\(providerId):complex-config"));
-    assertEquals(2, countOccurences(s, "get:\\:complex-config"));
-    assertEquals(1, countOccurences(s, "name=\"get:\\clients\\(clientId):complex-config"));
-    assertEquals(1, countOccurences(s, "name=\"get:\\clients:complex-config"));
-    assertEquals(1, countOccurences(s, "get:\\invoices\\(invoiceId):complex-config"));
-    assertEquals(1, countOccurences(s, "get:\\invoices:complex-config"));
-    assertEquals(1, countOccurences(s, "get:\\items\\(itemId):complex-config"));
-    assertEquals(1, countOccurences(s, "get:\\items:complex-config"));
-    assertEquals(2, countOccurences(s, "get:\\providers\\(providerId):complex-config"));
-    assertEquals(2, countOccurences(s, "get:\\providers:complex-config"));
-    assertEquals(1, countOccurences(s, "name=\"post:\\clients:complex-config"));
-    assertEquals(1, countOccurences(s, "post:\\invoices:complex-config"));
-    assertEquals(2, countOccurences(s, "post:\\items:application\\json:complex-config"));
-    assertEquals(2, countOccurences(s, "post:\\providers:complex-config"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
   }
 
   @Test
@@ -143,8 +99,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
 
     if (existingMuleConfigPath != null) {
-      InputStream muleConfigIS =
-          ScaffolderWithExistingConfigTest.class.getClassLoader().getResourceAsStream(existingMuleConfigPath);
+      InputStream muleConfigIS = getResourceAsStream(existingMuleConfigPath);
       MuleConfig existingMuleConfig = MuleConfigBuilder.fromStream(muleConfigIS);
       configurationBuilder.withMuleConfigurations(Arrays.asList(existingMuleConfig));
     }

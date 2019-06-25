@@ -14,12 +14,14 @@ import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.Scaffolder;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingError;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.model.ScaffolderResult;
 import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.output.GenerationStrategy;
 import org.mule.tools.apikit.output.MuleConfigGenerator;
 
+import java.util.Arrays;
 import java.util.List;
 
 public final class MainAppScaffolder implements Scaffolder {
@@ -33,28 +35,31 @@ public final class MainAppScaffolder implements Scaffolder {
 
   @Override
   public ScaffoldingResult run(ScaffoldingConfiguration config) {
-    APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs());
-    List<MuleConfig> muleConfigs = config.getMuleConfigurations();
+    ScaffolderResult.Builder scaffolderResultBuilder = ScaffolderResult.builder();
+    try {
+      APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs());
+      List<MuleConfig> muleConfigs = config.getMuleConfigurations();
 
-    MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory, config.getApi().getLocation(), muleConfigs);
-    RAMLFilesParser ramlFilesParser = new RAMLFilesParser(apiFactory, config.getApi());
+      MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory, config.getApi().getLocation(), muleConfigs);
+      RAMLFilesParser ramlFilesParser = new RAMLFilesParser(apiFactory, config.getApi());
 
-    List<ApikitMainFlowContainer> includedApis = ramlFilesParser.getApisAsList();
-    List<GenerationModel> generationModels = GENERATOR.generate(ramlFilesParser.getEntries(),
-                                                                muleConfigParser.getIncludedApis(),
-                                                                muleConfigParser.getEntries());
+      List<ApikitMainFlowContainer> includedApis = ramlFilesParser.getApisAsList();
+      List<GenerationModel> generationModels = GENERATOR.generate(ramlFilesParser.getEntries(),
+                                                                  muleConfigParser.getIncludedApis(),
+                                                                  muleConfigParser.getEntries());
 
-    MuleConfigGenerator muleConfigGenerator = new MuleConfigGenerator(includedApis,
-                                                                      generationModels,
-                                                                      muleConfigs,
-                                                                      scaffolderContext.getRuntimeEdition());
+      MuleConfigGenerator muleConfigGenerator = new MuleConfigGenerator(includedApis,
+                                                                        generationModels,
+                                                                        muleConfigs,
+                                                                        scaffolderContext.getRuntimeEdition());
 
-    List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
-
-    return ScaffolderResult.builder()
-        .withGeneratedConfigs(generatedConfigs)
-        .withErrors(muleConfigGenerator.getScaffoldingErrors())
-        .withGeneratedResources(muleConfigGenerator.getGeneratedResources())
-        .build();
+      List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
+      scaffolderResultBuilder.withGeneratedConfigs(generatedConfigs);
+    } catch (Exception e) {
+      List<ScaffoldingError> errors = Arrays.asList(new ScaffoldingError(e.getMessage()));
+      scaffolderResultBuilder.withErrors(errors);
+    } finally {
+      return scaffolderResultBuilder.build();
+    }
   }
 }

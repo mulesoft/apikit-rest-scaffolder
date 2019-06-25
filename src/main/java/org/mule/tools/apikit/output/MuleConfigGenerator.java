@@ -59,23 +59,12 @@ public class MuleConfigGenerator {
   private final List<ApikitMainFlowContainer> apis;
   private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
 
-  private final List<ScaffoldingError> scaffoldingErrors = new ArrayList<>();
-  private final List<ScaffolderResource> generatedResources = new ArrayList<>();
-
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apis, List<GenerationModel> flowEntries,
                              List<MuleConfig> muleConfigsInApp, RuntimeEdition runtimeEdition) {
     this.apis = apis;
     this.flowEntries = flowEntries;
     this.runtimeEdition = runtimeEdition;
     this.muleConfigsInApp.addAll(muleConfigsInApp);
-  }
-
-  public List<ScaffoldingError> getScaffoldingErrors() {
-    return scaffoldingErrors;
-  }
-
-  public List<ScaffolderResource> getGeneratedResources() {
-    return generatedResources;
   }
 
   public List<MuleConfig> generate() {
