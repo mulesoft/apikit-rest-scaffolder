@@ -1,12 +1,12 @@
 swagger: "2.0"
 info:
-  title: Simple API overview
+  title: Simple ApikitMainFlowContainer overview
   version: v2
 paths:
   /:
     get:
       operationId: listVersionsv2
-      summary: List API versions
+      summary: List ApikitMainFlowContainer versions
       produces:
       - application/json
       responses:
@@ -75,7 +75,7 @@ paths:
   /v2:
     get:
       operationId: getVersionDetailsv2
-      summary: Show API version details
+      summary: Show ApikitMainFlowContainer version details
       produces:
       - application/json
       responses:

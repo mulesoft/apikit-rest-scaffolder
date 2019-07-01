@@ -1,13 +1,13 @@
-# this is an example of the Uber API
-# as a demonstration of an API spec in YAML
+# this is an example of the Uber ApikitMainFlowContainer
+# as a demonstration of an ApikitMainFlowContainer spec in YAML
 swagger: "2.0"
 info:
-  title: Uber API
-  description: Move your app forward with the Uber API
+  title: Uber ApikitMainFlowContainer
+  description: Move your app forward with the Uber ApikitMainFlowContainer
   version: "1.0.0"
 # the domain of the service
 host: api.uber.com
-# array of all schemes that your API supports
+# array of all schemes that your ApikitMainFlowContainer supports
 schemes:
   - https
 # will be prefixed to all paths
@@ -151,7 +151,7 @@ paths:
   /history:
     get:
       summary: User Activity
-      description: The User Activity endpoint returns data about a user's lifetime activity with Uber. The response will include pickup locations and times, dropoff locations and times, the distance of past requests, and information about which products were requested.<br><br>The history array in the response will have a maximum length based on the limit parameter. The response value count may exceed limit, therefore subsequent API requests may be necessary.
+      description: The User Activity endpoint returns data about a user's lifetime activity with Uber. The response will include pickup locations and times, dropoff locations and times, the distance of past requests, and information about which products were requested.<br><br>The history array in the response will have a maximum length based on the limit parameter. The response value count may exceed limit, therefore subsequent ApikitMainFlowContainer requests may be necessary.
       parameters:
         - name: offset
           in: query

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+
+    <apikit:mapping-exception-strategy name="apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException"/>
+            <set-payload value="resource not found"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.api.exception.MethodNotAllowedException"/>
+            <set-payload value="method not allowed"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException"/>
+            <set-payload value="unsupported media type"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException"/>
+            <set-payload value="not acceptable"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.api.exception.BadRequestException"/>
+            <set-payload value="bad request"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+
+    <flow name="get:\leagues\{leagueId}">
+        <logger level="WARN" message="leagueId: #[mel:leagueId]"/>
+        <choice>
+            <when expression="#[mel:app.registry['list-of-leagues'].getLeague(leagueId)]">
+                <set-payload value="#[mel:app.registry['list-of-leagues'].getLeague(leagueId)]"/>
+            </when>
+            <otherwise>
+                <set-property propertyName="http.status" value="404"/>
+            </otherwise>
+        </choice>
+    </flow>
+
+    <flow name="put:\leagues\{leagueId}:application\json">
+        <custom-transformer class="org.mule.module.apikit.transform.PayloadNormalizerTransformer"
+                            returnClass="org.mule.module.apikit.leagues.League"/>
+        <choice>
+            <when expression="#[mel:!payload.name.matches('[\\w ]+')]">
+                <logger level="WARN" message="invalid name returning 400"/>
+                <set-property propertyName="http.status" value="400"/>
+                <set-payload value="Invalid League Name"/>
+            </when>
+            <otherwise>
+                <expression-component>
+                    league = app.registry['list-of-leagues'].getLeague(leagueId);
+                    league.name = payload.name;
+                </expression-component>
+                <set-payload value="#[mel:org.mule.transport.NullPayload.getInstance()]"/>
+            </otherwise>
+        </choice>
+    </flow>
+
+    <flow name="put:\leagues\{leagueId}:application\xml">
+        <custom-transformer class="org.mule.module.apikit.transform.PayloadNormalizerTransformer"
+                            returnClass="org.mule.module.apikit.leagues.League"/>
+        <choice>
+            <when expression="#[mel:!payload.name.matches('[\\w ]+')]">
+                <logger level="WARN" message="invalid name returning 400"/>
+                <set-property propertyName="http.status" value="400"/>
+                <set-payload value="Invalid League Name"/>
+            </when>
+            <otherwise>
+                <expression-component>
+                    league = app.registry['list-of-leagues'].getLeague(leagueId);
+                    league.name = payload.name;
+                </expression-component>
+                <set-payload value="#[mel:org.mule.transport.NullPayload.getInstance()]"/>
+            </otherwise>
+        </choice>
+    </flow>
+
+    <flow name="delete:\leagues\{leagueId}">
+        <expression-component>
+            app.registry['list-of-leagues'].deleteLeague(leagueId)
+        </expression-component>
+    </flow>
+
+</mule>

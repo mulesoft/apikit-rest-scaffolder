@@ -9,35 +9,30 @@ package org.mule.tools.apikit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
-import static org.mule.tools.apikit.Scaffolder.DEFAULT_RUNTIME_EDITION;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
-import org.mule.tools.apikit.misc.FileListUtils;
+import org.apache.commons.io.FileUtils;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.plugin.logging.Log;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mule.tools.apikit.model.*;
 
 public class ConsoleFlowTest {
 
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
-  private FileListUtils fileListUtils = new FileListUtils();
 
   @Before
   public void setUp() throws Exception {
@@ -45,17 +40,31 @@ public class ConsoleFlowTest {
   }
 
   @Test
+  public void scaffoldWithoutMuleConfigs() throws Exception {
+    File ramlFile = getFile("console-flow/simple-console.raml");
+    MainAppScaffolder mainAppScaffolder = getScaffolder();
+    ScaffoldingConfiguration configuration = getScaffolderConfiguration(getFile("console-flow/simple.xml"), ramlFile);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
+    assertTrue(result.isSuccess());
+  }
+
+  @Test
   public void testAlreadyExistWithConsole() throws Exception {
-    List<File> ramls = Arrays.asList(getFile("console-flow/simple-console.raml"));
     File xmlFile = getFile("console-flow/simple.xml");
-    List<File> xmls = Arrays.asList(xmlFile);
-    File muleXmlOut = folder.newFolder("mule-xml-out");
+    File ramlFile = getFile("console-flow/simple-console.raml");
 
-    Scaffolder scaffolder = createScaffolder(ramls, xmls, muleXmlOut);
-    scaffolder.run();
+    MainAppScaffolder mainAppScaffolder = getScaffolder();
+    ScaffoldingConfiguration configuration = getScaffolderConfiguration(xmlFile, ramlFile);
+    ScaffoldingResult result = mainAppScaffolder.run(configuration);
 
-    assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    assertTrue(result.isSuccess());
+    assertEquals(1, result.getGeneratedConfigs().size());
+
+    MuleConfig generatedConfig = result.getGeneratedConfigs().get(0);
+    assertEquals("HTTP_Listener_Configuration", generatedConfig.getHttpListenerConfigs().get(0).getName());
+
+    String s = IOUtils.toString(generatedConfig.getContent());
+
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
@@ -69,42 +78,42 @@ public class ConsoleFlowTest {
     assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
+  private MainAppScaffolder getScaffolder() {
+    ScaffolderContext context = new ScaffolderContext.Builder()
+        .withRuntimeEdition(RuntimeEdition.EE)
+        .build();
+    return new MainAppScaffolder(context);
+  }
+
+  private ScaffoldingConfiguration getScaffolderConfiguration(File xmlFile, File ramlFile) throws Exception {
+    ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFile.toURI()));
+
+    if (!parseResult.success()) {
+      throw new RuntimeException("Could not parse " + ramlFile.getName());
+    }
+
+    List<MuleConfig> muleConfigs = new ArrayList<>();
+
+    if (xmlFile != null) {
+      InputStream is = FileUtils.openInputStream(xmlFile);
+      muleConfigs.add(MuleConfigBuilder.fromStream(is));
+    }
+
+    return new ScaffoldingConfiguration.Builder()
+        .withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs)
+        .build();
+  }
+
   private File getFile(String s) throws Exception {
     if (s == null) {
       return null;
     }
     File file = folder.newFile(s);
     file.createNewFile();
-    InputStream resourceAsStream = ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(s);
+    InputStream resourceAsStream = getResourceAsStream(s);
     IOUtils.copy(resourceAsStream,
                  new FileOutputStream(file));
     return file;
-  }
-
-  private Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut, File domainFile,
-                                      boolean compatibilityMode, Set<File> ramlsWithExtensionEnabled)
-      throws FileNotFoundException {
-    Log log = mock(Log.class);
-    Map<File, InputStream> ramlMap = null;
-    if (ramls != null) {
-      ramlMap = getFileInputStreamMap(ramls);
-    }
-    Map<File, InputStream> xmlMap = getFileInputStreamMap(xmls);
-    InputStream domainStream = null;
-    if (domainFile != null) {
-      domainStream = new FileInputStream(domainFile);
-    }
-
-    return new Scaffolder(log, muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, DEFAULT_MULE_VERSION,
-                          DEFAULT_RUNTIME_EDITION);
-  }
-
-  private Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut)
-      throws FileNotFoundException {
-    return createScaffolder(ramls, xmls, muleXmlOut, null, false, null);
-  }
-
-  private Map<File, InputStream> getFileInputStreamMap(List<File> ramls) {
-    return fileListUtils.toFiles(ramls, element -> element);
   }
 }

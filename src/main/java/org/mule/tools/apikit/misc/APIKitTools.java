@@ -8,8 +8,7 @@ package org.mule.tools.apikit.misc;
 
 import org.jdom2.Namespace;
 
-import org.mule.tools.apikit.ExtensionManager;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.output.NamespaceWithLocation;
 
 public class APIKitTools {
@@ -53,7 +52,7 @@ public class APIKitTools {
     if (baseUri.contains("//")) {
       return baseUri.substring(0, baseUri.indexOf("//")).toUpperCase();
     }
-    return API.DEFAULT_PROTOCOL;
+    return ApikitMainFlowContainer.DEFAULT_PROTOCOL;
   }
 
   public static String getHostFromUri(String baseUri) {
@@ -85,7 +84,7 @@ public class APIKitTools {
     }
     int twoDots = baseUri.indexOf(":", hostStart);
     if (twoDots == -1 || twoDots > slash) {
-      return Integer.toString(API.DEFAULT_PORT);
+      return Integer.toString(ApikitMainFlowContainer.DEFAULT_PORT);
     }
     return baseUri.substring(twoDots + 1, slash);
   }
@@ -132,22 +131,6 @@ public class APIKitTools {
     int major = Integer.parseInt(versionParts[0]);
     int minor = Integer.parseInt(versionParts[1]);
     if (major > 3 || (major == 3 && minor >= 7)) {
-      return true;
-    }
-    return false;
-  }
-
-  public static boolean usesListenersMuleV3(String candidateVersion) {
-    if (candidateVersion == null) {
-      return false;
-    }
-    String[] versionParts = candidateVersion.split("\\.");
-    if (versionParts.length < 2) {
-      return false;
-    }
-    int major = Integer.parseInt(versionParts[0]);
-    int minor = Integer.parseInt(versionParts[1]);
-    if (major == 3 && minor >= 6) {
       return true;
     }
     return false;

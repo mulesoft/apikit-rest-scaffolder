@@ -15,12 +15,12 @@ import static org.mockito.Mockito.when;
 import org.mule.tools.apikit.input.APIDiff;
 import org.mule.tools.apikit.input.MuleConfigParser;
 import org.mule.tools.apikit.input.RAMLFilesParser;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
 
-import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class APIDiffTest {
 
   @Before
   public void setUp() {
-    this.apiFactory = new APIFactory();
+    this.apiFactory = new APIFactory(Collections.emptyList());
   }
 
   private Set<ResourceActionMimeTypeTriplet> computeDifferenceSetHelper(HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a,
@@ -62,8 +62,8 @@ public class APIDiffTest {
 
   @Test
   public void testComputeDifference() throws Exception {
-    API fromRAMLFile =
-        apiFactory.createAPIBindingInboundEndpoint("sample.raml", null, "http://localhost:8080", "/api/*", null);
+    ApikitMainFlowContainer fromRAMLFile =
+        apiFactory.createAPIBindingInboundEndpoint("sample.raml", "http://localhost:8080", "/api/*", null);
 
     HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
     ResourceActionMimeTypeTriplet fab = new ResourceActionMimeTypeTriplet(fromRAMLFile, "a", "b");
@@ -82,8 +82,8 @@ public class APIDiffTest {
 
   @Test
   public void testComputeDifferenceMismatching() throws Exception {
-    API fromRAMLFile =
-        apiFactory.createAPIBindingInboundEndpoint("sample.raml", null, "http://localhost:8080", "/api/*", null);
+    ApikitMainFlowContainer fromRAMLFile =
+        apiFactory.createAPIBindingInboundEndpoint("sample.raml", "http://localhost:8080", "/api/*", null);
 
     HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
     ResourceActionMimeTypeTriplet fab = new ResourceActionMimeTypeTriplet(fromRAMLFile, "b", "b");
@@ -103,8 +103,8 @@ public class APIDiffTest {
 
   @Test
   public void testComputeDifferenceAsymetric() throws Exception {
-    API fromRAMLFile =
-        apiFactory.createAPIBindingInboundEndpoint("sample.raml", null, "http://localhost:8080", "/api/*", null);
+    ApikitMainFlowContainer fromRAMLFile =
+        apiFactory.createAPIBindingInboundEndpoint("sample.raml", "http://localhost:8080", "/api/*", null);
 
     HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
     ResourceActionMimeTypeTriplet fab = new ResourceActionMimeTypeTriplet(fromRAMLFile, "b", "b");

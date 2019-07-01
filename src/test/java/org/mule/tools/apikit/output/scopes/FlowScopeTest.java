@@ -13,9 +13,9 @@ import org.jdom2.Element;
 import org.junit.Test;
 
 import org.mule.tools.apikit.Helper;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIKitConfig;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
+import org.mule.tools.apikit.model.HttpListenerConfig;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -30,17 +30,17 @@ public class FlowScopeTest {
     document.setRootElement(mule);
     APIKitConfig config = new APIKitConfig();
     config.setApi("path/to/file.raml");
-    new APIKitConfigScope(config, mule, null).generate();
-    API api = mock(API.class);
-    HttpListener4xConfig listenerConfig =
-        new HttpListener4xConfig("HTTP_Listener_Configuration", "localhost", "7777", "HTTP", "");
+    mule.addContent(new APIKitConfigScope(config).generate());
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
+    HttpListenerConfig listenerConfig =
+        new HttpListenerConfig("HTTP_Listener_Configuration", "localhost", "7777", "HTTP", "");
 
     when(api.getId()).thenReturn("file");
     when(api.getPath()).thenReturn("/api/*");
     when(api.getConfig()).thenReturn(config);
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
-    new HttpListenerConfigMule4Scope(api, mule).generate();
-    new FlowScope(mule, "ExceptionStrategyNameHere", api, null, "HTTP_Listener_Configuration").generate();
+    mule.addContent(new HttpListenerConfigScope(listenerConfig).generate());
+    mule.addContent(new FlowScope(api, true).generate());
 
     String s = Helper.nonSpaceOutput(mule);
 
@@ -60,17 +60,17 @@ public class FlowScopeTest {
     APIKitConfig config = new APIKitConfig();
     config.setApi("path/to/file.raml");
     config.setExtensionEnabled(true);
-    new APIKitConfigScope(config, mule, null).generate();
-    API api = mock(API.class);
-    HttpListener4xConfig listenerConfig =
-        new HttpListener4xConfig("HTTP_Listener_Configuration", "localhost", "7777", "HTTP", "");
+    mule.addContent(new APIKitConfigScope(config).generate());
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
+    HttpListenerConfig listenerConfig =
+        new HttpListenerConfig("HTTP_Listener_Configuration", "localhost", "7777", "HTTP", "");
 
     when(api.getId()).thenReturn("file");
     when(api.getPath()).thenReturn("/api/*");
     when(api.getConfig()).thenReturn(config);
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
-    new HttpListenerConfigMule4Scope(api, mule).generate();
-    new FlowScope(mule, "ExceptionStrategyNameHere", api, null, "HTTP_Listener_Configuration").generate();
+    mule.addContent(new HttpListenerConfigScope(listenerConfig).generate());
+    mule.addContent(new FlowScope(api, true).generate());
 
     String s = Helper.nonSpaceOutput(mule);
 

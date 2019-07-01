@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '1.0.0'
-  title: Example API for Automation
+  title: Example ApikitMainFlowContainer for Automation
   description: ''
   contact: {}
 host: localhost:8081

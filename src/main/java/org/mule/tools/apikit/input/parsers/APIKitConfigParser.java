@@ -6,11 +6,12 @@
  */
 package org.mule.tools.apikit.input.parsers;
 
-import org.mule.tools.apikit.input.APIKitFlow;
+import static org.mule.tools.apikit.input.APIKitFlow.UNNAMED_CONFIG_NAME;
+
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIKitConfig;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +22,16 @@ import org.jdom2.filter.Filters;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
-public class APIKitConfigParser implements MuleConfigFileParser {
+public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfig>> {
+
+  private static final XPathExpression<Element> APIKIT_CONFIG_EXPRESSION = getCompiledExpression();
 
   @Override
-  public Map<String, APIKitConfig> parse(Document document) {
-    Map<String, APIKitConfig> apikitConfigs = new HashMap<String, APIKitConfig>();
-    XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='" + APIKitConfig.ELEMENT_NAME + "']",
-                                                                  Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
-    List<Element> elements = xp.evaluate(document);
+  public List<APIKitConfig> parse(Document document) {
+    List<APIKitConfig> apikitConfigs = new LinkedList<>();
+
+    List<Element> elements = APIKIT_CONFIG_EXPRESSION.evaluate(document);
+
     for (Element element : elements) {
       Attribute name = element.getAttribute(APIKitConfig.NAME_ATTRIBUTE);
       Attribute api = element.getAttribute(APIKitConfig.API_ATTRIBUTE);
@@ -43,25 +46,30 @@ public class APIKitConfigParser implements MuleConfigFileParser {
       } else if (raml != null) {
         apiKitConfig.setRaml(raml.getValue());
       } else {
-        throw new IllegalArgumentException(APIKitConfig.API_ATTRIBUTE + " attribute is required");
+        throw new IllegalArgumentException(APIKitConfig.API_ATTRIBUTE + " attribute is required on apikit configuration");
       }
-      if (name != null) {
-        apiKitConfig.setName(name.getValue());
-      }
+
+      apiKitConfig.setName(name != null ? name.getValue() : UNNAMED_CONFIG_NAME);
+
       if (outboundHeadersMapName != null) {
         apiKitConfig.setOutboundHeadersMapName(outboundHeadersMapName.getValue());
       }
+
       if (extensionEnabled != null) {
         apiKitConfig.setExtensionEnabled(Boolean.valueOf(extensionEnabled.getValue()));
       }
+
       if (httpStatusVarName != null) {
         apiKitConfig.setHttpStatusVarName(httpStatusVarName.getValue());
       }
-
-      String configId = apiKitConfig.getName() != null ? apiKitConfig.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
-      apikitConfigs.put(configId, apiKitConfig);
+      apikitConfigs.add(apiKitConfig);
     }
 
     return apikitConfigs;
+  }
+
+  private static XPathExpression<Element> getCompiledExpression() {
+    return XPathFactory.instance().compile("//*/*[local-name()='" + APIKitConfig.ELEMENT_NAME + "']",
+                                           Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
   }
 }

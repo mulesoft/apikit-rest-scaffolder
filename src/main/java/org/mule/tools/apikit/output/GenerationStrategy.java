@@ -6,66 +6,45 @@
  */
 package org.mule.tools.apikit.output;
 
+import static java.util.Collections.sort;
+
 import org.mule.tools.apikit.input.APIDiff;
-import org.mule.tools.apikit.input.MuleConfigParser;
-import org.mule.tools.apikit.input.RAMLFilesParser;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import org.apache.maven.plugin.logging.Log;
 
 public class GenerationStrategy {
 
-  private Log log;
+  public GenerationStrategy() {}
 
-  public GenerationStrategy(Log log) {
-    this.log = log;
-  }
+  public List<GenerationModel> generate(Map<ResourceActionMimeTypeTriplet, GenerationModel> ramlFilesEntries,
+                                        Set<ApikitMainFlowContainer> apisInConfigs,
+                                        Set<ResourceActionMimeTypeTriplet> flowEntries) {
 
-  public List<GenerationModel> generate(RAMLFilesParser RAMLFilesParser,
-                                        MuleConfigParser muleConfigParser) {
-    Set<API> apisInMuleConfigs = muleConfigParser.getIncludedApis();
-    Set<ResourceActionMimeTypeTriplet> ramlEntries = RAMLFilesParser.getEntries().keySet();
-    Set<ResourceActionMimeTypeTriplet> muleFlowEntries = muleConfigParser.getEntries();
-    List<GenerationModel> generationModels = new ArrayList<GenerationModel>();
+    Set<ResourceActionMimeTypeTriplet> ramlEntries = ramlFilesEntries.keySet();
+    List<GenerationModel> generationModels = new ArrayList<>();
 
-    if (apisInMuleConfigs.isEmpty()) {
-      if (ramlEntries.isEmpty()) {
-        // No APIs No Flow APIs
-        log.info("No APIs or APIKit flows found.");
-      } else {
-        log.info("Generating apikit:flows for the following operations: " + ramlEntries);
-      }
-      generationModels.addAll(RAMLFilesParser.getEntries().values());
+    if (apisInConfigs.isEmpty()) {
+      generationModels.addAll(ramlFilesEntries.values());
     } else {
       if (ramlEntries.isEmpty()) {
-        // there are implemented APIs without a RAML file. NOMB.
-        String xmlFilesWithoutRaml = "";
-
-        for (API api : apisInMuleConfigs) {
-          xmlFilesWithoutRaml = xmlFilesWithoutRaml + " " + api.getXmlFile().getAbsolutePath();
-        }
-        log.warn("The following apikit:flows do not match any RAML API binding: " + xmlFilesWithoutRaml);
-
-        generationModels.addAll(RAMLFilesParser.getEntries().values());
+        generationModels.addAll(ramlFilesEntries.values());
       } else {
-        Set<ResourceActionMimeTypeTriplet> diffTriplets = new APIDiff(ramlEntries, muleFlowEntries).getEntries();
-        log.info("Adding new apikit:flows to existing files for the following operations: " + diffTriplets);
-
+        Set<ResourceActionMimeTypeTriplet> diffTriplets = new APIDiff(ramlEntries, flowEntries).getEntries();
         for (ResourceActionMimeTypeTriplet entry : diffTriplets) {
-          if (RAMLFilesParser.getEntries().containsKey(entry)) {
-            generationModels.add(RAMLFilesParser.getEntries().get(entry));
+          if (ramlFilesEntries.containsKey(entry)) {
+            generationModels.add(ramlFilesEntries.get(entry));
           }
         }
       }
     }
 
-    Collections.sort(generationModels);
+    sort(generationModels);
     return generationModels;
   }
 }

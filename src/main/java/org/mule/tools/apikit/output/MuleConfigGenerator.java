@@ -6,42 +6,28 @@
  */
 package org.mule.tools.apikit.output;
 
-import java.util.LinkedList;
-import org.apache.commons.io.FilenameUtils;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.jdom2.Attribute;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.input.sax.XMLReaders;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-import org.jdom2.xpath.XPathExpression;
-import org.jdom2.xpath.XPathFactory;
-
-import org.mule.parser.service.result.DefaultParsingIssue;
-import org.mule.parser.service.result.ParsingIssue;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.API;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.Flow;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.ScaffolderResource;
+import org.mule.tools.apikit.model.ScaffoldingError;
 import org.mule.tools.apikit.model.RuntimeEdition;
-import org.mule.tools.apikit.output.scopes.APIKitConfigScope;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
 import org.mule.tools.apikit.output.scopes.FlowScope;
-import org.mule.tools.apikit.output.scopes.HttpListenerConfigMule4Scope;
 import org.mule.tools.apikit.output.scopes.MuleScope;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
@@ -68,113 +54,51 @@ public class MuleConfigGenerator {
                                                                                                        "http://www.mulesoft.org/schema/mule/ee/core"),
                                                                                      "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
 
-  private static final String INDENTATION = "    ";
-
   private final List<GenerationModel> flowEntries;
-  private final File rootDirectory;
-  private final Set<File> ramlsWithExtensionEnabled;
   private final RuntimeEdition runtimeEdition;
-  private final List<API> apis;
-  private final List<ParsingIssue> errors = new LinkedList<>();
+  private final List<ApikitMainFlowContainer> apis;
+  private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
 
-  public MuleConfigGenerator(File muleConfigOutputDirectory, List<API> apis, List<GenerationModel> flowEntries,
-                             Set<File> ramlsWithExtensionEnabled, RuntimeEdition runtimeEdition) {
-    this.flowEntries = flowEntries;
-    this.rootDirectory = muleConfigOutputDirectory;
-    this.runtimeEdition = runtimeEdition;
-    if (ramlsWithExtensionEnabled == null) {
-      this.ramlsWithExtensionEnabled = new TreeSet<>();
-    } else {
-      this.ramlsWithExtensionEnabled = ramlsWithExtensionEnabled;
-    }
+  public MuleConfigGenerator(List<ApikitMainFlowContainer> apis, List<GenerationModel> flowEntries,
+                             List<MuleConfig> muleConfigsInApp, RuntimeEdition runtimeEdition) {
     this.apis = apis;
+    this.flowEntries = flowEntries;
+    this.runtimeEdition = runtimeEdition;
+    this.muleConfigsInApp.addAll(muleConfigsInApp);
   }
 
-  public List<ParsingIssue> getErrors() {
-    return errors;
-  }
-
-  public void generate(boolean updateConfigs) {
-
-    Map<API, Document> docs = new HashMap<>();
+  public List<MuleConfig> generate() {
+    List<MuleConfig> configs = new ArrayList<>();
     if (flowEntries.isEmpty()) {
       apis.forEach(api -> {
-        try {
-          Document doc = getDocument(api);
-          if (api.getConfig() == null || api.getHttpListenerConfig() == null) {
-            if (api.getConfig() == null) {
-              api.setDefaultAPIKitConfig();
-            }
-            if (ramlsWithExtensionEnabledContains(api.getApiFilePath())) {
-              api.getConfig().setExtensionEnabled(true);
-            }
-            generateAPIKitAndListenerConfig(api, doc);
-          }
-          docs.put(api, doc);
-        } catch (Exception e) {
-          errors
-              .add(new DefaultParsingIssue(String.format("Error generating xml for file: [ %s ] : %s", api.getApiFilePath(), e.getMessage())));
-        }
+        MuleConfig muleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
+        configs.add(muleConfig);
       });
     } else {
+      Set<MuleConfig> muleConfigs = new HashSet<>();
+      ApikitMainFlowContainer api = flowEntries.get(0).getApi();
+      MuleConfig muleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
+
       for (GenerationModel flowEntry : flowEntries) {
-        Document doc;
+        Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
 
-        API api = flowEntry.getApi();
-        try {
-          doc = getOrCreateDocument(docs, api);
-          int index = getLastFlowIndex(doc) + 1;
-          doc.getRootElement()
-              .addContent(index, new APIKitFlowScope(flowEntry, isMuleEE()).generate());
-        } catch (Exception e) {
-          errors.add(new DefaultParsingIssue(
-            String.format("Error generating xml for file: [ %s ] : %s",
-                                                              api.getApiFilePath(),
-                                                              e.getMessage())));
-        }
+        int newFlowPositionIndex = getLastFlowIndex(muleConfig.getContentAsDocument()) + 1;
+        muleConfig.getContentAsDocument().getRootElement().getContent().add(newFlowPositionIndex, apikitFlowScope);
+        muleConfig.addFlow(new Flow(apikitFlowScope));
+        updateApikitConfig(api, muleConfig);
+        muleConfigs.add(muleConfig);
       }
+      configs.addAll(muleConfigs);
     }
-    if (updateConfigs) {
-      updateApikitConfigs(docs);
-    }
-
-    // Write everything to files
-    for (Map.Entry<API, Document> ramlFileDescriptorDocumentEntry : docs.entrySet()) {
-      Format prettyFormat = Format.getPrettyFormat();
-      prettyFormat.setIndent(INDENTATION);
-      prettyFormat.setLineSeparator(System.getProperty("line.separator"));
-      prettyFormat.setEncoding("UTF-8");
-      XMLOutputter xout = new XMLOutputter(prettyFormat);
-      Document doc = ramlFileDescriptorDocumentEntry.getValue();
-      File xmlFile = ramlFileDescriptorDocumentEntry.getKey().getXmlFile(rootDirectory);
-      try {
-        FileOutputStream fileOutputStream = new FileOutputStream(xmlFile);
-        xout.output(doc, fileOutputStream);
-        fileOutputStream.close();
-      } catch (IOException e) {
-        errors.add(new DefaultParsingIssue(String.format("Error writing to file: [ %s ] : %s", xmlFile, e.getMessage())));
-      }
-    }
-
+    return configs;
   }
 
-  private void updateApikitConfigs(Map<API, Document> docs) {
-    for (API api : apis) {
-      try {
-        Document doc = docs.get(api);
-        if (doc == null) {
-          doc = getDocument(api);
-        }
-        XPathExpression muleExp = XPathFactory.instance().compile("//*[local-name()='mule']");
-        List<Element> mules = muleExp.evaluate(doc);
-        Element mule = mules.get(0);
-        int index = mule.indexOf(mule.getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace()));
-        mule.removeContent(index);
-        new APIKitConfigScope(api.getConfig(), mule, index).generate();
-        docs.put(api, doc);
-      } catch (Exception e) {
-        e.printStackTrace();
+  private void setDefaultApikitAndListenersConfigs(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    if (api.getConfig() == null || api.getHttpListenerConfig() == null) {
+      if (api.getConfig() == null) {
+        api.setDefaultAPIKitConfig();
       }
+      generateAPIKitAndListenerConfig(api, muleConfig);
     }
   }
 
@@ -189,89 +113,58 @@ public class MuleConfigGenerator {
     return lastFlowIndex;
   }
 
-  Document getOrCreateDocument(Map<API, Document> docs, API api)
-      throws IOException, JDOMException {
-    Document doc;
-    if (docs.containsKey(api)) {
-      doc = docs.get(api);
-    } else {
-      doc = getDocument(api);
-      if (api.getConfig() == null || api.getHttpListenerConfig() == null) {
-        if (api.getConfig() == null) {
-          api.setDefaultAPIKitConfig();
-        }
-        if (ramlsWithExtensionEnabledContains(api.getApiFilePath())) {
-          api.getConfig().setExtensionEnabled(true);
-        }
-        generateAPIKitAndListenerConfig(api, doc);
-      }
-      docs.put(api, doc);
+  private void updateApikitConfig(ApikitMainFlowContainer api, MuleConfig config) {
+    Element apikitConfiFromMuleConfig =
+        config.getContentAsDocument().getRootElement().getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace());
+    Element apikitConfigFromApi = api.getConfig().generate();
+
+    if (shouldUpdateApikitConfig(apikitConfigFromApi, apikitConfiFromMuleConfig)) {
+      int index = config.getContentAsDocument().getRootElement().indexOf(apikitConfiFromMuleConfig);
+      config.getContentAsDocument().getRootElement().removeContent(index);
+      config.getContentAsDocument().getRootElement().addContent(index, apikitConfigFromApi);
     }
-    return doc;
   }
 
-  private boolean ramlsWithExtensionEnabledContains(String ramlFileName) {
-    for (File ramlWithExtensionEnabled : ramlsWithExtensionEnabled) {
-      if (FilenameUtils.getName(ramlWithExtensionEnabled.getAbsolutePath()).equals(FilenameUtils.getName(ramlFileName)))
-        return true;
-    }
+  public MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
+    Document document = new Document();
+    document.setRootElement(new MuleScope(false).generate());
+    MuleConfig mConfig = MuleConfigBuilder.fromDoc(document);
+    setDefaultApikitAndListenersConfigs(api, mConfig);
 
-    return false;
+    MuleConfig config = MuleConfigBuilder.fromDoc(mConfig.buildContent());
+    api.setMuleConfig(config);
+    muleConfigsInApp.add(config);
+    return config;
   }
 
-  private Document getDocument(API api) throws IOException, JDOMException {
-    SAXBuilder saxBuilder = new SAXBuilder(XMLReaders.NONVALIDATING);
-    Document doc;
-    File xmlFile = api.getXmlFile(rootDirectory);
-    if (!xmlFile.exists() || xmlFile.length() == 0) {
-      xmlFile.getParentFile().mkdirs();
-      doc = new Document();
-      doc.setRootElement(new MuleScope(false).generate());
-    } else {
-      InputStream xmlInputStream = new FileInputStream(xmlFile);
-      doc = saxBuilder.build(xmlInputStream);
+  private void generateAPIKitAndListenerConfig(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    if (!muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
+      muleConfig.addHttpListener(api.getHttpListenerConfig());
     }
-    return doc;
-  }
-
-  private void generateAPIKitAndListenerConfig(API api, Document doc) {
-    XPathExpression muleExp = XPathFactory.instance().compile("//*[local-name()='mule']");
-    List<Element> mules = muleExp.evaluate(doc);
-    Element mule = mules.get(0);
-    String listenerConfigRef = null;
-    if (!api.getHttpListenerConfig().isPeristed()) {
-      new HttpListenerConfigMule4Scope(api, mule).generate();
-    }
-    listenerConfigRef = api.getHttpListenerConfig().getName();
     api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
-    //TODO GLOBAL EXCEPTION STRATEGY REFERENCE
-    //        if (!api.useListenerMule3() && !api.useInboundEndpoint())
-    //        {
-    //            addGlobalExceptionStrategy(mule, api.getId());
-    //        }
-    new APIKitConfigScope(api.getConfig(), mule, null).generate();
-    //Element exceptionStrategy = new ExceptionStrategyScope(api.getId()).generate();
-    String configRef = api.getConfig() != null ? api.getConfig().getName() : null;
 
-    String exceptionStrategyRef = null;//exceptionStrategy.getAttribute("name").getValue()
-    new FlowScope(mule, exceptionStrategyRef,
-                  api, configRef, listenerConfigRef, isMuleEE()).generate();
-
-    new ConsoleFlowScope(mule, api, configRef, listenerConfigRef, isMuleEE()).generate();
-
-    //mule.addContent(exceptionStrategy);
-  }
-
-  private void addGlobalExceptionStrategy(Element mule, String apiId) {
-    Element globalExceptionStrategy = new Element("error-handler",
-                                                  XMLNS_NAMESPACE.getNamespace());
-    globalExceptionStrategy.setAttribute("name", apiId + "-" + "apiKitGlobalExceptionMapping");
-    mule.addContent(globalExceptionStrategy);
-
+    muleConfig.addConfig(api.getConfig());
+    muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
+    muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
   }
 
   private boolean isMuleEE() {
     return runtimeEdition == EE;
+  }
+
+  // it checks both elements have the same attributes
+  private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
+    for (Attribute attr : apikitConfigFromApi.getAttributes()) {
+      Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
+      if (muleConfigAttr == null) {
+        return true;
+      }
+
+      if (!attr.getValue().equals(muleConfigAttr.getValue())) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

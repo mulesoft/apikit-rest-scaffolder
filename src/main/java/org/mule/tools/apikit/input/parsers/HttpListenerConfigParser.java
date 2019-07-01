@@ -8,13 +8,12 @@ package org.mule.tools.apikit.input.parsers;
 
 import static org.mule.tools.apikit.output.MuleConfigGenerator.HTTP_NAMESPACE;
 
-import org.mule.tools.apikit.model.API;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -22,15 +21,19 @@ import org.jdom2.filter.Filters;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
 
-public class HttpListener4xConfigParser implements MuleConfigFileParser {
+public class HttpListenerConfigParser implements MuleConfigFileParser<List<HttpListenerConfig>> {
 
-  public static final String ELEMENT_NAME = "listener-config";
+  private static final String ELEMENT_NAME = "listener-config";
+  private static final XPathExpression<Element> LISTENER_COMPILED_EXPRESSION = getCompiledExpression();
 
-  public Map<String, HttpListener4xConfig> parse(Document document) {
-    Map<String, HttpListener4xConfig> httpListenerConfigMap = new HashMap<String, HttpListener4xConfig>();
-    XPathExpression<Element> xp = XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
-                                                                  Filters.element(HTTP_NAMESPACE.getNamespace()));
-    List<Element> elements = xp.evaluate(document);
+  private static XPathExpression<Element> getCompiledExpression() {
+    return XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
+                                           Filters.element(HTTP_NAMESPACE.getNamespace()));
+  }
+
+  public List<HttpListenerConfig> parse(Document document) {
+    List<HttpListenerConfig> httpListenerConfigMap = new ArrayList<>();
+    List<Element> elements = LISTENER_COMPILED_EXPRESSION.evaluate(document);
     for (Element element : elements) {
       String name = element.getAttributeValue("name");
       if (name == null) {
@@ -50,16 +53,16 @@ public class HttpListener4xConfigParser implements MuleConfigFileParser {
           }
           String port = child.getAttributeValue("port");
           if (port == null) {
-            port = Integer.toString(API.DEFAULT_PORT);
+            port = Integer.toString(ApikitMainFlowContainer.DEFAULT_PORT);
           }
           String protocol = child.getAttributeValue("protocol");
           if (protocol == null) {
-            protocol = API.DEFAULT_PROTOCOL;
+            protocol = ApikitMainFlowContainer.DEFAULT_PROTOCOL;
           }
-          final HttpListener4xConfig httpListenerConfig =
-              new HttpListener4xConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
-          httpListenerConfig.setPeristed(true);
-          httpListenerConfigMap.put(name, httpListenerConfig);
+          final HttpListenerConfig httpListenerConfig =
+              new HttpListenerConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
+          httpListenerConfig.setPersisted(true);
+          httpListenerConfigMap.add(httpListenerConfig);
         }
       }
     }

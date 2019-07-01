@@ -6,103 +6,57 @@
  */
 package org.mule.tools.apikit.input;
 
-import org.apache.maven.plugin.logging.Log;
-import org.jdom2.Document;
-import org.jdom2.input.SAXBuilder;
-import org.jdom2.input.sax.XMLReaders;
-import org.mule.tools.apikit.input.parsers.APIKitConfigParser;
 import org.mule.tools.apikit.input.parsers.APIKitFlowsParser;
 import org.mule.tools.apikit.input.parsers.APIKitRoutersParser;
-import org.mule.tools.apikit.input.parsers.HttpListener4xConfigParser;
-import org.mule.tools.apikit.model.API;
-import org.mule.tools.apikit.model.APIFactory;
-import org.mule.tools.apikit.model.APIKitConfig;
-import org.mule.tools.apikit.model.HttpListener4xConfig;
-import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
+import org.mule.tools.apikit.model.*;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Map.Entry;
 
 public class MuleConfigParser {
 
   private Set<ResourceActionMimeTypeTriplet> entries = new HashSet<>();
-  private Map<String, API> includedApis = new HashMap<>();
-  private Map<String, APIKitConfig> apikitConfigs = new HashMap<>();
+  private Map<String, ApikitMainFlowContainer> includedApis = new HashMap<>();
+  private List<APIKitConfig> apikitConfigs = new LinkedList<>();
   private final APIFactory apiFactory;
-  private final Log log;
 
-  public MuleConfigParser(Log log, APIFactory apiFactory) {
+  public MuleConfigParser(APIFactory apiFactory, String apiLocation, List<MuleConfig> muleConfigs) {
     this.apiFactory = apiFactory;
-    this.log = log;
+    for (MuleConfig config : muleConfigs) {
+      parseConfig(config);
+    }
+    for (MuleConfig config : muleConfigs) {
+      parseApis(config, apiLocation);
+    }
+    parseFlows(muleConfigs);
   }
 
-  public MuleConfigParser parse(Set<String> apiFilePaths, Map<File, InputStream> streams) {
-    Map<File, Document> configurations = createDocuments(streams);
-
-    for (Entry<File, Document> fileStreamEntry : configurations.entrySet()) {
-      Document document = fileStreamEntry.getValue();
-      File file = fileStreamEntry.getKey();
-      parseConfigs(file, document, apiFilePaths);
-    }
-
-    for (Entry<File, Document> fileStreamEntry : configurations.entrySet()) {
-      Document document = fileStreamEntry.getValue();
-      File file = fileStreamEntry.getKey();
-      parseApis(file, document, apiFilePaths);
-    }
-
-    parseFlows(configurations.values());
-    return this;
-  }
-
-  private Map<File, Document> createDocuments(Map<File, InputStream> streams) {
-    Map<File, Document> result = new HashMap<>();
-
-    SAXBuilder saxBuilder = new SAXBuilder(XMLReaders.NONVALIDATING);
-    for (Entry<File, InputStream> fileStreamEntry : streams.entrySet()) {
-      InputStream stream = fileStreamEntry.getValue();
-      try {
-        Document document = saxBuilder.build(stream);
-        stream.close();
-        result.put(fileStreamEntry.getKey(), document);
-      } catch (Exception e) {
-        log.error("Error parsing Mule xml config file: [" + fileStreamEntry.getKey() + "]. Reason: " + e.getMessage());
-        log.debug(e);
+  void parseConfig(MuleConfig config) {
+    apikitConfigs.addAll(config.getApikitConfigs());
+    config.getHttpListenerConfigs().forEach(httpConfig -> {
+      if (!apiFactory.getHttpListenerConfigs().contains(httpConfig)) {
+        apiFactory.getHttpListenerConfigs().add(httpConfig);
       }
-    }
-    return result;
+    });
   }
 
-  protected void parseConfigs(File file, Document document, Set<String> apiFilePaths) {
-    apikitConfigs.putAll(new APIKitConfigParser().parse(document));
-    apiFactory.getHttpListenerConfigs().putAll(new HttpListener4xConfigParser().parse(document));
+  void parseApis(MuleConfig muleConfig, String apiFilePath) {
+    includedApis.putAll(new APIKitRoutersParser(apikitConfigs, apiFactory, apiFilePath, muleConfig)
+        .parse(muleConfig.getContentAsDocument()));
   }
 
-  protected void parseApis(File file, Document document, Set<String> apiFilePaths) {
-    includedApis
-        .putAll(new APIKitRoutersParser(apikitConfigs, apiFactory.getHttpListenerConfigs(), apiFilePaths, file, apiFactory)
-            .parse(document));
-  }
-
-  protected void parseFlows(Collection<Document> documents) {
-    for (Document document : documents) {
-      try {
-        entries.addAll(new APIKitFlowsParser(log, includedApis).parse(document));
-      } catch (Exception e) {
-        log.error("Error parsing Mule xml config file. Reason: " + e.getMessage());
-        log.debug(e);
-      }
+  void parseFlows(List<MuleConfig> configs) {
+    for (MuleConfig config : configs) {
+      entries.addAll(new APIKitFlowsParser(includedApis).parse(config.getContentAsDocument()));
     }
   }
 
-  public Map<String, APIKitConfig> getApikitConfigs() {
+  List<APIKitConfig> getApikitConfigs() {
     return apikitConfigs;
   }
 
@@ -110,7 +64,7 @@ public class MuleConfigParser {
     return entries;
   }
 
-  public Set<API> getIncludedApis() {
+  public Set<ApikitMainFlowContainer> getIncludedApis() {
     return new HashSet<>(includedApis.values());
   }
 }
