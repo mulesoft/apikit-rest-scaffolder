@@ -18,7 +18,8 @@ import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingError;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.output.GenerationModel;
-import org.mule.tools.apikit.output.GenerationStrategy;import org.mule.tools.apikit.output.MuleConfigGenerator;;
+import org.mule.tools.apikit.output.GenerationStrategy;
+import org.mule.tools.apikit.output.MuleConfigGenerator;
 
 import java.util.Arrays;
 import java.util.List;
