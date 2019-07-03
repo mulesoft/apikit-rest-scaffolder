@@ -7,7 +7,6 @@
 package org.mule.tools.apikit;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;

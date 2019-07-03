@@ -1,0 +1,47 @@
+[{
+	"id": "990c0e49-c062-480c-8d67-25c6a08eac2e",
+	"name": "Unilever UK Limited",
+	"plan":{
+		"maxProductionWorkers": 100,
+		"maxSandboxWorkers": 100,
+		"maxStandardConnectors": 100,
+		"maxPremiumConnectors": 100,
+		"maxStaticIPs": 100
+	},
+	"usage":{
+		"sandboxes": 100,
+		"productions": 50.2,
+		"standardConnectors": 5,
+		"premiumConnectors": 1,
+		"productionApplications": 10,
+		"sandboxApplications": 5,
+		"productionWorkers": 3,
+		"sandboxWorkers": 2,
+		"staticIPs": 2,
+		"vpcs": 1,
+		"lbs": 2    
+	}
+},{
+	"id": "990c0e49-c062-480c-8d67-25c6a08eac2e",
+	"name": "Frontier",
+	"plan":{
+		"maxProductionWorkers": 100,
+		"maxSandboxWorkers": 100,
+		"maxStandardConnectors": 100,
+		"maxPremiumConnectors": 100,
+		"maxStaticIPs": 100
+	},
+	"usage":{
+		"sandboxes": 100,
+		"productions": 50.2,
+		"standardConnectors": 5,
+		"premiumConnectors": 1,
+		"productionApplications": 10,
+		"sandboxApplications": 5,
+		"productionWorkers": 3,
+		"sandboxWorkers": 2,
+		"staticIPs": 2,
+		"vpcs": 1,
+		"lbs": 2    
+	}
+}]

@@ -1,0 +1,22 @@
+#%RAML 1.0 ResourceType
+  description: <<collectionSummary>>
+  get:
+    description: <<collectionDescription>>
+    is: [ 200-collection: {collectionType: <<collectionType>>, collectionExample: <<collectionExample>>}, 
+        400-fault,404-fault,405-fault,406-fault,407-fault,415-fault,500-fault ]
+        
+  post:
+    description: <<collectionDescription>>
+    body:
+      type: <<collectionType>>
+      example: <<postExample>>
+    is: [ 200-item: {itemType: <<collectionType>>, itemExample: <<postExample>>}, 201-item: {itemType: <<collectionType>>, itemExample: <<postExample>>},
+        400-fault,404-fault,405-fault,406-fault,407-fault,415-fault,500-fault ]        
+
+  delete:
+    description: <<collectionDescription>>
+    body:
+      type: <<collectionType>>
+      example: <<postExample>>
+    is: [ 200-item: {itemType: <<collectionType>>, itemExample: <<postExample>>}, 204-response,
+        400-fault,404-fault,405-fault,406-fault,407-fault,415-fault,500-fault ]                

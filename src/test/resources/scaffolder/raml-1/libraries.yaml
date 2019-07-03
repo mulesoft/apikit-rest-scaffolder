@@ -1,0 +1,14 @@
+#%RAML 1.0
+title: Example of importing libraries
+uses:
+  file-type: resources/libraries/file-type.raml
+/files/{id}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: file-type.File
+            example:
+              name: myfile
+              length: 4000

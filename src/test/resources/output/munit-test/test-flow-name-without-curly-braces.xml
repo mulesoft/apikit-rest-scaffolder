@@ -1,0 +1,17 @@
+<munit:test xmlns:munit="http://www.mulesoft.org/schema/mule/munit" name="get:\pet\(id)-200--FlowTest"
+            description="Verifying functionality of [get:\pet\(id)-200-]">
+    <munit:enable-flow-sources>
+        <munit:enable-flow-source value="apikitExampleFlow"/>
+        <munit:enable-flow-source value="get:\pet\{id}"/>
+    </munit:enable-flow-sources>
+    <munit:execution>
+        <http:request xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="HTTP_Request_Configuration" method="GET"
+                      path="/"/>
+    </munit:execution>
+    <munit:validation>
+        <munit-tools:assert-that xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+                                 xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                                 expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]"
+                                 message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200"/>
+    </munit:validation>
+</munit:test>

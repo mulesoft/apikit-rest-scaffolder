@@ -26,8 +26,6 @@ import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +33,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.*;
+import static org.mule.tools.apikit.TestUtils.assertXmls;
+import static org.mule.tools.apikit.TestUtils.getResourceAsString;
 
 public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
@@ -409,7 +408,8 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   @Test
   public void testGenerateFromTwoApisWithDomain() throws Exception {
     final String testFolder = "scaffolder-from-two-apis/with-domain/";
-    MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream(testFolder + "domains/mule-domain-config.xml"));
+    MuleDomain muleDomain =
+        MuleDomain.fromInputStream(TestUtils.getResourceAsStream(testFolder + "domains/mule-domain-config.xml"));
 
     testScaffoldTwoApis(testFolder, new ArrayList<>(), muleDomain);
   }
@@ -417,7 +417,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   @Test
   public void testGenerateFromTwoApisWithExistentConfig() throws Exception {
     final String testFolder = "scaffolder-from-two-apis/with-existent-config/";
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream(testFolder + "api.xml"));
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(TestUtils.getResourceAsStream(testFolder + "api.xml"));
     List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
 
     testScaffoldTwoApis(testFolder, muleConfigs, null);
@@ -443,7 +443,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     String firstGeneratedMuleConfigContent = IOUtils.toString(generatedMuleConfig.getContent());
     Diff firstMuleConfigDiff = XMLUnit.compareXML(firstGeneratedMuleConfigContent,
-                                                  IOUtils.toString(getResourceAsStream(testFolder + "api.xml")));
+                                                  IOUtils.toString(TestUtils.getResourceAsStream(testFolder + "api.xml")));
 
     existingMuleConfigs.add(generatedMuleConfig);
     ScaffoldingConfiguration secondScaffoldingConfiguration = getScaffoldingConfiguration(api2, existingMuleConfigs, domainFile);
@@ -453,7 +453,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     String secondGeneratedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
     Diff secondMuleConfigDiff = XMLUnit.compareXML(secondGeneratedMuleConfigContent,
-                                                   IOUtils.toString(getResourceAsStream(testFolder + "api-2.xml")));
+                                                   IOUtils.toString(TestUtils.getResourceAsStream(testFolder + "api-2.xml")));
 
     assertTrue(firstMuleConfigDiff.identical());
     assertTrue(secondMuleConfigDiff.identical());
@@ -877,8 +877,9 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals("Files are different", IOUtils.toString(getResourceAsStream("scaffolder/expected-result-without-resources.xml"))
-        .replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""),
+    assertEquals("Files are different",
+                 TestUtils.getResourceAsString("scaffolder/expected-result-without-resources.xml")
+                     .replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""),
                  s.replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""));
   }
 }

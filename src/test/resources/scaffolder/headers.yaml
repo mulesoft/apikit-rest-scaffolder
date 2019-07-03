@@ -1,0 +1,49 @@
+#%RAML 0.8
+---
+title: Salesforce Chatter Communities REST API
+version: v28.0
+baseUri: https://{communityDomain}.force.com/{communityPath}
+
+/bucket:
+  post:
+    description: The POST operation adds an object to a specified bucket using HTML forms.
+    headers:
+      X-waiting-period:
+        description: |
+          The number of seconds to wait before you can attempt to make a request again.
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 3600
+        example: 34
+      status-code:
+        type: string
+        required: false
+    body:
+      application/x-www-form-urlencoded:
+        formParameters:
+          From:
+            description: |
+              The phone number or client identifier to use as the caller id. If
+              using a phone number, it must be a Twilio number or a Verified
+              outgoing caller id for your account.
+            type: string
+            required: true
+            pattern: (\+1|1)?([2-9]\d\d[2-9]\d{6}) # E.164 standard
+            example: +14158675309
+    responses:
+      200:
+        headers:
+          X-waiting-period:
+            description: |
+              The number of seconds to wait before you can attempt to make a request again.
+            type: integer
+            required: true
+            minimum: 1
+            maximum: 3600
+            example: 34
+          status-code:
+            type: string
+            required: false
+        body:
+          "*/*":

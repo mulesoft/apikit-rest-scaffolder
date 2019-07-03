@@ -75,4 +75,17 @@ public class TestUtils {
 
     assertTrue(diff.identical());
   }
+
+  public static int countOccurrences(String string, String substring) {
+    int lastIndex = 0;
+    int count = 0;
+    while (lastIndex >= 0) {
+      lastIndex = string.indexOf(substring, lastIndex);
+      if (lastIndex >= 0) {
+        count++;
+        lastIndex += substring.length();
+      }
+    }
+    return count;
+  }
 }

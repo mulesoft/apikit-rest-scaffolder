@@ -7,11 +7,10 @@
 package org.mule.tools.apikit.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public final class ScaffolderResult implements ScaffoldingResult {
+public class ScaffolderResult implements ScaffoldingResult {
 
   private final List<MuleConfig> generatedConfigs;
   private final List<ScaffolderResource> generatedResources;

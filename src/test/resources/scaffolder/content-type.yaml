@@ -1,0 +1,101 @@
+#%RAML 0.8
+---
+title: Jukebox API
+baseUri: http://jukebox.api.com
+version: v1
+
+/albums:
+  post:
+    description: Add a new Album to Jukebox
+    queryParameters:
+      access_token:
+        description: "The access token provided by the authentication application"
+        example: AABBCCDD
+        required: true
+        type: string
+    body:
+      application/json:
+        example: |
+          {
+                  "albumId": "183100e3-0e2b-4404-a716-66104d440550",
+                  "albumName": "Random Access Memories",
+                  "year": "2013",
+                  "imageURL": "http://upload.wikimedia.org/wikipedia/en/a/a7/Random_Access_Memories.jpg",
+                  "genreCode": "ELE",
+                  "artistId": "110e8300-e32b-41d4-a716-664400445500"
+          }
+        schema: |
+          {
+            "type": "object",
+            "$schema": "http://json-schema.org/draft-03/schema",
+            "id": "http://jsonschema.net",
+            "required":false,
+            "properties": {
+              "albumId": {
+                "type": "string",
+                "required":true,
+                "minLength": 36,
+                "maxLength": 36
+              },
+              "albumName": {
+                "type": "string",
+                "required": true
+              },
+              "year": {
+                "type": "string",
+                "required": false
+              },
+              "iamgeURL": {
+                "type": "string",
+                "required": false
+              },
+              "genreCode": {
+                "type": "string",
+                "required": true
+              },
+              "artistId": {
+                "type": "string",
+                "required":true,
+                "minLength": 36,
+                "maxLength": 36
+              }
+            }
+          }
+      text/xml:
+        schema: |
+          <?xml version="1.0" encoding="ISO-8859-1" ?>
+                        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                         elementFormDefault="qualified" xmlns="http://mulesoft.com/schemas/soccer"
+                         targetNamespace="http://mulesoft.com/schemas/soccer">
+                        <xs:element name="league">
+                          <xs:complexType>
+                            <xs:sequence>
+                              <xs:element name="name" type="xs:string"/>
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
+               </xs:schema>
+        example: |
+          <test>This is an album</test>
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              { "message": "The artist has been added." }
+          text/xml:
+            schema: |
+              <?xml version="1.0" encoding="ISO-8859-1" ?>
+                        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                         elementFormDefault="qualified" xmlns="http://mulesoft.com/schemas/soccer"
+                         targetNamespace="http://mulesoft.com/schemas/soccer">
+                        <xs:element name="league">
+                          <xs:complexType>
+                            <xs:sequence>
+                              <xs:element name="name" type="xs:string"/>
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
+               </xs:schema>
+            example: |
+              <test>This is a test</test>

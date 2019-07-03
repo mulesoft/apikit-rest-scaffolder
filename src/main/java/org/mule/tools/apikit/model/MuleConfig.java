@@ -16,6 +16,7 @@ import java.util.*;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
+  private String name;
   private Document originalContent;
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
@@ -35,6 +36,10 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
   public String getName() {
     return "";
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public Document getContentAsDocument() {

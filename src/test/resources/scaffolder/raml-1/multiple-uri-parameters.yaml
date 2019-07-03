@@ -1,0 +1,23 @@
+#%RAML 0.8
+title: Sample API
+/{ticketShow}/{ticketDate}:
+    displayName: ticketId
+    uriParameters:
+      ticketDate:
+        type: date
+        description: The date of the ticket to retrieve
+        example: 1/1/2015
+        required: true
+      ticketShow:
+        type: string
+        description: The name of the show
+        example: The Who
+        required: true
+    get:
+      description: Gets the specified ticket by the ticket id
+      responses:
+        200:
+          description: A ticket object
+          body:
+            application/json:
+              example: lalala

@@ -1,0 +1,11 @@
+#%RAML 1.0
+title: Example API
+version: v1
+mediaType: application/json
+/users/{id}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include resources/examples/user-example.sample

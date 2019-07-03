@@ -1,0 +1,3 @@
+collection:
+  get:
+    is: paged

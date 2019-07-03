@@ -1,0 +1,14 @@
+    usage: Apply this trait whenever you require a date range to be passed as query parameters
+    description: This trait adds startDate and endDate to any incoming request - so that we can filter the outgoing results of the API response.
+    queryParameters:
+      startDate:
+        description: Start date time to begin filtering of the results
+        required: true
+        type: datetime
+        example: "2015-08-19T15:10:16.0Z"
+      endDate:
+        description: End date time till which result set should be returned
+        required: true 
+        type: datetime
+        example: "2015-10-19T15:10:16.0Z"
+

@@ -1,0 +1,26 @@
+#%RAML 1.0 DataType
+type: object
+displayName: CloudHub Application Statistics Datatype
+properties:
+  workerStatistics:
+    type: array
+    items:  
+      type: object
+      properties: 
+        id: string
+        ipAddress: string
+        diskReadBytes: 
+          type: !include metrics.raml
+        networkIn: 
+          type: !include metrics.raml
+        totalMemoryUsed: 
+          type: !include metrics.raml
+        percentageMemoryUsed: 
+          type: !include metrics.raml
+        cpu: 
+          type: !include metrics.raml
+        diskWriteBytes: 
+          type: !include metrics.raml
+        networkOut:
+          type: !include metrics.raml
+        maxTotalMemory: number

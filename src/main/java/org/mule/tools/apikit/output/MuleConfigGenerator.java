@@ -17,17 +17,8 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.Flow;
-import org.mule.tools.apikit.model.MuleConfig;
-import org.mule.tools.apikit.model.MuleConfigBuilder;
-import org.mule.tools.apikit.model.ScaffolderResource;
-import org.mule.tools.apikit.model.ScaffoldingError;
-import org.mule.tools.apikit.model.RuntimeEdition;
-import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
-import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
-import org.mule.tools.apikit.output.scopes.FlowScope;
-import org.mule.tools.apikit.output.scopes.MuleScope;
+import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.output.scopes.*;
 
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
@@ -55,16 +46,16 @@ public class MuleConfigGenerator {
                                                                                      "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
 
   private final List<GenerationModel> flowEntries;
-  private final RuntimeEdition runtimeEdition;
   private final List<ApikitMainFlowContainer> apis;
   private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
+  private ScaffolderContext scaffolderContext;
 
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apis, List<GenerationModel> flowEntries,
-                             List<MuleConfig> muleConfigsInApp, RuntimeEdition runtimeEdition) {
+                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext) {
     this.apis = apis;
     this.flowEntries = flowEntries;
-    this.runtimeEdition = runtimeEdition;
     this.muleConfigsInApp.addAll(muleConfigsInApp);
+    this.scaffolderContext = scaffolderContext;
   }
 
   public List<MuleConfig> generate() {
@@ -127,11 +118,13 @@ public class MuleConfigGenerator {
 
   public MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
     Document document = new Document();
-    document.setRootElement(new MuleScope(false).generate());
+    document.setRootElement(new MuleScope(false, false).generate());
     MuleConfig mConfig = MuleConfigBuilder.fromDoc(document);
+    mConfig.setName(api.getId() + ".xml");
     setDefaultApikitAndListenersConfigs(api, mConfig);
 
     MuleConfig config = MuleConfigBuilder.fromDoc(mConfig.buildContent());
+    config.setName(mConfig.getName());
     api.setMuleConfig(config);
     muleConfigsInApp.add(config);
     return config;
@@ -149,7 +142,7 @@ public class MuleConfigGenerator {
   }
 
   private boolean isMuleEE() {
-    return runtimeEdition == EE;
+    return scaffolderContext.getRuntimeEdition() == EE;
   }
 
   // it checks both elements have the same attributes

@@ -9,14 +9,13 @@ package org.mule.tools.apikit.output.scopes;
 import org.jdom2.Element;
 import org.mule.tools.apikit.output.NamespaceWithLocation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mule.tools.apikit.misc.APIKitTools.API_KIT_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.EE_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.HTTP_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.XSI_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.*;
+import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.*;
 
 public class MuleScope implements Scope {
 
@@ -30,7 +29,7 @@ public class MuleScope implements Scope {
         .append(" ");
   }
 
-  public MuleScope(boolean addEENamespace) {
+  public MuleScope(boolean addEENamespace, boolean isMunitSuite) {
     mule = new Element("mule");
     StringBuilder stringBuilder = new StringBuilder();
 
@@ -38,7 +37,17 @@ public class MuleScope implements Scope {
     mule.addNamespaceDeclaration(XMLNS_NAMESPACE.getNamespace());
     addLocationEntry(stringBuilder, XMLNS_NAMESPACE);
 
-    List<NamespaceWithLocation> namespaces = Arrays.asList(HTTP_NAMESPACE, API_KIT_NAMESPACE);
+    List<NamespaceWithLocation> namespaces = new ArrayList<>();
+    namespaces.add(HTTP_NAMESPACE);
+
+    if (isMunitSuite) {
+      mule.addNamespaceDeclaration(DOC_NAMESPACE.getNamespace());
+      namespaces.addAll(Arrays.asList(MUNIT_NAMESPACE, MUNIT_TOOLS_NAMESPACE));
+    } else {
+      namespaces.add(API_KIT_NAMESPACE);
+    }
+
+    //    List<NamespaceWithLocation> namespaces = Arrays.asList(HTTP_NAMESPACE, API_KIT_NAMESPACE);
 
     mule.addNamespaceDeclaration(XSI_NAMESPACE.getNamespace());
 
@@ -46,12 +55,12 @@ public class MuleScope implements Scope {
       mule.addNamespaceDeclaration(namespace.getNamespace());
       addLocationEntry(stringBuilder, namespace);
     }
+
     if (addEENamespace) {
       mule.addNamespaceDeclaration(EE_NAMESPACE.getNamespace());
       addLocationEntry(stringBuilder, EE_NAMESPACE);
     }
-    mule.setAttribute("schemaLocation", stringBuilder.toString(),
-                      XSI_NAMESPACE.getNamespace());
+    mule.setAttribute("schemaLocation", stringBuilder.toString(), XSI_NAMESPACE.getNamespace());
 
   }
 

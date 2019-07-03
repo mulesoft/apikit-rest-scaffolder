@@ -1,0 +1,17 @@
+#%RAML 0.8
+---
+title: Salesforce Chatter Communities REST API
+version: v28.0
+baseUri: https://{communityDomain}.force.com/{communityPath}
+
+/bucket:
+  post:
+    description: The POST operation adds an object to a specified bucket using HTML forms.
+    headers:
+      status-code:
+        type: string
+        example: XXX
+    responses:
+      200:
+        body:
+          "*/*":
