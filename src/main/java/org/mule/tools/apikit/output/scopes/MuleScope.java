@@ -47,8 +47,6 @@ public class MuleScope implements Scope {
       namespaces.add(API_KIT_NAMESPACE);
     }
 
-    //    List<NamespaceWithLocation> namespaces = Arrays.asList(HTTP_NAMESPACE, API_KIT_NAMESPACE);
-
     mule.addNamespaceDeclaration(XSI_NAMESPACE.getNamespace());
 
     for (NamespaceWithLocation namespace : namespaces) {

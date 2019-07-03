@@ -17,7 +17,12 @@ import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderResourceLoader;
+import org.mule.tools.apikit.model.ScaffoldingResult;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;

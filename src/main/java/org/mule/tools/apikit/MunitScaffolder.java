@@ -7,7 +7,14 @@
 package org.mule.tools.apikit;
 
 import org.mule.tools.apikit.input.RAMLFilesParser;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.APIFactory;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.Scaffolder;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingError;
+import org.mule.tools.apikit.model.ScaffoldingResult;
+import org.mule.tools.apikit.model.ScaffolderResult;
 import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.output.MunitTestSuiteGenerator;
 

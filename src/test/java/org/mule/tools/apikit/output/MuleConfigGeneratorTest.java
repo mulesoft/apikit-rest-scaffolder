@@ -120,7 +120,6 @@ public class MuleConfigGeneratorTest {
                                 new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build());
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
-    //    Document document = muleConfigGenerator.getMuleConfig(api).getContentAsDocument();
 
     Element rootElement = document.getRootElement();
     assertEquals("mule", rootElement.getName());

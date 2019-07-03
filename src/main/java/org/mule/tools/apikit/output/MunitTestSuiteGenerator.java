@@ -12,8 +12,16 @@ import com.google.common.collect.Lists;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.mule.tools.apikit.model.*;
-import org.mule.tools.apikit.output.scopes.*;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffoldingError;
+import org.mule.tools.apikit.model.ScaffolderResource;
+import org.mule.tools.apikit.output.scopes.HttpRequestConfigScope;
+import org.mule.tools.apikit.output.scopes.MunitConfigScope;
+import org.mule.tools.apikit.output.scopes.MunitTestFlowScope;
+import org.mule.tools.apikit.output.scopes.MuleScope;
 
 public class MunitTestSuiteGenerator {
 

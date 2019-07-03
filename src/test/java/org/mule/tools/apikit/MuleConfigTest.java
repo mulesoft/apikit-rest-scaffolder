@@ -19,7 +19,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.Resource;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.APIKitConfig;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.Flow;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 

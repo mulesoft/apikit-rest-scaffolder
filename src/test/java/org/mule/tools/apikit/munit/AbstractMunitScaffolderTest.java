@@ -11,7 +11,10 @@ import org.mule.parser.service.ParserMode;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.MunitScaffolder;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.File;
 

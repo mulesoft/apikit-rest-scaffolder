@@ -6,16 +6,22 @@
  */
 package org.mule.tools.apikit;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.MuleDomain;
+import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderResult;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,11 +40,13 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
     MuleConfig muleConfig2 =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig1);
-    muleConfigs.add(muleConfig2);
-    ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig1, muleConfig2);
+
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs)
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -61,11 +69,12 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     MuleConfig muleConfig2 =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/no-resources-flows.xml"));
 
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig2);
-    muleConfigs.add(muleConfig1);
-    ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig2, muleConfig1);
+
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs)
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -96,10 +105,12 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
     MuleConfig muleConfig =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-extension/simple-extension-not-present-4.xml"));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs)
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -135,10 +146,12 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing/simple-4.xml"));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
+
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs)
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -174,10 +187,10 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-custom-lc/simple-4.xml"));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig);
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
+
     MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get())
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder().withApi(parseResult.get())
         .withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
@@ -216,10 +229,10 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
     MuleConfig muleConfig = MuleConfigBuilder
         .fromStream(getResourceAsStream("scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc-4.xml"));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig);
+
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
     MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get())
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder().withApi(parseResult.get())
         .withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
@@ -257,10 +270,12 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
     MuleConfig muleConfig =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing/mule-config-no-api-flows-4.xml"));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(muleConfig);
-    ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
+    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
+
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .withMuleConfigurations(muleConfigs)
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
@@ -299,7 +314,9 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ParseResult parseResult = new ParserService().parse(ApiReference.create(apiPath));
     ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());

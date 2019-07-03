@@ -6,13 +6,19 @@
  */
 package org.mule.tools.apikit;
 
-import com.google.common.collect.Lists;
 import org.mule.tools.apikit.input.MuleConfigParser;
 import org.mule.tools.apikit.input.RAMLFilesParser;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.APIFactory;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.Scaffolder;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderResult;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingError;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.output.GenerationModel;
-import org.mule.tools.apikit.output.GenerationStrategy;
-import org.mule.tools.apikit.output.MuleConfigGenerator;
+import org.mule.tools.apikit.output.GenerationStrategy;import org.mule.tools.apikit.output.MuleConfigGenerator;;
 
 import java.util.Arrays;
 import java.util.List;

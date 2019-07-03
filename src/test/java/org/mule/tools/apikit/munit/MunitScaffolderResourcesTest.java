@@ -8,7 +8,8 @@ package org.mule.tools.apikit.munit;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.ScaffolderResource;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.util.List;
 

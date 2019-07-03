@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ScaffolderResult implements ScaffoldingResult {
+public final class ScaffolderResult implements ScaffoldingResult {
 
   private final List<MuleConfig> generatedConfigs;
   private final List<ScaffolderResource> generatedResources;
