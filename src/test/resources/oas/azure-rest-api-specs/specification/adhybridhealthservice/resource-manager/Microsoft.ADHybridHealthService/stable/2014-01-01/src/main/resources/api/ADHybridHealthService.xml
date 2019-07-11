@@ -126,7 +126,7 @@ output application/json
     <flow name="delete:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName):ADHybridHealthService-config" />
@@ -134,8 +134,8 @@ output application/json
     <flow name="delete:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\features\(featureName)\userpreference:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="featureName">attributes.uriParams.featureName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="featureName">attributes.uriParams.'featureName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\features\(featureName)\userpreference:ADHybridHealthService-config" />
@@ -143,8 +143,8 @@ output application/json
     <flow name="delete:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config" />
@@ -152,7 +152,7 @@ output application/json
     <flow name="delete:\providers\Microsoft.ADHybridHealthService\services\(serviceName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\providers\Microsoft.ADHybridHealthService\services\(serviceName):ADHybridHealthService-config" />
@@ -160,8 +160,8 @@ output application/json
     <flow name="delete:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config" />
@@ -169,8 +169,8 @@ output application/json
     <flow name="delete:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\data:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="delete:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\data:ADHybridHealthService-config" />
@@ -178,7 +178,7 @@ output application/json
     <flow name="patch:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName):application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="patch:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName):application\json:ADHybridHealthService-config" />
@@ -189,7 +189,7 @@ output application/json
     <flow name="patch:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\monitoringconfiguration:application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="patch:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\monitoringconfiguration:application\json:ADHybridHealthService-config" />
@@ -197,7 +197,7 @@ output application/json
     <flow name="patch:\providers\Microsoft.ADHybridHealthService\services\(serviceName):application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="patch:\providers\Microsoft.ADHybridHealthService\services\(serviceName):application\json:ADHybridHealthService-config" />
@@ -211,7 +211,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName):ADHybridHealthService-config" />
@@ -219,7 +219,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\addomainservicemembers:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\addomainservicemembers:ADHybridHealthService-config" />
@@ -227,7 +227,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\addsservicemembers:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\addsservicemembers:ADHybridHealthService-config" />
@@ -235,7 +235,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\alerts:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\alerts:ADHybridHealthService-config" />
@@ -243,7 +243,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\configuration:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\configuration:ADHybridHealthService-config" />
@@ -251,8 +251,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\dimensions\(dimension):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="dimension">attributes.uriParams.dimension</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="dimension">attributes.uriParams.'dimension'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\dimensions\(dimension):ADHybridHealthService-config" />
@@ -260,8 +260,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\features\(featureName)\userpreference:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="featureName">attributes.uriParams.featureName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="featureName">attributes.uriParams.'featureName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\features\(featureName)\userpreference:ADHybridHealthService-config" />
@@ -269,7 +269,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\forestsummary:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\forestsummary:ADHybridHealthService-config" />
@@ -277,7 +277,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metricmetadata:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metricmetadata:ADHybridHealthService-config" />
@@ -285,8 +285,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metricmetadata\(metricName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metricmetadata\(metricName):ADHybridHealthService-config" />
@@ -294,9 +294,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metricmetadata\(metricName)\groups\(groupName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metricmetadata\(metricName)\groups\(groupName):ADHybridHealthService-config" />
@@ -304,9 +304,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metrics\(metricName)\groups\(groupName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metrics\(metricName)\groups\(groupName):ADHybridHealthService-config" />
@@ -314,9 +314,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metrics\(metricName)\groups\(groupName)\average:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metrics\(metricName)\groups\(groupName)\average:ADHybridHealthService-config" />
@@ -324,9 +324,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metrics\(metricName)\groups\(groupName)\sum:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\metrics\(metricName)\groups\(groupName)\sum:ADHybridHealthService-config" />
@@ -334,7 +334,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\replicationdetails:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\replicationdetails:ADHybridHealthService-config" />
@@ -342,7 +342,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\replicationstatus:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\replicationstatus:ADHybridHealthService-config" />
@@ -350,7 +350,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\replicationsummary:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\replicationsummary:ADHybridHealthService-config" />
@@ -358,7 +358,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers:ADHybridHealthService-config" />
@@ -366,8 +366,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config" />
@@ -375,8 +375,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId)\alerts:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId)\alerts:ADHybridHealthService-config" />
@@ -384,8 +384,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId)\credentials:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers\(serviceMemberId)\credentials:ADHybridHealthService-config" />
@@ -402,8 +402,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\service\(serviceName)\servicemembers\(serviceMemberId)\connectors:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\service\(serviceName)\servicemembers\(serviceMemberId)\connectors:ADHybridHealthService-config" />
@@ -417,7 +417,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName):ADHybridHealthService-config" />
@@ -425,8 +425,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\TenantWhitelisting\(featureName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="featureName">attributes.uriParams.featureName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="featureName">attributes.uriParams.'featureName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\TenantWhitelisting\(featureName):ADHybridHealthService-config" />
@@ -434,7 +434,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\alerts:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\alerts:ADHybridHealthService-config" />
@@ -442,8 +442,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\checkServiceFeatureAvailibility\(featureName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="featureName">attributes.uriParams.featureName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="featureName">attributes.uriParams.'featureName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\checkServiceFeatureAvailibility\(featureName):ADHybridHealthService-config" />
@@ -451,7 +451,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\exporterrors\counts:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\exporterrors\counts:ADHybridHealthService-config" />
@@ -459,7 +459,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\exporterrors\listV2:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\exporterrors\listV2:ADHybridHealthService-config" />
@@ -467,7 +467,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\exportstatus:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\exportstatus:ADHybridHealthService-config" />
@@ -475,8 +475,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\feedbacktype\alerts\(shortName)\alertfeedback:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="shortName">attributes.uriParams.shortName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="shortName">attributes.uriParams.'shortName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\feedbacktype\alerts\(shortName)\alertfeedback:ADHybridHealthService-config" />
@@ -484,7 +484,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metricmetadata:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metricmetadata:ADHybridHealthService-config" />
@@ -492,8 +492,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metricmetadata\(metricName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metricmetadata\(metricName):ADHybridHealthService-config" />
@@ -501,9 +501,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metricmetadata\(metricName)\groups\(groupName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metricmetadata\(metricName)\groups\(groupName):ADHybridHealthService-config" />
@@ -511,9 +511,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metrics\(metricName)\groups\(groupName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metrics\(metricName)\groups\(groupName):ADHybridHealthService-config" />
@@ -521,9 +521,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metrics\(metricName)\groups\(groupName)\average:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metrics\(metricName)\groups\(groupName)\average:ADHybridHealthService-config" />
@@ -531,9 +531,9 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metrics\(metricName)\groups\(groupName)\sum:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\metrics\(metricName)\groups\(groupName)\sum:ADHybridHealthService-config" />
@@ -541,7 +541,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\monitoringconfigurations:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\monitoringconfigurations:ADHybridHealthService-config" />
@@ -549,7 +549,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\reports\badpassword\details\user:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\reports\badpassword\details\user:ADHybridHealthService-config" />
@@ -557,7 +557,7 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers:ADHybridHealthService-config" />
@@ -565,8 +565,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId):ADHybridHealthService-config" />
@@ -574,8 +574,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\alerts:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\alerts:ADHybridHealthService-config" />
@@ -583,8 +583,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\credentials:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\credentials:ADHybridHealthService-config" />
@@ -592,8 +592,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\datafreshness:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\datafreshness:ADHybridHealthService-config" />
@@ -601,8 +601,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\exportstatus:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\exportstatus:ADHybridHealthService-config" />
@@ -610,8 +610,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\globalconfiguration:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\globalconfiguration:ADHybridHealthService-config" />
@@ -619,10 +619,10 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\metrics\(metricName)\groups\(groupName):ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
-                <ee:set-variable variableName="metricName">attributes.uriParams.metricName</ee:set-variable>
-                <ee:set-variable variableName="groupName">attributes.uriParams.groupName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
+                <ee:set-variable variableName="metricName">attributes.uriParams.'metricName'</ee:set-variable>
+                <ee:set-variable variableName="groupName">attributes.uriParams.'groupName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\metrics\(metricName)\groups\(groupName):ADHybridHealthService-config" />
@@ -630,8 +630,8 @@ output application/json
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\serviceconfiguration:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.serviceMemberId</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="serviceMemberId">attributes.uriParams.'serviceMemberId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers\(serviceMemberId)\serviceconfiguration:ADHybridHealthService-config" />
@@ -639,8 +639,8 @@ output application/json
     <flow name="post:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\features\(featureName)\userpreference:application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
-                <ee:set-variable variableName="featureName">attributes.uriParams.featureName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
+                <ee:set-variable variableName="featureName">attributes.uriParams.'featureName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="post:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\features\(featureName)\userpreference:application\json:ADHybridHealthService-config" />
@@ -648,7 +648,7 @@ output application/json
     <flow name="post:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers:application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="post:\providers\Microsoft.ADHybridHealthService\addsservices\(serviceName)\servicemembers:application\json:ADHybridHealthService-config" />
@@ -662,7 +662,7 @@ output application/json
     <flow name="post:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\feedbacktype\alerts\feedback:application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="post:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\feedbacktype\alerts\feedback:application\json:ADHybridHealthService-config" />
@@ -670,7 +670,7 @@ output application/json
     <flow name="post:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers:application\json:ADHybridHealthService-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
-                <ee:set-variable variableName="serviceName">attributes.uriParams.serviceName</ee:set-variable>
+                <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="post:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\servicemembers:application\json:ADHybridHealthService-config" />
