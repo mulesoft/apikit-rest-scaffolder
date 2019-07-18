@@ -1,0 +1,12 @@
+[
+  {
+    "id": 5,
+    "description": "AH to go",
+    "imageUrl": "http://some-image.png"
+  },
+  {
+    "id": 7,
+    "description": "Gall&Gall",
+    "imageUrl": "http://some-image.png"
+  }
+]

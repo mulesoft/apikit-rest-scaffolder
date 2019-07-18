@@ -1,0 +1,37 @@
+#%RAML 1.0
+title: Stores SAPI
+version: v0.1
+baseUri: ahold-delhaize.com/api/format-management/
+description: API for retrieving stores
+uses:
+  sdt: /exchange_modules/a7e2ef79-41aa-4a36-9ca1-1f388917eb12.ahnl/format-data-types/1.0.1/format-data-types.raml
+  sts: /exchange_modules/a7e2ef79-41aa-4a36-9ca1-1f388917eb12.ahnl/traits/1.0.4/traits.raml
+  srt: /exchange_modules/a7e2ef79-41aa-4a36-9ca1-1f388917eb12.ahnl/resource-types/1.0.6/resource-types-without-examples.raml
+  
+/stores:
+  description: Retrieve stores.
+  get:
+    is: [sts.pageable,sts.client-id-required]
+    queryParameters: 
+      bannerId?:
+        description: The banner (retail-brand) id. Default value is "001" representing AH.
+        type: string
+        default: "001"
+      lifeCycleStatus?:
+        description: This is used for returning only open, close etc.
+        type: string
+  type:
+    srt.all:
+      getResponseType: sdt.stores
+
+  /{storeId}:
+    get:
+      is: [sts.client-id-required]
+      queryParameters: 
+        bannerId?:
+          description: The banner (retail-brand) id. Default value is "001" representing AH.
+          type: string
+          default: "001"
+    type:
+      srt.all:
+        getResponseType: sdt.store

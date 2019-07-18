@@ -1,0 +1,2766 @@
+#%RAML 0.8
+---
+title: Data Gateway Designer
+baseUri: http://mocksvc.mulesoft.com/mocks/1496b60f-e228-434a-b719-f8e1d3b06954
+mediaType: application/json
+version: v0.1
+# ------------------------------------------------------
+/login:
+  displayName: Login
+  post:
+    description: Login through signed request
+    body:
+      application/x-www-form-urlencoded:
+        formParameters:
+          signed_request:
+            description: The signed_request from Salesforce
+            required: true
+            type: string
+  get:
+    description: Login through signed request   
+# ------------------------------------------------------
+/me:
+  displayName: currentUser
+  get:
+    description: Describe the current logged user
+    responses:
+      200:
+        body:
+          application/json:
+            example:  |
+              {
+                "data": 
+                  {
+                    "id":"123abc",
+                    "username": "some_user_name",
+                    "firstName":"John",
+                    "lastName": "Doe",
+                    "email":"john.doe@mycompany.com",
+                    "company":"My Company LTD",
+                    "phone":"5553605",
+                    "firstTime":"true" 
+                  },
+                "isSuccessful": false,
+                "message": ""
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /notifications:
+    displayName: notifications
+    get:
+      description: List all the notifications for the user
+      responses:
+        200:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data":
+                    {
+                      "count": "2",
+                      "notifications":[
+                        {
+                          "id":"1",
+                          "title":"New version available",
+                          "description":"There is a new version available for your SAP Data Gateway",
+                          "read":"false",
+                          "type":"warning",
+                          "timestamp":"01-01-2015 12:32:34"
+                        },
+                        {
+                          "id":"2",
+                          "title":"Your SAP Gateway is ready",
+                          "description":"Your new gateway has been provisioned",
+                          "read":"false",
+                          "type":"warning",
+                          "timestamp":"01-01-2015 14:37:09"
+                        }
+                      ]
+                    },
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+    # ------------------------------------------------------
+    /{notificationId}/read:
+      put:
+        description: marks the notification as read,
+        responses:
+            200:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "data": {},
+                      "isSuccessful": true,
+                      "message": ""
+                    }
+            400:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": ["field 1 is invalid", "field 2 is invalid"],
+                      "isSuccessful": false,
+                      "message": "Validation failed"
+                    } 
+            401:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": [],
+                      "isSuccessful": false,
+                      "message": "You must login first"
+                    }
+  # ------------------------------------------------------
+  /feedback:
+    displayName: Feedback
+    post:
+      description: Stores feedback from the users
+      body:
+        application/json:
+          example:  |
+            {
+              "subject": "This is the best product ever",
+              "description": "I love hydra"
+            }
+      responses:
+        201:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {"id":"1"},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Bad Request"
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "unauthorized"
+                }
+        503:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Service Unavailable"
+                }
+    /notification:
+      post:
+        description: Stores a notification request from the users
+        body:
+          application/json:
+            example:  |
+              {
+                "datasourceTypeId": 1
+              }
+        responses:
+          201:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {"id":"1"},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          400:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Bad Request"
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "unauthorized"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+# ------------------------------------------------------
+/alive:
+  displayName: health check resource
+  get:
+    description: Returns 200 if the app is up and running
+    responses:
+        200:
+          body: 
+            application/json:
+              example: |            
+                {
+                  "message": "",
+                  "isSuccessful": "true",
+                  "data": {}
+                }    
+        500:
+ # ------------------------------------------------------
+/auth:
+  displayName: authorization
+  /callback:
+    displayName: callback
+    get:
+      description: Descrive a gateway and the attributes that define it
+# ------------------------------------------------------  
+/connectivityTypes:
+  displayName: connectivityTypes
+  get:
+    description: List all the available connectivity types 
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "data": 
+                  {
+                    "count": "1",
+                    "connectivityTypes":[
+                      {
+                        "id":"1",
+                        "name":"IPSEC",
+                        "friendlyName": "IPSec tunnel",
+                        "properties":[
+                          {
+                            "id": 1,
+                            "validationRegEx": "^.*$",
+                            "order": 1,
+                            "validationErrorMsg": "Invalid datasource username",
+                            "fieldType": "custom",
+                            "mandatory": "true",
+                            "name": "username",
+                            "friendlyName": "IT Network Specialist",
+                            "valueType": "text",
+                            "maxSize": 20
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                "isSuccessful": false,
+                "message": ""
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /{connectivityTypeId}:
+    displayName: connectivityType
+    get:
+      description: Describe a datasource type and the attributes that define it
+      responses:
+        200:
+          body: 
+            application/json:
+              example: |            
+                {
+                  "message": "",
+                  "isSuccessful": "true",
+                  "data": {
+                  "id":"1",
+                  "name":"IPSEC",
+                  "friendlyName": "IPSec Tunnel",
+                    "properties": [
+                      {
+                        "id": 1,
+                        "validationRegEx": "^.*$",
+                        "order": 1,
+                        "validationErrorMsg": "Invalid datasource username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "specialistName",
+                        "friendlyName": "IT Network Specialist",
+                        "valueType": "text",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": 2,
+                        "validationRegEx": "^.*$",
+                        "order": 2,
+                        "validationErrorMsg": "Invalid datasource password",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "specialistEmail",
+                        "friendlyName": "IT Network Specialist email",
+                        "valueType": "text",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": 3,
+                        "validationRegEx": "^[0-9]*$",
+                        "order": 3,
+                        "validationErrorMsg": "Your external gateway IP",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "externalGatewayIP",
+                        "friendlyName": "External gateway IP",
+                        "valueType": "text",
+                        "maxSize": 6
+                      },
+                      {
+                        "id": 4,
+                        "validationRegEx": "^.*$",
+                        "order": 4,
+                        "validationErrorMsg": "Invalid datasource language value",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "internalNetworkAddressSpace",
+                        "friendlyName": "Internal network address space",
+                        "valueType": "text",
+                        "maxSize": 2
+                      },
+                      {
+                        "id": 5,
+                        "validationRegEx": "^[0-9]*$",
+                        "order": 5,
+                        "validationErrorMsg": "Invalid datasource system number",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "region",
+                        "friendlyName": "Region",
+                        "valueType": "text",
+                        "maxSize": 3
+                      },
+                      {
+                        "id": 6,
+                        "validationRegEx": "^.*$",
+                        "order": 6,
+                        "validationErrorMsg": "",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "selectname",
+                        "friendlyName": "Super Select",
+                        "valueType": "select",
+                        "maxSize": 20,
+                        "options": {
+                          "option1": "Option 1",
+                          "option2": "Option 2"
+                        }
+                      },
+                      {
+                        "id": 7,
+                        "validationRegEx": "^[0-9]*$",
+                        "order": 5,
+                        "validationErrorMsg": "Invalid datasource system number",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "checkbox",
+                        "friendlyName": "True/false option",
+                        "valueType": "checkbox",
+                        "maxSize": 1
+                      }
+                    ]
+                  }
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": "",
+                  "isSuccessful": false,
+                  "message": "Validation failed"
+                }        
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                } 
+# ------------------------------------------------------  
+/datasourceTypes:
+  displayName: datasourceTypes
+  get:
+    description: List all the available datasource types 
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "data": 
+                  {
+                    "count": "1",
+                    "datasourceTypes":[
+                      {
+                        "id":"1",
+                        "name":"SAP",
+                        "friendlyName": "Application",
+                        "properties":[
+                          {
+                            "id":"1231",
+                            "name":"chUser",
+                            "friendlyName":"Cloudhub UserName",
+                            "valueType":"text",
+                            "mandatory":true,
+                            "fieldType":"standard.ch",
+                            "order":1,
+                            "helpText":"this is a help text",
+                            "maxSize":20,
+                            "validationRegEx":"[.*]",
+                            "validationErrorMsg":"Invalid Bla"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+  /groups:
+    displayName: datasourceTypes groups
+    get:
+      description: List all the available datasource types grouped by supertype
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": 
+                    {
+                      "count": "2",
+                      "datasourceTypeGroups":[
+                        {
+                          "id":"1",
+                          "name":"Application",
+                          "description": "Application",
+                          "count": 1,
+                          "datasourceTypes":[
+                            {
+                              "id":"1",
+                              "name":"SAP",
+                              "friendlyName": "SAP",
+                              "enabled": true,
+                              "order": 1
+                            }
+                          ]
+                        },
+                        {
+                          "id":"2",
+                          "name":"Database",
+                          "description": "Database",
+                          "count": 2,
+                          "datasourceTypes":[
+                            {
+                              "id":"2",
+                              "name":"Oracle",
+                              "friendlyName": "Oracle DB",
+                              "enabled": true,
+                              "order": 1
+                            },
+                            {
+                              "id":"3",
+                              "name":"DB2",
+                              "friendlyName": "DB2",
+                              "enabled": false,
+                              "order": 2
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }            
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /{datasourceTypeId}:
+    displayName: datasourceType
+    get:
+      description: Describe a datasource type and the attributes that define it
+      responses:
+        200:
+          body: 
+            application/json:
+              example: |            
+                {
+                  "message": "",
+                  "isSuccessful": "true",
+                  "data": {
+                    "id": "1",
+                    "name": "SAP",
+                    "friendlyName": "SAP",
+                    "properties": [
+                      {
+                        "id": "1",
+                        "validationRegEx": "^.*$",
+                        "order": 1,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid Address format",
+                        "mandatory": true,
+                        "name": "label1",
+                        "friendlyName": "Connection Details",
+                        "helpText": "Host IP for data source",
+                        "valueType": "label",
+                        "maxSize": 100
+                      },
+                      {
+                        "id": "2",
+                        "validationRegEx": "^.*$",
+                        "order": 2,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid Address format",
+                        "mandatory": true,
+                        "name": "name",
+                        "friendlyName": "name",
+                        "helpText": "Connection name",
+                        "placeholder": "Name your Connection",
+                        "valueType": "text",
+                        "maxSize": 100
+                      },
+                      {
+                        "id": "3",
+                        "validationRegEx": "^.*$",
+                        "order": 3,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid Address format",
+                        "mandatory": true,
+                        "name": "address",
+                        "friendlyName": "description",
+                        "helpText": "Datasource description",
+                        "placeholder": "Enter notes to descripte connection (optional)",
+                        "valueType": "text",
+                        "maxSize": 100
+                      },
+                      {
+                        "id": "4",
+                        "validationRegEx": "^.*$",
+                        "order": 4,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid Address format",
+                        "mandatory": true,
+                        "name": "label2",
+                        "friendlyName": "Conneciton & Security",
+                        "helpText": "Host IP for data source",
+                        "valueType": "label",
+                        "maxSize": 100
+                      },
+                      {
+                        "id": "5",
+                        "validationRegEx": "^.*$",
+                        "order": 5,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid Address format",
+                        "mandatory": true,
+                        "name": "address",
+                        "friendlyName": "Address",
+                        "helpText": "Host IP for data source",
+                        "valueType": "text",
+                        "maxSize": 100
+                      },
+                      {
+                        "id": "6",
+                        "validationRegEx": "^.*$",
+                        "order": 6,
+                        "default": "123.45.56.65",
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid datasource username",
+                        "mandatory": true,
+                        "name": "username",
+                        "friendlyName": "User",
+                        "helpText": "SAP username",
+                        "valueType": "text",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": "7",
+                        "validationRegEx": "^.*$",
+                        "order": 7,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid datasource password",
+                        "mandatory": true,
+                        "name": "password",
+                        "friendlyName": "Password",
+                        "helpText": "SAP password",
+                        "valueType": "password",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": "8",
+                        "validationRegEx": "^[0-9]*$",
+                        "order": 8,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid datasource client number",
+                        "mandatory": true,
+                        "name": "client",
+                        "friendlyName": "Client Number",
+                        "helpText": "SAP client number (i.e. 800)",
+                        "valueType": "number",
+                        "maxSize": 6
+                      },
+                      {
+                        "id": "9",
+                        "validationRegEx": "^.*$",
+                        "order": 9,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid datasource language value",
+                        "mandatory": true,
+                        "name": "lang",
+                        "friendlyName": "Language",
+                        "helpText": "SAP language (i.e. EN)",
+                        "valueType": "text",
+                        "maxSize": 2
+                      },
+                      {
+                        "id": "10",
+                        "validationRegEx": "^[0-9]*$",
+                        "order": 10,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid datasource system number",
+                        "mandatory": true,
+                        "name": "sysnr",
+                        "friendlyName": "System Number",
+                        "helpText": "SAP system number (i.e. 14)",
+                        "valueType": "number",
+                        "maxSize": 3
+                      },
+                      {
+                        "id": "11",
+                        "validationRegEx": "^.*$",
+                        "order": 11,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Invalid Address format",
+                        "mandatory": true,
+                        "name": "label3",
+                        "friendlyName": "Upload Libraries",
+                        "helpText": "Host IP for data source",
+                        "description": "SAP requires you to provide 3 libraries in order to connect to your system. Names are listed below. For more information, please <a href='www.google.com'>click here</a>",
+                        "valueType": "label",
+                        "maxSize": 100
+                      },
+                      {
+                        "id": "12",
+                        "validationRegEx": ".*",
+                        "order": 12,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Missing required library",
+                        "mandatory": true,
+                        "name": "jco1",
+                        "friendlyName": "SAP IDoc JCo Library (sapidoc-x.jar)",
+                        "helpText": "SAP IDOC Class Library, e. g. sapidoc-3.0.7.jar (for Linux)",
+                        "valueType": "file",
+                        "maxSize": 50
+                      },
+                      {
+                        "id": "13",
+                        "validationRegEx": ".*",
+                        "order": 13,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Missing required library",
+                        "mandatory": true,
+                        "name": "jco2",
+                        "friendlyName": "SAP JCo Library (sapjco-x.jar)",
+                        "helpText": "SAP JCo Library (suitable for your operation system), e. g. sapjco-3.0.7.jar (for Linux)",
+                        "valueType": "file",
+                        "maxSize": 50
+                      },
+                      {
+                        "id": "14",
+                        "validationRegEx": ".*",
+                        "order": 14,
+                        "fieldType": "custom",
+                        "validationErrorMsg": "Missing required library",
+                        "mandatory": true,
+                        "name": "jco3",
+                        "friendlyName": "SAP JCo Native Library (libsapjco-x.jar)",
+                        "helpText": "SAP JCo Native Library (suitable for your operation system), e. g. libsapjco3.so (for Linux)",
+                        "valueType": "file",
+                        "maxSize": 50
+                      }
+                    ]
+                  }
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": "",
+                  "isSuccessful": false,
+                  "message": "Validation failed"
+                }        
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+# -----------------------------------------------------------------------------------------------  
+/gatewaytypes:
+  displayName: gatewayTypes
+  get:
+    description: List all the available gateway types 
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "data": 
+                  {
+                    "count": "3",
+                    "gatewayTypes":[
+                      {
+                        "id":"1",
+                        "name":"SAP",
+                        "friendlyName":"Application",
+                        "properties":[
+                          {
+                            "id":"1231",
+                            "name":"chUser",
+                            "friendlyName":"Cloudhub UserName",
+                            "valueType":"text",
+                            "mandatory":true,
+                            "fieldType":"standard.ch",
+                            "order":1,
+                            "helpText":"this is a help text",
+                            "maxSize":20,
+                            "validationRegEx":"[.*]",
+                            "validationErrorMsg":"Invalid Bla"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /{gatewayTypeId}:
+    displayName: gatewayType
+    get:
+      description: Describe a gateway and the attributes that define it
+      responses:
+        200:
+          body: 
+            application/json:
+              example: |            
+                {
+                  "message": "",
+                  "isSuccessful": "true",
+                  "data": {
+                    "id": 1,
+                    "name": "SAP",
+                    "friendlyName": "Application",
+                    "properties": [
+                      {
+                        "id": 1,
+                        "validationRegEx": "^.*$",
+                        "order": 1,
+                        "validationErrorMsg": "Invalid gateway username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "endpointUser",
+                        "friendlyName": "Basic Authentication",
+                        "valueType": "label",
+                        "helpText": "Enforces authentication according to the details configured in a security manager policy.",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": 2,
+                        "validationRegEx": "^.*$",
+                        "order": 2,
+                        "validationErrorMsg": "Invalid gateway username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "endpointUser",
+                        "friendlyName": "Gateway Username",
+                        "valueType": "text",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": 3,
+                        "validationRegEx": "^.*$",
+                        "order": 3,
+                        "validationErrorMsg": "Invalid gateway password",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "endpointPassword",
+                        "friendlyName": "Gateway Password",
+                        "valueType": "password2",
+                        "helpText": "Test tooltip",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": 9,
+                        "validationRegEx": "^.*$",
+                        "order": 4,
+                        "validationErrorMsg": "Invalid gateway username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "endpointUser",
+                        "friendlyName": "Throttling",
+                        "valueType": "label",
+                        "maxSize": 20
+                      },
+                      {
+                        "id": 4,
+                        "validationRegEx": "^.*$",
+                        "order": 5,
+                        "validationErrorMsg": "Invalid gateway username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "applyThrottling",
+                        "friendlyName": "Apply Throttling?",
+                        "valueType": "checkbox",
+                        "helpText": "Throttles the number of messages per time period processed by an API. Queues any messages beyond the maximum for later processing. Applies throttling to all API calls, regardless of the source.",
+                        "maxSize": 6,
+                        "default": false
+                      }, 
+                      {
+                        "id": 5,
+                        "validationRegEx": "^.*$",
+                        "order": 6,
+                        "validationErrorMsg": "Invalid gateway username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "delayTimeMillis",
+                        "friendlyName": "Delay Time in Milliseconds",
+                        "valueType": "number",
+                        "maxSize": 6,
+                        "enabled":"applyThrottling"
+                      },
+                      {
+                        "id": 6,
+                        "validationRegEx": "^.*$",
+                        "order": 7,
+                        "validationErrorMsg": "Invalid gateway password",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "delayAttempts",
+                        "friendlyName": "Delay Attempts",
+                        "valueType": "number",
+                        "maxSize": 4,
+                        "enabled":"applyThrottling"
+                      }, 
+                      {
+                        "id": 7,
+                        "validationRegEx": "^.*$",
+                        "order": 8,
+                        "validationErrorMsg": "Invalid gateway username",
+                        "fieldType": "custom",
+                        "mandatory": "true",
+                        "name": "maxReqPeriod",
+                        "friendlyName": "Maximum Requests Per Period",
+                        "valueType": "number",
+                        "maxSize": 4,
+                        "enabled":"applyThrottling"
+                      }
+                    ]
+                  }
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": ["field 1 is invalid", "field 2 is invalid"],
+                  "isSuccessful": false,
+                  "message": "Validation failed"
+                }        
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+# ------------------------------------------------------
+/connectivity:
+  displayName: connectivity
+  get:
+    description: List of available connectivities
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "message": "",
+                "isSuccessful": "true",
+                "data": {
+                  "connectivity": [
+                    {
+                      "id": "1",
+                      "name": "VPC",
+                      "description": "This is a VPC setup",
+                      "connectivityTypeId": "1",
+                      "draft":"false",
+                      "properties": {
+                        "specialistName":"Homer",
+                        "specialistEmail": "my@email.com"
+                      }
+                    },
+                    {
+                      "id": "2",
+                      "name": "VPC2",
+                      "description": "This is another VPC setup",
+                      "connectivityTypeId": "2",
+                      "draft":"false",
+                      "properties": {
+                        "specialistName":"Homer",
+                        "specialistEmail": "my@email.com"
+                      }
+                    }
+                  ]
+                }
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      503:
+        body:
+          application/json:
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "Service Unavailable"
+              }
+  post:
+    description: Set the connectivity settings
+    body:
+      application/json:
+        example:  |
+          {
+            "name": "VPC1",
+            "description": "My very own VPC setup",
+            "connectivityTypeId": "1",
+            "draft": "false",
+            "properties": {
+              "specialistName": "Bart",
+              "region": "North",
+              "specialistEmail": "bla@mail.com"
+            }
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            example: |
+              {
+                "data": {"id":"1"},
+                "isSuccessful": true,
+                "message": ""
+              }
+      400:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": ["field 1 is invalid", "field 2 is invalid"],
+                "isSuccessful": false,
+                "message": "Validation failed"
+              }  
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      503:
+        body:
+          application/json:
+            example: |
+              {
+                "data": {},
+                "isSuccessful": false,
+                "message": "Service Unavailable"
+              } 
+  
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /{connectivityId}:
+    displayName: connectivityId
+    get:
+      description: Retrieves connectivity details
+      responses:
+        200:
+         body:
+            application/json:
+              example: |
+                {
+                "data": {
+                  {
+                    "id": "1",
+                    "name": "VPC",
+                    "description": "This is a VPC setup",
+                    "connectivityTypeId": "1",
+                    "draft":"false",
+                    "properties": {
+                      "specialistName":"Homer",
+                      "specialistEmail": "my@email.com"
+                    }
+                  }
+                },
+                "isSuccessful": true,
+                "message": ""
+                }                 
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+        404:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Gateway not found"
+                }     
+    # *****************************************************
+    put:
+      description: Updates the gateway resource
+      body:
+        application/json:
+          example: |
+            {
+              "name": "VPC1",
+              "description": "My very own VPC setup",
+              "connectivityTypeId": "1",
+              "draft": "false",
+              "properties": {
+                "specialistName": "Bart",
+                "region": "North",
+                "specialistEmail": "bla@mail.com"
+              }
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": ["field 1 is invalid", "field 2 is invalid"],
+                  "isSuccessful": false,
+                  "message": "Validation failed"
+                } 
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }           
+    # *****************************************************
+    delete:
+      description: Allows you to delete a connectivity definition
+      responses:
+        202:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }                
+# ------------------------------------------------------
+/datasources:
+  displayName: datasources
+  get:
+    description: List of datasources
+    queryParameters:
+      search:
+        displayName: SearchTerm
+        type: string
+        description: Search Term
+        example: bla
+        minLength: 2
+        required: false
+      gatewayType:
+        displayName: relatedGatewayType 
+        type: number
+        description: related gatewayType 
+        example: 1
+        minimum: 0
+        required: false  
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "message": "",
+                "isSuccessful": "true",
+                "data": {
+                  "datasources": [
+                    {
+                      "id": "1",
+                      "name": "Example Datasource",
+                      "description": "This is a datasource to expose blah data",
+                      "datasourceTypeId": "1",
+                      "draft":"false",
+                      "properties": {
+                        "address":"my-domain.com",
+                        "port": "80",
+                        "user": "a_user_name",
+                        "password": "a_password",
+                        "idocProgramId":"idoc_receive",
+                        "jco1":"iamafile.jar",
+                        "jco2":"file1.jar",
+                        "jco3":"anotherfile.log"
+                      }
+                    },
+                    {
+                      "id": "2",
+                      "name": "Example Datasource 2",
+                      "description": "This is a datasource to expose blah data",
+                      "datasourceTypeId": "1",
+                      "draft":"false",
+                      "properties": {
+                        "address":"my-domain.com",
+                        "port": "80",
+                        "user": "a_user_name",
+                        "password": "a_password",
+                        "idocProgramId":"idoc_receive",
+                        "jco1":"iamafile.jar",
+                        "jco2":"file1.jar",
+                        "jco3":"anotherfile.log" 
+                      }
+                    }
+                  ]
+                }
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      503:
+        body:
+          application/json:
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "Service Unavailable"
+              }
+  post:
+    description: Set the gateway initial setup
+    body:
+      application/json:
+        example:  |
+          {
+            "name": "SAP Datasource",
+            "description": "This is a datasource to expose SAP data",
+            "datasourceTypeId": "1",
+            "draft": "false",
+            "properties": {
+              "address": "123.238.245.8",
+              "client": "800",
+              "username": "ECC1430",
+              "password": "mulePass!!",
+              "lang":"EN",
+              "sysnr":"14"
+            }
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            example: |
+              {
+                "data": {"id":"1"},
+                "isSuccessful": true,
+                "message": ""
+              }
+      400:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": ["field 1 is invalid", "field 2 is invalid"],
+                "isSuccessful": false,
+                "message": "Validation failed"
+              }  
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      503:
+        body:
+          application/json:
+            example: |
+              {
+                "data": {},
+                "isSuccessful": false,
+                "message": "Service Unavailable"
+              } 
+  # ------------------------------------------------------
+  /test:
+    displayName: test datasource connection
+    post:
+      description: test datasource connection
+      body:
+        application/json:
+          example:  |
+            {
+              "host": "hydra.cxt8ykwdbwg2.us-east-1.rds.amazonaws.com",
+              "port": "3306"
+              }
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": false,
+                  "message": "Unable to resolve address: hydra-sql-test.cxt8ykwdbwg2.us-east-1.rds.amazonws.com"
+                }  
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+        503:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": false,
+                  "message": "Service Unavailable"
+                }  
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /{datasourceId}:
+    displayName: datasourceId
+    get:
+      description: Retrieves Datasource details
+      responses:
+        200:
+         body:
+            application/json:
+              example: |
+                {
+                "data": {
+                  "id": "1",
+                  "name": "Example Datasource",
+                  "description": "This is a datasource to expose blah data",
+                  "datasourceTypeId": "1",
+                  "draft":"false",
+                  "properties": {
+                    "address":"my-domain.com",
+                    "port": "80",
+                    "user": "a_user_name",
+                    "password": "a_password",
+                    "idocProgramId":"idoc_receive",
+                    "selectname": "option2",
+                    "checkbox": true,
+                    "jco1":"iamafile.jar",
+                    "jco2":"file1.jar",
+                    "jco3":"anotherfile.log" 
+                  }
+                },
+                "isSuccessful": true,
+                "message": ""
+                }                 
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+        404:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Gateway not found"
+                }     
+    # *****************************************************
+    put:
+      description: Updates the gateway resource
+      body:
+        application/json:
+          example: |
+            {
+            "name": "Example Datasource 2",
+            "description": "This is a datasource to expose blah data",
+            "datasourceTypeId": "datasource_type_id",
+            "draft":"false",
+            "properties": {
+              "address":"my-domain.com",
+              "port": "80",
+              "user": "a_user_name",
+              "password": "a_password",
+              "idocProgramId":"idoc_receive" 
+              }
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": ["field 1 is invalid", "field 2 is invalid"],
+                  "isSuccessful": false,
+                  "message": "Validation failed"
+                } 
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+    # *****************************************************
+    delete:
+      description: Allows you to delete (unpublish and deactivate) a gateway
+      responses:
+        202:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+    # ------------------------------------------------------
+    /files:
+      displayName: files
+      post:
+        description: uploads a file for a given gateway
+        body:
+          multipart/form-data:
+            formParameters:
+                file:
+                  description: The file to be uploaded
+                  required: true
+                  type: file
+                fieldName:
+                  description: The fieldName associated to the file
+                  required: true
+                  type: string  
+    # ------------------------------------------------------
+    /gateways:
+      displayName: gateways
+      get:
+        description: returns a list of active gateways consuming this datasource
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "message": "",
+                    "isSuccessful": "true",
+                    "data": {
+                      "count": 2
+                      "gateways": [
+                        {
+                          "id": "1",
+                          "name": "Gateway 1"
+                        },
+                        {
+                          "id": "2",
+                          "name": "Gateway 2"
+                        }
+                      ]
+                    }
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+          404:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Gateway not found"
+                  }       
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    /gatewayType:
+      displayName: gatewayType
+      get:
+        description: Describe a gateway type related to the given datasource
+        responses:
+          200:
+            body: 
+              application/json:
+                example: |            
+                  {
+                    "message": "",
+                    "isSuccessful": "true",
+                    "data": {
+                      "id": "1",
+                      "name": "SAP",
+                      "friendlyName": "SAP",
+                      "properties": [
+                        {
+                          "id": "20",
+                          "validationRegEx": "^.*$",
+                          "order": 4,
+                          "fieldType": "custom",
+                          "mandatory": true,
+                          "name": "basicAuthLabel",
+                          "friendlyName": "Basic Authentication",
+                          "helpText": "Enforces authentication according to the details configured in a security manager policy.",
+                          "valueType": "label",
+                          "maxSize": 1
+                        },
+                        {
+                          "id": "22",
+                          "validationRegEx": "^.*$",
+                          "order": 5,
+                          "validationErrorMsg": "Invalid gateway username",
+                          "fieldType": "custom",
+                          "placeholder": "Username to access your Gateway",
+                          "mandatory": true,
+                          "name": "endpointUser",
+                          "friendlyName": "Gateway Username ",
+                          "valueType": "text",
+                          "maxSize": 20
+                        },
+                        {
+                          "id": "23",
+                          "validationRegEx": "^.*$",
+                          "order": 6,
+                          "validationErrorMsg": "Invalid gateway password",
+                          "fieldType": "custom",
+                          "placeholder": "Assign a password to your Gateway",
+                          "mandatory": true,
+                          "name": "endpointPassword",
+                          "friendlyName": "Gateway Password",
+                          "valueType": "password2",
+                          "maxSize": 20
+                        },
+                        {
+                          "id": "24",
+                          "validationRegEx": "^.*$",
+                          "default": false,
+                          "order": 8,
+                          "fieldType": "custom",
+                          "mandatory": false,
+                          "name": "applyThrottling",
+                          "friendlyName": "Apply Throttling?",
+                          "valueType": "checkbox",
+                          "maxSize": 10
+                        },
+                        {
+                          "id": "25",
+                          "enabled": "applyThrottling",
+                          "validationRegEx": "^[0-9]*$",
+                          "default": 10000,
+                          "order": 9,
+                          "validationErrorMsg": "Invalid value",
+                          "fieldType": "custom",
+                          "mandatory": true,
+                          "name": "delayTimeMillis",
+                          "friendlyName": "Delay Time in Milliseconds",
+                          "helpText": "The amount of time that responses will be delayed after the SLA has been exceeded",
+                          "valueType": "number",
+                          "maxSize": 8
+                        },
+                        {
+                          "id": "26",
+                          "enabled": "applyThrottling",
+                          "validationRegEx": "^[0-9]*$",
+                          "default": 5,
+                          "order": 10,
+                          "validationErrorMsg": "Invalid value",
+                          "fieldType": "custom",
+                          "mandatory": true,
+                          "name": "delayAttempts",
+                          "friendlyName": "Delay Attempts",
+                          "helpText": "Number of attempts to process the request will be made before fully exhausted",
+                          "valueType": "number",
+                          "maxSize": 8
+                        },
+                        {
+                          "id": "27",
+                          "enabled": "applyThrottling",
+                          "validationRegEx": "^[0-9]*$",
+                          "default": "",
+                          "order": 11,
+                          "validationErrorMsg": "Invalid value",
+                          "fieldType": "custom",
+                          "mandatory": true,
+                          "name": "maxReqPeriod",
+                          "friendlyName": "Maximum Requests Per Period",
+                          "helpText": "The total number of requests to be allowed during the specified time period",
+                          "valueType": "number",
+                          "maxSize": 8
+                        },
+                        {
+                          "id": "28",
+                          "validationRegEx": "^.*$",
+                          "order": 7,
+                          "fieldType": "custom",
+                          "mandatory": true,
+                          "name": "throttlingLabel",
+                          "friendlyName": "Throttling",
+                          "helpText": "Throttles the number of messages per millisecond to be processed by an API. Queues any messages beyond the maximum for later processing. Applies throttling to all API calls, regardless of the source.",
+                          "valueType": "label",
+                          "maxSize": 1
+                        }
+                      ],
+                      "group": "Application"
+                    }
+                  }
+          400:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Validation failed"
+                  }        
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }                 
+# ------------------------------------------------------
+/gateways:
+  displayName: gateways
+  get:
+    description: List of gateways per organization
+    queryParameters:
+             search:
+               displayName: SearchTerm
+               type: string
+               description: Search Term
+               example: MARA
+               minLength: 2
+               required: false
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "message": "",
+                "isSuccessful": "true",
+                "data": {
+                  "gateways": [
+                    {
+                      "id": "1",
+                      "name": "Example Gateway",
+                      "description": "This is a gateway to expose blah data",
+                      "typeId": 1,
+                      "status": "active",
+                      "published": false,
+                      "publishedToOrg": "Organization A",
+                      "draft":false,
+                      "organizationId":"sad3243",
+                      "secKey": "xxxx", 
+                      "chDomain":"gw-6bfeb450-390d-11e4-916c-0800200c9a66",
+                      "chFullDomain":"http://gw-6bfeb450-390d-11e4-916c-0800200c9a66.cloudhub.io",
+                      "objectCount":3,
+                      "timestamp":"2014-09-08 16:58:13.0", 
+                      "datasourceId":3,
+                      "datasourceName":"Datasource 1",
+                      "properties": 
+                      {
+                        "endpointUser":"admin",
+                        "endpointPassword":"admin"
+                      }
+                    },
+                    {
+                      "id": "2",
+                      "name": "Example Draft Gateway",
+                      "description": "This is a gateway to expose blah data",
+                      "typeId": 1,
+                      "status": "inactive",
+                      "published": false,
+                      "publishedToOrg": "",
+                      "draft":true,
+                      "organizationId":"sad3243",
+                      "secKey": "xxxx", 
+                      "chDomain":"gw-6bfeb450-390d-11e4-916c-0800200c9a66",
+                      "chFullDomain":"http://gw-6bfeb450-390d-11e4-916c-0800200c9a66.cloudhub.io",
+                      "timestamp":"2014-09-08 16:58:13.0", 
+                      "datasourceId":2,
+                      "datasourceName":"Datasource 2",
+                      "properties": 
+                      {
+                        "endpointUser":"admin",
+                        "endpointPassword":"admin"
+                      }
+                    },
+                    {
+                      "id": "3",
+                      "name": "Example Provisioning Gateway",
+                      "description": "This is a gateway to expose blah data",
+                      "typeId": 1,
+                      "status": "provisioning",
+                      "published": false,
+                      "publishedToOrg": "",
+                      "draft":false,
+                      "organizationId":"sad3243",
+                      "secKey": "xxxx", 
+                      "chDomain":"gw-6bfeb450-390d-11e4-916c-0800200c9a66",
+                      "chFullDomain":"http://gw-6bfeb450-390d-11e4-916c-0800200c9a66.cloudhub.io",
+                      "timestamp":"2014-09-08 16:58:13.0", 
+                      "datasourceId":4,
+                      "datasourceName":"Datasource 1",
+                      "properties": 
+                      {
+                        "endpointUser":"admin",
+                        "endpointPassword":"admin"
+                      }
+                    }
+                  ]
+                }
+              }
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      503:
+        body:
+          application/json:
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "Service Unavailable"
+              }
+  post:
+    description: Set the gateway initial setup
+    body:
+      application/json:
+        example:  |
+          {
+            "name": "Example Gateway",
+            "description": "This is a gateway to expose blah data",
+            "typeId": "123",
+            "draft":false,
+            "datasourceId":5,
+            "properties": 
+            {
+              "endpointUser":"admin",
+              "endpointPassword":"admin"
+            }
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            example: |
+              {
+                "data": {"id":"1"},
+                "isSuccessful": true,
+                "message": ""
+              }
+      400:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": ["field 1 is invalid", "field 2 is invalid"],
+                "isSuccessful": false,
+                "message": "Validation failed"
+              }  
+      401:
+        body:
+          application/json: 
+            example: |
+              {
+                "data": [],
+                "isSuccessful": false,
+                "message": "You must login first"
+              }
+      503:
+        body:
+          application/json:
+            example: |
+              {
+                "data": {},
+                "isSuccessful": false,
+                "message": "Service Unavailable"
+              } 
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /validate:
+    /name:
+      displayName: Validate Gateway Name
+      post:
+        description: Validates the gateway name
+        body:
+          application/json:
+            example: |
+              {
+                "name": "Example Gateway"
+              }
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {
+                      "available": true
+                    },
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          400:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Validation failed"
+                  } 
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  } 
+  # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /{gatewayId}:
+    displayName: gatewayId
+    get:
+      description: Retrieves Gateway details
+      responses:
+        200:
+         body:
+            application/json:
+              example: |
+                {
+                "data": {
+                  "id": "1",
+                  "name": "Example Gateway",
+                  "description": "This is a gateway to expose blah data",
+                  "typeId": 1,
+                  "status": "active",
+                  "published": true,
+                  "publishedToOrg": "Organization A",
+                  "draft":false,
+                  "organizationId":"sad3243",
+                  "secKey": "xxxx", 
+                  "chDomain":"gw-6bfeb450-390d-11e4-916c-0800200c9a66",
+                  "chFullDomain":"http://gw-6bfeb450-390d-11e4-916c-0800200c9a66.cloudhub.io",
+                  "objectCount":3,
+                  "timestamp":"2014-09-08 16:58:13.0", 
+                  "datasourceId":1,
+                  "datasourceName":"Datasource 1",
+                  "properties": 
+                  {
+                    "endpointUser":"admin",
+                    "endpointPassword":"admin"
+                  }
+                },
+                "isSuccessful": true,
+                "message": ""
+                }                 
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+        404:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Gateway not found"
+                }     
+    # *****************************************************
+    put:
+      description: Updates the gateway resource
+      body:
+        application/json:
+          example: |
+            {
+              "name": "Example Gateway",
+              "description": "This is a gateway to expose blah data",
+              "typeId": "123",
+              "draft":false,
+              "datasourceId":5,
+              "properties": 
+              {
+                "endpointUser":"admin",
+                "endpointPassword":"admin"
+              }
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": ["field 1 is invalid", "field 2 is invalid"],
+                  "isSuccessful": false,
+                  "message": "Validation failed"
+                } 
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+    # *****************************************************
+    delete:
+      description: Allows you to delete (unpublish and deactivate) a gateway
+      responses:
+        202:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "You must login first"
+                }
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    /activate:
+      displayName: activate
+      post:
+        description: Allows you to change the status of the gateway to active.
+        responses:
+          202:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+    # +++++++++++++++++++++++++++++++++++++++++++++++++++++      
+    /deactivate:
+      displayName: deactivate
+      post:
+        description: Allows you to change the status of the gateway to inactive.
+        responses:
+          202:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    /publish:
+      displayName: Publish Status
+      post:
+        description: Allows you to publish a gateway to a sfdc organization.
+        body:
+          application/json:
+            example:  |
+              {
+              }
+        responses:
+          202:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          400:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Ivalid org id"
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    /unpublish:
+      displayName: Publish Status
+      post:
+        description: Allows you to unpublish a gateway to a sfdc organizatino.
+        responses:
+          202:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    /synchronize:
+      displayName: synchronize
+      post:
+        description: Synchronizes the objects in SFDC
+        responses:
+          202:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }              
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+    /test:
+      displayName: Test
+      post:
+        description: Allows you to the the connectivity against a datagateway
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+    /logs:
+      displayName: Log
+      get:
+        description: Allows you to the get the log from the underlying worker
+        queryParameters:
+         limit:
+           displayName: Limit
+           type: number
+           description: Limit
+           example: 100
+           default: 100
+           minimum: 0
+           required: false
+         offset:
+           displayName: Offset
+           type: number
+           description: Offset
+           example: 50
+           minimum: 0
+           required: false
+         search:
+           displayName: SearchTerm
+           type: string
+           description: Search Term
+           example: Exception
+           required: false
+         priority:
+           displayName: Priority
+           enum: [ERROR, FATAL, INFO, SYSTEM, CONSOLE, WARN, DEBUG]
+           type: string
+           description: Priority
+           example: MARA
+           required: false                      
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {
+                      "count": 2,
+                      "logs": [
+                        {
+                        "sequenceNumber": 1420469535062,
+                        "timestamp": 1420476875060,
+                        "serverId": "if741e91a",
+                        "message": "Development mode enabled",
+                        "priority": "INFO"
+                        },{
+                        "sequenceNumber": 1420469535061,
+                        "timestamp": 1420476872850,
+                        "serverId": "if741e91a",
+                        "message": "Development mode enabled", 
+                        "priority": "INFO"
+                        }
+                      ]},
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+          503:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {},
+                    "isSuccessful": false,
+                    "message": "Service Unavailable"
+                  }              
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+    /entities:
+      displayName: entities
+      get:
+        description: Retrieve a list of the entities exposed by the gateway. Allows you to perform searches over the entities
+        queryParameters:
+             search:
+               displayName: SearchTerm
+               type: string
+               description: Search Term
+               example: MARA
+               minLength: 2
+               required: false
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {
+                      "entitySet": [
+                        {
+                          "id": 1,
+                          "remoteEntity": "T001",
+                          "friendlyName": "CompanyCodes",
+                          "name": "CompanyCodes",
+                          "description": "I am a description",
+                          "enabled": "true",
+                          "properties": [
+                            {
+                            "description": "Client",
+                            "name": "Client",
+                            "fieldName": "MANDT",
+                            "length": "3",
+                            "nullable": "true",
+                            "type": "C",
+                            "key": "false"
+                            }
+                          ]
+                        }
+                      ]  
+                    },
+                    "isSuccessful": true,
+                    "message": ""
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }  
+      post:
+        description: creates a new entity with properties
+        body:
+          application/json:
+            example: |
+              {
+                "remoteEntity": "T001",
+                "name": "CompanyCodes",
+                "description": "I am a description",
+                "enabled": "true",
+                "properties": [
+                  {
+                  "description": "Client",
+                  "name": "Client",
+                  "fieldName": "MANDT",
+                  "length": "3",
+                  "nullable": "true",
+                  "type": "C",
+                  "key": "false"
+                  }
+                ]
+              }
+        responses:
+          201:
+            body:
+              application/json:
+                example: |
+                  {
+                    "data": {"id":"1"},
+                    "isSuccessful": true,
+                    "message": "Bad request"
+                  }
+          400:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "Bad Request"
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }  
+      # ++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+      /{entityId}:
+        put:
+          description: changes an existing entity with properties
+          body:
+            application/json:
+              example: |
+                {
+                  "remoteEntity": "T001",
+                  "name": "CompanyCodes",
+                  "description": "I am a description",
+                  "enabled": "true",
+                  "properties": [
+                    {
+                    "description": "Client",
+                    "name": "Client",
+                    "fieldName": "MANDT",
+                    "length": "3",
+                    "nullable": "true",
+                    "type": "C",
+                    "key": "false"
+                    }
+                  ]
+                }
+          responses:
+            201:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "data": {"id":"1"},
+                      "isSuccessful": true,
+                      "message": "Bad request"
+                    }
+            400:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": [],
+                      "isSuccessful": false,
+                      "message": "Bad Request"
+                    }
+            401:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": [],
+                      "isSuccessful": false,
+                      "message": "You must login first"
+                    } 
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+        get:
+          description: Retrieve a single entity exposed by the gateway.
+          responses:
+            200:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "data": {
+                          "id": 1,
+                          "remoteEntity": "T001",
+                          "name": "CompanyCodes",
+                          "friendlyName": "CompanyCodes",
+                          "description": "I am a description",
+                          "enabled": "true",
+                          "properties": [
+                            {
+                            "description": "Client",
+                            "name": "Client",
+                            "fieldName": "MANDT",
+                            "length": "3",
+                            "nullable": "true",
+                            "type": "C",
+                            "key": "false"
+                            }
+                          ] 
+                      },
+                      "isSuccessful": true,
+                      "message": ""
+                    }
+            401:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": [],
+                      "isSuccessful": false,
+                      "message": "You must login first"
+                    }  
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+        delete:    
+          description: Allows to delete (and unpublish) an entity
+          responses:
+            202:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "data": {},
+                      "isSuccessful": true,
+                      "message": ""
+                    }
+            401:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": [],
+                      "isSuccessful": false,
+                      "message": "You must login first"
+                    }
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++   
+    /remoteentities:
+      displayName: entities
+      get:
+        description: Retrieve a list of entities from the remote system. Allows you to perform searches over the entities
+        queryParameters:
+             search:
+               displayName: SearchTerm
+               type: string
+               description: Search Term
+               example: MARA
+               minLength: 2
+               required: false
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "message": "",
+                    "isSuccessful": "true",
+                    "data": {
+                      "entitySet": [
+                        {
+                          "remoteEntity": "MARA",
+                          "name": "MARA",
+                          "properties": []
+                        },
+                        {
+                          "remoteEntity": "T001",
+                          "name": "T001",
+                          "properties": []
+                        }
+                      ]
+                    }
+                  }
+          401:
+            body:
+              application/json: 
+                example: |
+                  {
+                    "data": [],
+                    "isSuccessful": false,
+                    "message": "You must login first"
+                  }
+      # *****************************************************
+      /{entityName}:
+        get:
+          description: Retrieve the details for a single entity. Allows you to perform searches over the entities fields
+          queryParameters:
+             search:
+               displayName: SearchTerm
+               type: string
+               description: Search Term
+               example: MARA
+               minLength: 2
+               required: false
+          responses:
+            200:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "message": "",
+                      "isSuccessful": "true",
+                      "data": {
+                        "entitySet": [
+                          {
+                            "remoteEntity": "T001",
+                            "name": "T001",
+                            "properties": [
+                              {
+                                "description": "Client",
+                                "name": "Client",
+                                "fieldName": "MANDT",
+                                "length": "3",
+                                "nullable": "true",
+                                "type": "C",
+                                "key": "false"
+                              },
+                              {
+                                "description": "Company Code",
+                                "name": "Company_Code",
+                                "fieldName": "BUKRS",
+                                "length": "4",
+                                "nullable": "true",
+                                "type": "C",
+                                "key": "false"
+                              },{
+                                "description": "Example 1",
+                                "name": "Example_1",
+                                "fieldName": "DEER",
+                                "length": "3",
+                                "nullable": "true",
+                                "type": "C",
+                                "key": "false"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+            401:
+              body:
+                application/json: 
+                  example: |
+                    {
+                      "data": [],
+                      "isSuccessful": false,
+                      "message": "You must login first"
+                    }
+  /entities:
+    displayName: entities
+    get:
+      description: List of entities for a given gateway
+      queryParameters:
+        uid:
+          displayName: uid
+          type: string
+          description: uid
+          example: dgw-a0f1a454-8eaa-44b1-9575-8c634223455e
+          minLength: 5
+          required: true
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {
+                    "entitySet": [
+                      {
+                        "id": 1,
+                        "remoteEntity": "T001",
+                        "name": "CompanyCodes",
+                        "description": "I am a description",
+                        "enabled": "true",
+                        "properties": [
+                          {
+                          "description": "Client",
+                          "name": "Client",
+                          "fieldName": "MANDT",
+                          "length": "3",
+                          "nullable": "true",
+                          "type": "C",
+                          "key": "false"
+                          }
+                        ]
+                      }
+                    ]  
+                  },
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "invalid UID"
+                }
+        503:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Service Unavailable"
+                }
+  /notifications:
+    displayName: Creates notifications for a given gateway
+    post:
+      description: Creates and sends a notification to the user associated to the gateway
+      body:
+        application/json:
+          example:  |
+            {
+              "uid": "dgw-a0f1a454-8eaa-44b1-9575-8c634223455e",
+              "title": "JDBC Data Gateway is down",
+              "description": "This is a gateway to expose blah data",
+              "type": "warning"
+            }
+      responses:
+        201:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": {"id":"1"},
+                  "isSuccessful": true,
+                  "message": ""
+                }
+        400:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Bad Request"
+                }
+        401:
+          body:
+            application/json: 
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "invalid UID"
+                }
+        503:
+          body:
+            application/json:
+              example: |
+                {
+                  "data": [],
+                  "isSuccessful": false,
+                  "message": "Service Unavailable"
+                }

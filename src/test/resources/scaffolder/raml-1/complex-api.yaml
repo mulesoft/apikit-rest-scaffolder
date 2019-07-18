@@ -1,0 +1,229 @@
+#%RAML 1.0
+#baseUri: https://mocksvc.mulesoft.com/mocks/0bfdca0a-a0c9-409b-9042-ad971cdd4fdb
+title: Platform
+version: v1
+baseUri: http://platform-management-v1.eu.cloudhub.io/api
+protocols: [ HTTPS ]
+
+mediaType: application/json
+
+documentation:
+  - !include complex-api/documentation/api-doc.raml
+
+uses:
+  platform-monitor: complex-api/types/platform-monitor-types.raml
+
+resourceTypes:
+  collection: !include complex-api/libraries/patterns/collection.raml
+  post-only-item: !include complex-api/libraries/patterns/post-only-item.raml
+  read-only-collection: !include complex-api/libraries/patterns/read-only-collection.raml
+  read-only-item: !include complex-api/libraries/patterns/read-only-item.raml
+  read-only-paged-collection: !include complex-api/libraries/patterns/read-only-paged-collection.raml
+  api-status: !include complex-api/libraries/patterns/api-status.raml
+
+traits:
+  paginated: !include complex-api/libraries/traits/pagination.yaml
+  datetimerange: !include complex-api/traits/datetimerange.yaml
+  env: !include complex-api/traits/env.raml
+  domain: !include complex-api/traits/domain.raml
+  onPremEnv: !include complex-api/traits/onPremEnv.raml
+  200-paged-collection: !include complex-api/libraries/traits/responses/200-paged-collection.raml
+  200-collection: !include complex-api/libraries/traits/responses/200-collection.raml
+  200-item: !include complex-api/libraries/traits/responses/200-item.raml
+  201-item: !include complex-api/libraries/traits/responses/201-item.raml
+  204-response: !include complex-api/libraries/traits/responses/204-response.raml
+  400-fault: !include complex-api/libraries/traits/responses/400-fault.raml
+  404-fault: !include complex-api/libraries/traits/responses/404-fault.raml
+  405-fault: !include complex-api/libraries/traits/responses/405-fault.raml
+  406-fault: !include complex-api/libraries/traits/responses/406-fault.raml
+  407-fault: !include complex-api/libraries/traits/responses/407-fault.raml
+  415-fault: !include complex-api/libraries/traits/responses/415-fault.raml
+  500-fault: !include complex-api/libraries/traits/responses/500-fault.raml
+
+securitySchemes:
+  clientIdAuth: !include complex-api/libraries/security/client-id-auth.raml
+
+securedBy: [clientIdAuth]
+
+/status:
+  type: api-status
+
+/organizations:
+  type:
+    read-only-collection:
+      collectionSummary: !include complex-api/documentation/organizations.md
+      collectionDescription: !include complex-api/documentation/organizations.md
+      collectionType: platform-monitor.Organization
+      collectionExample: !include complex-api/examples/organizations/200.json
+
+  /{organizationId}:
+    type:
+      read-only-item:
+        itemSummary: Provides details of metadata information regarding the API
+        itemDescription: This API is meant to check the heartbeat of the API
+        itemType: platform-monitor.Organization
+        itemExample: !include complex-api/examples/organizations/organization/200.json
+
+    /apis:
+      type:
+        read-only-paged-collection:
+          collectionSummary: Provides details of APIs deployed in the organization
+          collectionDescription: Provides details of APIs deployed in the organization
+          collectionType: platform-monitor.API
+          pagedCollectionName: "apis"
+          collectionExample: !include complex-api/examples/organizations/organization/apis/200.json
+          maxItems: 100
+
+      /{apiId}:
+        type:
+          read-only-item:
+            itemSummary: Provides details of API
+            itemDescription: This API gives details of API
+            itemType: platform-monitor.API
+            itemExample: !include complex-api/examples/organizations/organization/apis/api/200.json
+
+        /analytics:
+          type:
+            read-only-collection:
+              collectionSummary: Provides details of API
+              collectionDescription: This API gives details of API
+              collectionType: platform-monitor.APIAnalytics
+              collectionExample: !include complex-api/examples/organizations/organization/apis/api/analytics/200.json
+          get:
+            is: [datetimerange]
+
+        /{versionId}:
+          /createPortalFromTemplate:
+            type:
+              post-only-item:
+                itemSummary: Provides details of API
+                itemDescription: This API gives details of API
+                inputType: platform-monitor.EmptyItem
+                inputExample:  !include complex-api/examples/organizations/organization/apis/api/createPortalFromTemplate/post/input.json
+                outputType: platform-monitor.Status
+                outputExample: !include complex-api/examples/organizations/organization/apis/api/copyPortalFromAPI/post/200.json
+
+          /copyPortalFromAPI:
+            type:
+              post-only-item:
+                itemSummary: Provides details of API
+                itemDescription: This API gives details of API
+                inputType: platform-monitor.APIPortal
+                inputExample: !include complex-api/examples/organizations/organization/apis/api/copyPortalFromAPI/post/input.json
+                outputType: platform-monitor.Status
+                outputExample: !include complex-api/examples/organizations/organization/apis/api/copyPortalFromAPI/post/200.json
+
+    /environments:
+      type:
+        read-only-collection:
+          collectionSummary: !include complex-api/documentation/organizations.md
+          collectionDescription: !include complex-api/documentation/organizations.md
+          collectionType: platform-monitor.Environment
+          collectionExample: !include complex-api/examples/organizations/organization/environments/200.json
+
+/monitor:
+  /cloudhubApplications:
+    type:
+      collection:
+        collectionSummary: Register for monitoring of Cloudhub applications
+        collectionDescription: Register for monitoring of Cloudhub applications
+        collectionType: platform-monitor.MonitorCHApplication
+        postExample: !include complex-api/examples/monitor/cloudhubApplications/post/input.json
+        collectionExample: !include complex-api/examples/monitor/cloudhubApplications/200.json
+  /apis:
+    type:
+      collection:
+        collectionSummary: Register for monitoring of Anypoint platform APIs
+        collectionDescription: Register for monitoring of Anypoint platform APIs
+        collectionType: platform-monitor.MonitorAPI
+        postExample: !include complex-api/examples/monitor/apis/post/input.json
+        collectionExample: !include complex-api/examples/monitor/apis/200.json
+  /status:
+    type:
+      collection:
+        collectionSummary: Register for monitoring of status of cloudhub applications
+        collectionDescription:  Register for monitoring of status of cloudhub applications
+        collectionType: platform-monitor.MonitorStatus
+        postExample: !include complex-api/examples/monitor/status/post/input.json
+        collectionExample: !include complex-api/examples/monitor/status/200.json
+
+/cloudhubApplications:
+  type:
+    read-only-collection:
+      collectionSummary: !include complex-api/documentation/organizations.md
+      collectionDescription: !include complex-api/documentation/organizations.md
+      collectionType: platform-monitor.CloudHubApplication
+      collectionExample: !include complex-api/examples/cloudHubApplications/200.json
+  get:
+    is: [env]
+
+  /{domainName}:
+    type:
+      read-only-item:
+        itemSummary: Provides details of metadata information regarding the API
+        itemDescription: This API is meant to check the heartbeat of the API
+        itemType: platform-monitor.CloudHubApplication
+        itemExample: !include complex-api/examples/cloudHubApplications/application/200.json
+    get:
+      is: [env]
+
+    /statistics:
+      type:
+        read-only-item:
+          itemSummary: Provides details of metadata information regarding the API
+          itemDescription: This API is meant to check the heartbeat of the API
+          itemType: platform-monitor.CloudHubStatistics
+          itemExample: !include complex-api/examples/cloudHubApplications/application/statistics/200.json
+      get:
+        is: [env, datetimerange]
+
+    /queueStatistics:
+      type:
+        read-only-item:
+          itemSummary: Provides details of metadata information regarding the API
+          itemDescription: This API is meant to check the heartbeat of the API
+          itemType: platform-monitor.CloudHubQueueStatistics
+          itemExample: !include complex-api/examples/cloudHubApplications/application/queueStatistics/200.json
+      get:
+        is: [env, datetimerange]
+
+/onPrem:
+  /applications:
+    type:
+      read-only-collection:
+        collectionSummary: !include complex-api/documentation/organizations.md
+        collectionDescription: !include complex-api/documentation/organizations.md
+        collectionType: platform-monitor.OnPremApplication
+        collectionExample: !include complex-api/examples/onPremApplications/200.json
+    get:
+      is: [onPremEnv]
+
+    /{applicationId}:
+      type:
+        read-only-item:
+          itemSummary: Provides details of metadata information regarding the API
+          itemDescription: This API is meant to check the heartbeat of the API
+          itemType: platform-monitor.OnPremApplication
+          itemExample: !include complex-api/examples/onPremApplications/application/200.json
+      get:
+        is: [onPremEnv]
+
+  /clusters:
+    type:
+      read-only-collection:
+        collectionSummary: !include complex-api/documentation/organizations.md
+        collectionDescription: !include complex-api/documentation/organizations.md
+        collectionType: platform-monitor.Cluster
+        collectionExample: !include complex-api/examples/clusters/200.json
+    get:
+      is: [onPremEnv]
+
+  /servers:
+    type:
+      read-only-collection:
+        collectionSummary: Provides details of servers running on the Unilever Premises
+        collectionDescription: This API is meant to check the heartbeat of the API
+        collectionType: platform-monitor.Server
+        collectionExample: !include complex-api/examples/servers/200.json
+    get:
+      is: [onPremEnv]

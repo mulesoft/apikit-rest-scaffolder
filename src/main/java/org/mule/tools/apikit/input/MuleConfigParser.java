@@ -8,7 +8,11 @@ package org.mule.tools.apikit.input;
 
 import org.mule.tools.apikit.input.parsers.APIKitFlowsParser;
 import org.mule.tools.apikit.input.parsers.APIKitRoutersParser;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.APIKitConfig;
+import org.mule.tools.apikit.model.APIFactory;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 
 import java.util.HashMap;
 import java.util.HashSet;

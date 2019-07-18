@@ -1,0 +1,13 @@
+#%RAML 1.0
+title: Example API
+version: v1
+mediaType: application/json
+types:
+    Song: !include resources/types/song.schema
+/songs/{id}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: Song

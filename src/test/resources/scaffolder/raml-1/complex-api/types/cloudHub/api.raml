@@ -1,0 +1,21 @@
+#%RAML 1.0 DataType
+type: object
+displayName: CloudHub Application Datatype
+properties:
+  id: number
+  name: string
+  versions: 
+    type: array
+    items: 
+      type: object
+      properties: 
+        id: number
+        portalId: number
+        name: string
+        description: string
+        tags: string[]
+        deprecated: boolean
+        publicPortal: boolean
+        endPointURI: string      
+      
+  

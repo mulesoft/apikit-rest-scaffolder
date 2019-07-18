@@ -1,0 +1,25 @@
+#%RAML 0.8
+---
+title: Jukebox API
+baseUri: http://jukebox.api.com
+version: v1
+
+/albums:
+  post:
+    description: Add a new Album to Jukebox
+    body:
+      application/json:
+        example: |
+          { "message" : "This is an album json post"}
+      text/xml:
+        example: |
+          <test>This is an album xml post</test>
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              { "message": "The response is json" }
+          text/xml:
+            example: |
+              <test>The response is xml</test>

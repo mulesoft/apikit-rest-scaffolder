@@ -1,0 +1,8 @@
+#%RAML 1.0 Trait
+queryParameters:
+  onPremEnv:
+    description: Provide environment in which the resource needs to be looked up from
+    required: true 
+    type: string
+    enum: ["Dev", "QA", "Prod"]
+    example: "Dev"

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1234,
+    "name": "cec-salesforce-pulse-cgstaging",
+    "timeCreated": "2012-04-23T18:25:43.0Z",
+    "timeUpdated": "2012-04-23T18:25:43.0Z",
+    "started": true,
+    "fileName": "servicerequest-on-premise-router-1.0.0-SNAPSHOT.zip",
+    "lastReportedStatus": "DEPLOYED"
+  },
+  {
+    "id": 1232,
+    "name": "cec-salesforce-pulse-cgstaging-v2",
+    "timeCreated": "2012-04-23T18:25:43.0Z",
+    "timeUpdated": "2012-04-23T18:25:43.0Z",
+    "started": false,
+    "fileName": "servicerequest-on-premise-routers-1.0.0-SNAPSHOT.zip",
+    "lastReportedStatus": "STARTED"
+  }
+]

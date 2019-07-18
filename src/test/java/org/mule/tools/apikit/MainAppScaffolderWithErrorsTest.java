@@ -13,7 +13,13 @@ import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.Scaffolder;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.File;
 
@@ -69,7 +75,7 @@ public class MainAppScaffolderWithErrorsTest {
 
   private ScaffoldingResult scaffoldApi(String existingMuleConfigName) throws Exception {
     String existingMuleConfigPath = xmlsDirectory + File.separator + existingMuleConfigName + ".xml";
-    ScaffolderContext context = ScaffolderContext.builder().build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().build();
     MuleConfig existingMuleConfig = MuleConfigBuilder.fromStream(TestUtils.getResourceAsStream(existingMuleConfigPath));
     ScaffoldingConfiguration scaffoldingConfiguration = ScaffoldingConfiguration.builder()
         .withApi(apiSpec)

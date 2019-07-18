@@ -1,0 +1,59 @@
+#%RAML 1.0 Library
+usage: Data types for Format API endpoints.
+
+types: 
+  store:
+    type: object
+    properties:
+      id: number
+      isFranchise: boolean
+      name: string
+      address: string
+      addressCodeEan: number
+      zipCode: string
+      city: string
+      countryCode:
+        type: string
+        description: fds
+        maxLength: 3
+      countryName: string
+      lifeCycleStatus: string
+      phoneNumber: string
+      openingHours: string
+      format: format
+      imageUrl: string
+    examples:
+      ex1: !include examples/store.json
+
+  stores:
+    type: store[]
+    examples:
+      ex1: !include examples/stores.json
+
+  format:
+    type: object
+    properties:
+      id: number
+      description: string
+      imageUrl: string
+    examples:
+      ex1: !include examples/format.json
+
+  formats:
+    type: format[]
+    examples:
+      ex1: !include examples/formats.json
+
+  category:
+    type: object
+    properties:
+      id: number
+      description: string
+      imageUrl: string
+    examples:
+      ex1: !include examples/category.json
+
+  categories:
+    type: category[]
+    examples:
+      ex1: !include examples/categories.json

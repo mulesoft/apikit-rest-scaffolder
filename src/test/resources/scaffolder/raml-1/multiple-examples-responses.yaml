@@ -1,0 +1,19 @@
+#%RAML 1.0
+---
+title: Sample API
+version: v1
+baseUri: http://localhost/api
+/cat:
+    displayName: Cat
+    get:
+        responses:
+            200:
+                body:
+                     application/json:
+                        examples:
+                          firstcat:
+                            name: "Snowball"
+                            nickname: "Snow"
+                          secondcat:
+                            name: "Snowball2"
+                            nickname: "Ball"

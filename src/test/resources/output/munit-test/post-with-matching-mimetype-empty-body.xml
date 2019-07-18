@@ -1,0 +1,25 @@
+<munit:test xmlns:munit="http://www.mulesoft.org/schema/mule/munit" name="post:\pet:ApikitConfigName-200-application\json-FlowTest"
+            description="Verifying functionality of [post:\pet:ApikitConfigName-200-application\json]">
+    <munit:enable-flow-sources>
+        <munit:enable-flow-source value="apikitExampleFlow"/>
+        <munit:enable-flow-source value="post:\pet:ApikitConfigName"/>
+    </munit:enable-flow-sources>
+    <munit:execution>
+        <http:request xmlns:http="http://www.mulesoft.org/schema/mule/http" config-ref="HTTP_Request_Configuration" method="POST"
+                      path="/">
+            <http:headers>#[{"Accept":"application/json"}]</http:headers>
+        </http:request>
+    </munit:execution>
+    <munit:validation>
+        <munit-tools:assert-that xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+                                 xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                                 expression="#[attributes.statusCode]" is="#[MunitTools::equalTo(200)]"
+                                 message="The HTTP Status code is not correct!" doc:name="Assert That Status Code is 200"/>
+        <munit-tools:assert-that xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+                                 xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+                                 expression="#[output application/java ---write(payload, 'application/json') as String]"
+                                 is="#[MunitTools::equalTo('{&quot;id&quot;:&quot;a_id&quot;,&quot;value&quot;:&quot;a_value&quot;}')]"
+                                 message="The response payload is not correct!"
+                                 doc:name="Assert That - Payload is Expected"/>
+    </munit:validation>
+</munit:test>

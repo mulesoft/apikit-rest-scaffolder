@@ -1,0 +1,8 @@
+#%RAML 1.0 ResourceType
+    description: <<itemSummary>>
+    post:      
+      description: <<itemDescription>>
+      body:
+        type: <<inputType>>
+        example: <<inputExample>>      
+      is: [ 200-item: {itemType: <<outputType>>, itemExample: <<outputExample>>}, 201-item: {itemType: <<outputType>>, itemExample: <<outputExample>>}, 400-fault,404-fault,405-fault,406-fault,407-fault,415-fault,500-fault ]
