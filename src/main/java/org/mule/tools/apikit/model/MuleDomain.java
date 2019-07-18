@@ -6,15 +6,24 @@
  */
 package org.mule.tools.apikit.model;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 public class MuleDomain implements NamedContent, WithConfigs {
+
+  private static final String MULE_DOMAIN_CONFIG_FILE_NAME = "mule-domain-config.xml";
 
   private InputStream content;
   private List<HttpListenerConfig> configurations;
@@ -42,6 +51,38 @@ public class MuleDomain implements NamedContent, WithConfigs {
     Document contentAsDocument = new SAXBuilder().build(content);
     List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
     return new MuleDomain(content, httpListenerConfigs);
+  }
+
+  public static MuleDomain fromConfigFile(File configFile) throws Exception {
+    try (InputStream configFileIS = new FileInputStream(configFile)) {
+      // This is necessary to prevent leaking file handles
+      InputStream content = cloneInputStream(configFileIS);
+      Document contentAsDocument = new SAXBuilder().build(content);
+      List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
+      return new MuleDomain(content, httpListenerConfigs);
+    }
+  }
+
+  public static MuleDomain fromDeployableArtifact(File artifact) throws Exception {
+    try (URLClassLoader cl = new URLClassLoader(new URL[] {artifact.toURI().toURL()}, MuleDomain.class.getClassLoader())) {
+      try (InputStream domainFileIS = cl.getResourceAsStream(MULE_DOMAIN_CONFIG_FILE_NAME)) {
+        // This is necessary to prevent leaking file handles
+        InputStream content = cloneInputStream(domainFileIS);
+        Document contentAsDocument = new SAXBuilder().build(content);
+        List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
+        return new MuleDomain(content, httpListenerConfigs);
+      }
+    }
+  }
+
+  private static InputStream cloneInputStream(InputStream toClone) throws IOException {
+    ByteArrayOutputStream middleMan = new ByteArrayOutputStream();
+    byte[] buffer = new byte[1024];
+    int len;
+    while ((len = toClone.read(buffer)) > -1) {
+      middleMan.write(buffer, 0, len);
+    }
+    return new ByteArrayInputStream(middleMan.toByteArray());
   }
 
   public static Builder builder() {
