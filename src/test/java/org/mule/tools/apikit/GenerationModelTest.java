@@ -174,8 +174,8 @@ public class GenerationModelTest {
     Resource resource = mock(Resource.class);
     when(resource.getResolvedUri(anyString())).thenReturn("/api/pet");
     ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
-    GenerationModel model1 = new GenerationModel(api, VERSION, resource, action, "text/xml");
-    GenerationModel model2 = new GenerationModel(api, VERSION, resource, action, "application/json");
+    GenerationModel model1 = new GenerationModel(api, VERSION, resource, action, "text/xml", true);
+    GenerationModel model2 = new GenerationModel(api, VERSION, resource, action, "application/json", true);
     assertTrue(model1.compareTo(model2) != 0);
     assertEquals("updatePetTextXml", model1.getName());
     assertEquals("updatePetApplicationJson", model2.getName());

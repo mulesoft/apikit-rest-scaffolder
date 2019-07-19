@@ -100,6 +100,10 @@ public class APIKitConfig implements Scope {
     this.raml = raml;
   }
 
+  public String getApiSpecificationLocation() {
+    return api != null ? api : raml;
+  }
+
   public Element generate() {
     APIKitConfigScope apiKitConfigScope = new APIKitConfigScope(this);
     return apiKitConfigScope.generate();

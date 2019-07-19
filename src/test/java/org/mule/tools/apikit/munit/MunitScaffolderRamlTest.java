@@ -14,26 +14,37 @@ import org.mule.tools.apikit.model.MuleConfig;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.TestUtils.ENABLE_FLOW_SOURCES_TEMPLATE;
+import static org.mule.tools.apikit.TestUtils.generateMainFlowNameForApi;
 
 public class MunitScaffolderRamlTest extends AbstractMunitScaffolderTest {
 
-  private MuleConfig simpleGenerationRaml(String name) {
+  private MuleConfig simpleGenerationRaml(String name) throws Exception {
     return simpleGeneration(name, "scaffolder", false).getGeneratedConfigs().get(0);
   }
 
   @Test
   public void testSimpleGenerate() throws Exception {
+    String apiSpecFile = "simple";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
     MuleConfig muleConfig = simpleGenerationRaml("simple");
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedEndpointJson = "name=\"get:\\pet:simple-config-200-application\\json-FlowTest\"";
     String expectedEndpointXml = "name=\"get:\\pet:simple-config-200-text\\xml-FlowTest\"";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedEndpointJson));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedEndpointXml));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testTraitsGenerate() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("traits");
+    String apiSpecFile = "traits";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedGetStatusCode200 = "get:\\pet:traits-config-200-application\\json-FlowTest";
     String expectedGetStatusCode404 = "get:\\pet:traits-config-404-application\\json-FlowTest";
@@ -46,11 +57,16 @@ public class MunitScaffolderRamlTest extends AbstractMunitScaffolderTest {
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedGetStatusCode404));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedExpressionStatusCode200));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedExpressionStatusCode404));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testContentTypeGenerate() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("content-type");
+    String apiSpecFile = "content-type";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHeaders =
         "<http:headers>#[{\"Accept\":\"application/json\",\"Content-Type\":\"application/json\"}]</http:headers>";
@@ -62,20 +78,30 @@ public class MunitScaffolderRamlTest extends AbstractMunitScaffolderTest {
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHeaders2));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHeaders3));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHeaders4));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testHeadersGenerate() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("headers");
+    String apiSpecFile = "headers";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHeaders =
         "<http:headers>#[{\"Accept\":\"*/*\",\"X-waiting-period\":\"34\",\"Content-Type\":\"application/x-www-form-urlencoded\"}]</http:headers>";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHeaders));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testTwoResourceGenerate() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("two");
+    String apiSpecFile = "two";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String getCarJson = "get:\\car:two-config-200-application\\json-FlowTest";
     String getCarXml = "get:\\car:two-config-200-text\\xml-FlowTest";
@@ -95,12 +121,17 @@ public class MunitScaffolderRamlTest extends AbstractMunitScaffolderTest {
     assertEquals(1, TestUtils.countOccurrences(generatedContent, getPetXml));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, postPetJson));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, postPetXml));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
 
   }
 
   @Test
   public void testNestedGenerate() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("nested");
+    String apiSpecFile = "nested";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
 
     String expectedGetCarJson = "get:\\car:nested-config-200-application\\json-FlowTest";
@@ -122,135 +153,211 @@ public class MunitScaffolderRamlTest extends AbstractMunitScaffolderTest {
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedPostCarXml));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedPostPetJson));
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedPostPetXml));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testDefaultValueWhenExampleNotSetForQueryParameter() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-example-query-parameter");
+    String apiSpecFile = "no-example-query-parameter";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHttpQueryParams = "<http:query-params>#[{\"stock\":\"1\"}]</http:query-params>";
     assertTrue(generatedContent.contains(expectedHttpQueryParams));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testNoPropertyForSchema() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-property-for-schema");
+    String apiSpecFile = "no-property-for-schema";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testNoPropertyInsideObjectForSchema() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-property-inside-object-schema");
+    String apiSpecFile = "no-property-inside-object-schema";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;albumId&quot;:{}}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testNoType() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-type");
+    String apiSpecFile = "no-type";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testMultiplePostBodyCombinations() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("multiple-post-body-combination");
+    String apiSpecFile = "multiple-post-body-combination";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedSetPayloadJson = "<set-payload value=\"#['{&quot;message&quot;:&quot;This is an album json post&quot;}']\" />";
     String expectedSetPayloadXml = "<set-payload value=\"#['&lt;test&gt;This is an album xml post&lt;/test&gt;&#xA;']\" />";
     assertEquals(2, TestUtils.countOccurrences(generatedContent, expectedSetPayloadJson));
     assertEquals(2, TestUtils.countOccurrences(generatedContent, expectedSetPayloadXml));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testMultiplePostBodyCombinationsSchema() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("multiple-post-body-combination-with-schema");
+    String apiSpecFile = "multiple-post-body-combination-with-schema";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedSetPayloadJson = "<set-payload value=\"#['{&quot;message&quot;:&quot;&quot;}']\" />";
     String expectedSetPayloadXml = "<set-payload value=\"#['&lt;test&gt;This is an album xml post&lt;/test&gt;&#xA;']\" />";
     assertEquals(2, TestUtils.countOccurrences(generatedContent, expectedSetPayloadJson));
     assertEquals(2, TestUtils.countOccurrences(generatedContent, expectedSetPayloadXml));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testBodyWithXmlSchema() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("body-xml-schema");
+    String apiSpecFile = "body-xml-schema";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedSetPayload = "<set-payload value=\"#['']\" />";
     assertTrue(generatedContent.contains(expectedSetPayload));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testNoBodyResponse() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-body");
+    String apiSpecFile = "no-body";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedAssertion = "is=\"#[MunitTools::equalTo('']\"\"";
     assertFalse(generatedContent.contains(expectedAssertion));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testIncludedExternalExample() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("includes-external-example");
+    String apiSpecFile = "includes-external-example";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('[{&quot;name&quot;:&quot;Athletic Bilbao&quot;,&quot;score&quot;:3}]')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void optionalQueryParameterIsNotAdded() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("optional-query-parameter");
+    String apiSpecFile = "optional-query-parameter";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHTtpQueryParams = "<http:query-params>#[{\"stock\":\"10\"}]</http:query-params>";
     assertFalse(generatedContent.contains(expectedHTtpQueryParams));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testNoRequireValueQueryParameters() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-required-query-parameter");
+    String apiSpecFile = "no-required-query-parameter";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedSetVariable = "<set-variable variableName=\"airline\" value=\"#['all']\" doc:name=\"airline\" />";
     assertFalse(generatedContent.contains(expectedSetVariable));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testNoRequireValueHeads() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("no-required-headers");
+    String apiSpecFile = "no-required-headers";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHeaderName = "<http:header headerName=\"status-code\" value=\"XXX\" />";
     assertFalse(generatedContent.contains(expectedHeaderName));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testDateQueryParameters() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("date-query-parameter");
+    String apiSpecFile = "date-query-parameter";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHttpQueryParams = "<http:query-params>#[{\"createdAfter\":\"1/1/2011\"}]</http:query-params>";
     assertTrue(generatedContent.contains(expectedHttpQueryParams));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testDateHeaders() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("date-headers");
+    String apiSpecFile = "date-headers";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedHttpHeader = "<http:header headerName=\"date\"/>";
     assertFalse(generatedContent.contains(expectedHttpHeader));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 
   @Test
   public void testDateUriParameters() throws Exception {
-    MuleConfig muleConfig = simpleGenerationRaml("date-uri-parameter");
+    String apiSpecFile = "date-uri-parameter";
+    String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
+    String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
+
+    MuleConfig muleConfig = simpleGenerationRaml(apiSpecFile);
     String generatedContent = IOUtils.toString(muleConfig.getContent());
     String expectedSetVariable = "<set-variable variableName=\"ticketDate\" value=\"#['1/1/2015']\" doc:name=\"ticketDate\" />";
     String expectedPath = "path=\"#['/$(vars.ticketDate)']\"";
     assertTrue(generatedContent.contains(expectedSetVariable));
     assertTrue(generatedContent.contains(expectedPath));
+    assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
 }

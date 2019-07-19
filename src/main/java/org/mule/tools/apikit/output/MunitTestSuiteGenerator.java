@@ -16,7 +16,6 @@ import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MunitScaffolderContext;
-import org.mule.tools.apikit.model.ScaffoldingError;
 import org.mule.tools.apikit.model.ScaffolderResource;
 import org.mule.tools.apikit.output.scopes.HttpRequestConfigScope;
 import org.mule.tools.apikit.output.scopes.MunitConfigScope;
@@ -47,16 +46,11 @@ public class MunitTestSuiteGenerator {
   private final List<GenerationModel> flowEntries;
   private MunitScaffolderContext scaffolderContext;
 
-  private final List<ScaffoldingError> scaffoldingErrors = new ArrayList<>();
   private final Set<ScaffolderResource> generatedResources = new HashSet<>();
 
   public MunitTestSuiteGenerator(List<GenerationModel> flowEntries, MunitScaffolderContext scaffolderContext) {
     this.flowEntries = flowEntries;
     this.scaffolderContext = scaffolderContext;
-  }
-
-  public List<ScaffoldingError> getScaffoldingErrors() {
-    return Collections.unmodifiableList(scaffoldingErrors);
   }
 
   public List<ScaffolderResource> getGeneratedResources() {

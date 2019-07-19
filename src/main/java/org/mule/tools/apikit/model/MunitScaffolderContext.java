@@ -12,12 +12,10 @@ public class MunitScaffolderContext extends ScaffolderContext {
   private String munitSuiteName;
   private String apikitMainFlowName;
 
-  protected MunitScaffolderContext(RuntimeEdition runtimeEdition, boolean shouldCreateMunitResources, String munitSuiteName,
-                                   String apikitMainFlowName) {
+  protected MunitScaffolderContext(RuntimeEdition runtimeEdition, boolean shouldCreateMunitResources, String munitSuiteName) {
     super(runtimeEdition);
     this.shouldCreateMunitResources = shouldCreateMunitResources;
     this.munitSuiteName = munitSuiteName;
-    this.apikitMainFlowName = apikitMainFlowName;
   }
 
   public boolean shouldCreateMunitResources() {
@@ -28,7 +26,12 @@ public class MunitScaffolderContext extends ScaffolderContext {
     return munitSuiteName;
   }
 
+  public void setApikitMainFlowName(String name) {
+    apikitMainFlowName = name;
+  }
+
   public String getApikitMainFlowName() {
     return apikitMainFlowName;
   }
+
 }

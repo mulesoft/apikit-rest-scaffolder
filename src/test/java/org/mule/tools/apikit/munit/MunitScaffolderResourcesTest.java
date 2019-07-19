@@ -17,7 +17,7 @@ import static junit.framework.TestCase.*;
 
 public class MunitScaffolderResourcesTest extends AbstractMunitScaffolderTest {
 
-  private ScaffoldingResult simpleGenerationWithResource(String name) {
+  private ScaffoldingResult simpleGenerationWithResource(String name) throws Exception {
     return simpleGeneration(name, "scaffolder", true);
   }
 

@@ -330,7 +330,7 @@ public class MunitTestFlowScopeTest {
 
     when(actionMock.getBody()).thenReturn(responseBody);
 
-    scope = new MunitTestFlowScope(flowEntryMock, "apikitExampleFlow");
+    scope = new MunitTestFlowScope(flowEntryMock, APIKIT_FLOW_NAME);
     scope.setCreateResourceFiles(true);
 
     List<Element> elements = scope.generateTests();
@@ -347,7 +347,7 @@ public class MunitTestFlowScopeTest {
     when(flowEntryMock.getResource()).thenReturn(resource);
     when(flowEntryMock.getFlowName()).thenReturn("get:\\pet\\{id}");
 
-    scope = new MunitTestFlowScope(flowEntryMock, "apikitExampleFlow");
+    scope = new MunitTestFlowScope(flowEntryMock, APIKIT_FLOW_NAME);
 
     List<Element> elements = scope.generateTests();
     assertSimilarityWithFile(elements, "test-flow-name-without-curly-braces");

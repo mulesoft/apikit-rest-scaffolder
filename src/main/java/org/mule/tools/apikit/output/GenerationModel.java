@@ -29,7 +29,6 @@ import static java.util.stream.Collectors.toMap;
 import static org.mule.module.apikit.helpers.AttributesHelper.getMediaType;
 import static org.mule.module.apikit.helpers.FlowName.FLOW_NAME_SEPARATOR;
 import static org.mule.runtime.api.metadata.MediaType.parse;
-import static org.mule.tools.apikit.input.APIKitFlow.UNNAMED_CONFIG_NAME;
 
 public class GenerationModel implements Comparable<GenerationModel> {
 
@@ -42,19 +41,14 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private final String version;
   private final List<String> splitPath;
   private final ApikitMainFlowContainer api;
-  private boolean shouldIncludeMimeTypeInName = true;
+  private final boolean shouldIncludeMimeTypeInName;
 
   public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action) {
-    this(api, version, resource, action, null);
+    this(api, version, resource, action, null, true);
   }
 
   public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource,
                          Action action, String mimeType, boolean shouldIncludeMimeTypeInName) {
-    this(api, version, resource, action, mimeType);
-    this.shouldIncludeMimeTypeInName = shouldIncludeMimeTypeInName;
-  }
-
-  public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action, String mimeType) {
     this.api = api;
     Validate.notNull(api);
     Validate.notNull(action);
@@ -71,6 +65,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
       splitPath.remove(0);
       splitPath.remove(0);
     }
+    this.shouldIncludeMimeTypeInName = shouldIncludeMimeTypeInName;
   }
 
   public String getVerb() {

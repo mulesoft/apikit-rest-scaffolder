@@ -11,7 +11,6 @@ public class ScaffolderContextBuilder {
   private RuntimeEdition runtimeEdition = RuntimeEdition.CE;
   private boolean shouldCreateMunitResources = false;
   private String munitSuiteName;
-  private String apikitMainFlowName;
 
   public static ScaffolderContextBuilder builder() {
     return new ScaffolderContextBuilder();
@@ -32,15 +31,10 @@ public class ScaffolderContextBuilder {
     return this;
   }
 
-  public ScaffolderContextBuilder withApikitMainFlowName(String apikitMainFlowName) {
-    this.apikitMainFlowName = apikitMainFlowName;
-    return this;
-  }
-
   public ScaffolderContext build() {
-    if (!shouldCreateMunitResources && munitSuiteName == null && apikitMainFlowName == null) {
+    if (!shouldCreateMunitResources && munitSuiteName == null) {
       return new ScaffolderContext(runtimeEdition);
     }
-    return new MunitScaffolderContext(runtimeEdition, shouldCreateMunitResources, munitSuiteName, apikitMainFlowName);
+    return new MunitScaffolderContext(runtimeEdition, shouldCreateMunitResources, munitSuiteName);
   }
 }
