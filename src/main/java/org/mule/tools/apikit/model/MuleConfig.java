@@ -11,8 +11,14 @@ import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
+
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+import static java.util.stream.Collectors.toList;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
@@ -35,7 +41,7 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   }
 
   public String getName() {
-    return "";
+    return name;
   }
 
   public void setName(String name) {
@@ -73,6 +79,14 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
   public List<APIKitConfig> getApikitConfigs() {
     return Lists.newArrayList(apikitConfigs);
+  }
+
+  public List<MainFlow> getMainFlows() {
+    List<MainFlow> mainFlows = flows.stream()
+        .filter(flow -> flow instanceof MainFlow)
+        .map(MainFlow.class::cast)
+        .collect(toList());
+    return Collections.unmodifiableList(mainFlows);
   }
 
   public Document buildContent() {
