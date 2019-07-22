@@ -9,7 +9,6 @@ package org.mule.tools.apikit.model;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -51,16 +50,6 @@ public class MuleDomain implements NamedContent, WithConfigs {
     Document contentAsDocument = new SAXBuilder().build(content);
     List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
     return new MuleDomain(content, httpListenerConfigs);
-  }
-
-  public static MuleDomain fromConfigFile(File configFile) throws Exception {
-    try (InputStream configFileIS = new FileInputStream(configFile)) {
-      // This is necessary to prevent leaking file handles
-      InputStream content = cloneInputStream(configFileIS);
-      Document contentAsDocument = new SAXBuilder().build(content);
-      List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
-      return new MuleDomain(content, httpListenerConfigs);
-    }
   }
 
   public static MuleDomain fromDeployableArtifact(File artifact) throws Exception {
