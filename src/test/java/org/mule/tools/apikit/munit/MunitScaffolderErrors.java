@@ -46,6 +46,13 @@ public class MunitScaffolderErrors extends AbstractMunitScaffolderTest {
     makeAssertion(muleConfigLocation, expectedErrorMessage);
   }
 
+  @Test
+  public void mainFlowMissingName() throws Exception {
+    String muleConfigLocation = "main-flow-missing-name.xml";
+    String expectedErrorMessage = "Flow name is required";
+    makeAssertion(muleConfigLocation, expectedErrorMessage);
+  }
+
   public void makeAssertion(String muleConfigLocation, String expectedErrorMessage) throws Exception {
     ScaffoldingResult result = scaffold(RAML_NAME, RESOURCE_FOLDER, false, muleConfigLocation);
     assertFalse(result.isSuccess());
