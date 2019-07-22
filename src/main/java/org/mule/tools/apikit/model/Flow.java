@@ -25,7 +25,7 @@ public class Flow implements Scope {
   public String getName() {
     Attribute nameAttribute = content.getAttribute("name");
 
-    if(nameAttribute == null || nameAttribute.getValue().isEmpty()) {
+    if (nameAttribute == null || nameAttribute.getValue().isEmpty()) {
       throw new RuntimeException("Flow name is required");
     }
 

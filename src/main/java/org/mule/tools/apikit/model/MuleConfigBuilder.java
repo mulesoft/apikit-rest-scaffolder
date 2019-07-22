@@ -42,7 +42,7 @@ public class MuleConfigBuilder {
         Element contentElement = (Element) content;
         if ("flow".equals(contentElement.getName())) {
           Optional<ApikitRouter> apikitRouter = getRouter(contentElement);
-          if(apikitRouter.isPresent()) {
+          if (apikitRouter.isPresent()) {
             MainFlow mainFlow = new MainFlow(contentElement);
             mainFlow.setApikitRouter(apikitRouter.get());
             flowsInConfig.add(mainFlow);
@@ -63,10 +63,10 @@ public class MuleConfigBuilder {
   }
 
   public static Optional<ApikitRouter> getRouter(Element flow) {
-    for(Content flowContent : flow.getContent()) {
-      if(flowContent instanceof Element) {
+    for (Content flowContent : flow.getContent()) {
+      if (flowContent instanceof Element) {
         Element flowContentElement = (Element) flowContent;
-        if(elementIsApikitRouter(flowContentElement)) {
+        if (elementIsApikitRouter(flowContentElement)) {
           return Optional.of(new ApikitRouter(flowContentElement));
         }
       }

@@ -30,12 +30,11 @@ import static java.lang.String.format;
 
 public final class MunitScaffolder implements Scaffolder {
 
-  private static final String MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE = "There are multiple apikit configs for %s";
-  private static final String NO_APIKIT_CONFIGS_ERROR_TEMPLATE = "No apikit configs for %s were found";
-  private static final String MULTIPLE_MAIN_FLOWS_ERROR_TEMPLATE = "There are multiple main flows for the config %s";
-  private static final String NO_MAIN_FLOWS_ERROR_TEMPLATE = "No main flow for %s were found";
-  private static final String NO_MAIN_MULE_CONFIGS_ERROR = "No mule configs found";
-  private static final String EMPTY_APIKIT_CONFIG_ERROR = "Apikit config is empty";
+  public static final String MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE = "There are multiple apikit configs for %s";
+  public static final String NO_APIKIT_CONFIGS_ERROR_TEMPLATE = "No apikit configs for %s were found";
+  public static final String MULTIPLE_MAIN_FLOWS_ERROR_TEMPLATE = "There are multiple main flows referencing the config %s";
+  public static final String NO_MAIN_FLOWS_ERROR_TEMPLATE = "No main flow for %s were found";
+  public static final String NO_MULE_CONFIGS_ERROR = "No mule configs found";
 
   private MunitScaffolderContext scaffolderContext;
 
@@ -48,7 +47,7 @@ public final class MunitScaffolder implements Scaffolder {
     ScaffolderResult.Builder scaffolderResultBuilder = ScaffolderResult.builder();
 
     try {
-      validateNonEmptyCollection(config.getMuleConfigurations(), NO_MAIN_MULE_CONFIGS_ERROR);
+      validateNonEmptyCollection(config.getMuleConfigurations(), NO_MULE_CONFIGS_ERROR);
 
       RAMLFilesParser ramlFilesParser = new RAMLFilesParser(new APIFactory(Collections.emptyList()), config.getApi());
       List<GenerationModel> generationModels = new ArrayList<>(ramlFilesParser.getEntries().values());
@@ -79,7 +78,6 @@ public final class MunitScaffolder implements Scaffolder {
     validateNoMoreThanOneElementInCollection(mainFlows, format(MULTIPLE_MAIN_FLOWS_ERROR_TEMPLATE, apikitConfig.getName()));
 
     String mainFlowName = mainFlows.get(0).getName();
-    validateNonEmptyString(mainFlowName, EMPTY_APIKIT_CONFIG_ERROR);
 
     return mainFlowName;
   }
@@ -123,9 +121,4 @@ public final class MunitScaffolder implements Scaffolder {
     }
   }
 
-  private static void validateNonEmptyString(String name, String errorMessage) {
-    if (name.isEmpty()) {
-      throw new RuntimeException(errorMessage);
-    }
-  }
 }

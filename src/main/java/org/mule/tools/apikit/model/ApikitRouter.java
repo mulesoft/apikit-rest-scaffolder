@@ -10,6 +10,7 @@ import org.jdom2.Attribute;
 import org.jdom2.Element;
 
 public class ApikitRouter {
+
   private Element content;
 
   public ApikitRouter(Element content) {
@@ -23,10 +24,10 @@ public class ApikitRouter {
   public String getConfigRef() {
     Attribute configRefAttribute = content.getAttribute("config-ref");
 
-    if(configRefAttribute == null) {
+    if (configRefAttribute == null) {
       throw new RuntimeException("Apikit router not found");
     }
-    if(configRefAttribute.getValue().isEmpty()) {
+    if (configRefAttribute.getValue().isEmpty()) {
       throw new RuntimeException("Apikit router is not referencing any config");
     }
 

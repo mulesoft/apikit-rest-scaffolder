@@ -24,6 +24,7 @@ import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.File;
+import java.io.InputStream;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -32,8 +33,19 @@ public abstract class AbstractMunitScaffolderTest {
 
   private static final String API_SPEC_LOCATION_PLACEHOLDER = "${apiLocation}";
   private static final String APIKIT_MAIN_FLOW_NAME_PLACEHOLDER = "${apikitMainFlowName}";
+  private static final String DEFAULT_MULE_CONFIG_LOCATION = "default-mule-config.xml";
 
   protected ScaffoldingResult simpleGeneration(String name, String resourcesFolder, boolean shouldCreateResources)
+      throws Exception {
+    ScaffoldingResult scaffoldingResult = scaffold(name, resourcesFolder, shouldCreateResources, DEFAULT_MULE_CONFIG_LOCATION);
+    assertTrue(scaffoldingResult.isSuccess());
+    assertEquals(1, scaffoldingResult.getGeneratedConfigs().size());
+
+    return scaffoldingResult;
+  }
+
+  protected ScaffoldingResult scaffold(String name, String resourcesFolder, boolean shouldCreateResources,
+                                       String muleConfigLocation)
       throws Exception {
     String suiteFileName = String.format("%s.xml", name);
     String mainFlowName = name + "-main";
@@ -43,7 +55,7 @@ public abstract class AbstractMunitScaffolderTest {
 
     assertTrue(parseResult.success());
 
-    String defaultMuleConfig = TestUtils.getResourceAsString("scaffolder/default-mule-config.xml");
+    String defaultMuleConfig = TestUtils.getResourceAsString("scaffolder" + File.separator + muleConfigLocation);
     String fileContent = defaultMuleConfig.replace(APIKIT_MAIN_FLOW_NAME_PLACEHOLDER, mainFlowName)
         .replace(API_SPEC_LOCATION_PLACEHOLDER, parseResult.get().getLocation());
 
@@ -59,10 +71,6 @@ public abstract class AbstractMunitScaffolderTest {
     scaffoldingConfigurationBuilder.withApi(parseResult.get());
     scaffoldingConfigurationBuilder.withMuleConfigurations(Lists.newArrayList(muleConfig));
     MunitScaffolder scaffolder = new MunitScaffolder(munitScaffolderContext);
-    ScaffoldingResult scaffoldingResult = scaffolder.run(scaffoldingConfigurationBuilder.build());
-    assertTrue(scaffoldingResult.isSuccess());
-    assertEquals(1, scaffoldingResult.getGeneratedConfigs().size());
-
-    return scaffoldingResult;
+    return scaffolder.run(scaffoldingConfigurationBuilder.build());
   }
 }
