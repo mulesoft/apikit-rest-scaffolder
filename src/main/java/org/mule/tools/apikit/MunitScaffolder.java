@@ -30,10 +30,10 @@ import static java.lang.String.format;
 
 public final class MunitScaffolder implements Scaffolder {
 
-  public static final String MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE = "There are multiple apikit configs for %s";
-  public static final String NO_APIKIT_CONFIGS_ERROR_TEMPLATE = "No apikit configs for %s were found";
-  public static final String MULTIPLE_MAIN_FLOWS_ERROR_TEMPLATE = "There are multiple main flows referencing the config %s";
-  public static final String NO_MAIN_FLOWS_ERROR_TEMPLATE = "No main flow for %s were found";
+  public static final String MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE = "There are multiple apikit configs for [%s]";
+  public static final String NO_APIKIT_CONFIGS_ERROR_TEMPLATE = "No apikit configs for [%s] were found";
+  public static final String MULTIPLE_MAIN_FLOWS_ERROR_TEMPLATE = "There are multiple main flows referencing the config [%s]";
+  public static final String NO_MAIN_FLOWS_ERROR_TEMPLATE = "No main flow for [%s] was found";
   public static final String NO_MULE_CONFIGS_ERROR = "No mule configs found";
 
   private MunitScaffolderContext scaffolderContext;
