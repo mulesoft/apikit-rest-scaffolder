@@ -26,12 +26,4 @@ public class MunitScaffolderContext extends ScaffolderContext {
     return munitSuiteName;
   }
 
-  public void setApikitMainFlowName(String name) {
-    apikitMainFlowName = name;
-  }
-
-  public String getApikitMainFlowName() {
-    return apikitMainFlowName;
-  }
-
 }

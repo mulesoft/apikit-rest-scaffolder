@@ -53,8 +53,8 @@ public final class MunitScaffolder implements Scaffolder {
       List<GenerationModel> generationModels = new ArrayList<>(ramlFilesParser.getEntries().values());
 
       String mainFlowName = getMainFlowName(config.getMuleConfigurations(), config.getApi().getLocation());
-      scaffolderContext.setApikitMainFlowName(mainFlowName);
-      MunitTestSuiteGenerator munitTestSuiteGenerator = new MunitTestSuiteGenerator(generationModels, scaffolderContext);
+      MunitTestSuiteGenerator munitTestSuiteGenerator = new MunitTestSuiteGenerator(generationModels, scaffolderContext,
+                                                                                    mainFlowName);
 
       List<MuleConfig> generatedConfigs = munitTestSuiteGenerator.generate();
       scaffolderResultBuilder.withGeneratedConfigs(generatedConfigs);

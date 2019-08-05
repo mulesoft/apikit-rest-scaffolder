@@ -45,12 +45,15 @@ public class MunitTestSuiteGenerator {
 
   private final List<GenerationModel> flowEntries;
   private MunitScaffolderContext scaffolderContext;
+  private String mainFlowName;
 
   private final Set<ScaffolderResource> generatedResources = new HashSet<>();
 
-  public MunitTestSuiteGenerator(List<GenerationModel> flowEntries, MunitScaffolderContext scaffolderContext) {
+  public MunitTestSuiteGenerator(List<GenerationModel> flowEntries, MunitScaffolderContext scaffolderContext,
+                                 String mainFlowName) {
     this.flowEntries = flowEntries;
     this.scaffolderContext = scaffolderContext;
+    this.mainFlowName = mainFlowName;
   }
 
   public List<ScaffolderResource> getGeneratedResources() {
@@ -95,7 +98,7 @@ public class MunitTestSuiteGenerator {
   }
 
   private void addMunitTests(MuleConfig muleConfig, GenerationModel flowEntry) {
-    MunitTestFlowScope testFlowScope = new MunitTestFlowScope(flowEntry, scaffolderContext.getApikitMainFlowName());
+    MunitTestFlowScope testFlowScope = new MunitTestFlowScope(flowEntry, mainFlowName);
     testFlowScope.setCreateResourceFiles(scaffolderContext.shouldCreateMunitResources());
     muleConfig.getContentAsDocument().getRootElement().addContent(testFlowScope.generateTests());
     generatedResources.addAll(testFlowScope.getGeneratedResources());
