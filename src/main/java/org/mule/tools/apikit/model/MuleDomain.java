@@ -9,12 +9,11 @@ package org.mule.tools.apikit.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarFile;
 
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
@@ -25,7 +24,7 @@ import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 public class MuleDomain implements NamedContent, WithConfigs {
 
-  private static final String MULE_ARTIFACT_LOCATION_IN_JAR = "/META-INF/mule-artifact/mule-artifact.json";
+  private static final String MULE_ARTIFACT_LOCATION_IN_JAR = "META-INF/mule-artifact/mule-artifact.json";
   private static final String MULE_DOMAIN_DEFAULT_CONFIG_FILE_NAME = "mule-domain-config.xml";
 
   private List<HttpListenerConfig> configurations;
@@ -55,37 +54,33 @@ public class MuleDomain implements NamedContent, WithConfigs {
   }
 
   public static MuleDomain fromDeployableArtifact(File artifact) throws Exception {
-    try (URLClassLoader cl = new URLClassLoader(new URL[] {artifact.toURI().toURL()}, MuleDomain.class.getClassLoader())) {
+    JarFile jarArtifact = new JarFile(artifact);
+    InputStream muleArtifacts = jarArtifact.getInputStream(jarArtifact.getEntry(MULE_ARTIFACT_LOCATION_IN_JAR));
+    MuleDomainModelJsonSerializer serializer = new MuleDomainModelJsonSerializer();
+    MuleDomainModel domainModel = serializer.deserialize(org.mule.tools.apikit.misc.IOUtils
+        .readAsString(muleArtifacts));
 
-      MuleDomainModelJsonSerializer serializer = new MuleDomainModelJsonSerializer();
-      MuleDomainModel domainModel = serializer.deserialize(org.mule.tools.apikit.misc.IOUtils
-          .readAsString(cl.getResourceAsStream(MULE_ARTIFACT_LOCATION_IN_JAR)));
+    Set<String> configs = domainModel.getConfigs();
 
-      Set<String> configs = domainModel.getConfigs();
-
-      if (configs.isEmpty()) {
-        List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
-        parseHttpListenerConfigsFromConfigFile(cl, MULE_DOMAIN_DEFAULT_CONFIG_FILE_NAME, httpListenerConfigs);
-        return new MuleDomain(httpListenerConfigs);
-      } else {
-        List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
-        for (String config : configs) {
-          parseHttpListenerConfigsFromConfigFile(cl, config, httpListenerConfigs);
-        }
-        return new MuleDomain(httpListenerConfigs);
+    if (configs.isEmpty()) {
+      List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
+      parseHttpListenerConfigsFromConfigFile(jarArtifact, MULE_DOMAIN_DEFAULT_CONFIG_FILE_NAME, httpListenerConfigs);
+      return new MuleDomain(httpListenerConfigs);
+    } else {
+      List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
+      for (String config : configs) {
+        parseHttpListenerConfigsFromConfigFile(jarArtifact, config, httpListenerConfigs);
       }
+      return new MuleDomain(httpListenerConfigs);
     }
   }
 
-  private static void parseHttpListenerConfigsFromConfigFile(URLClassLoader cl, String configFile,
+  private static void parseHttpListenerConfigsFromConfigFile(JarFile artifact, String configFile,
                                                              List<HttpListenerConfig> httpListenerConfigs)
       throws JDOMException, IOException {
-    InputStream content = cl.getResourceAsStream(configFile);
-    try {
+    try (InputStream content = artifact.getInputStream(artifact.getEntry(configFile))) {
       Document contentAsDocument = new SAXBuilder().build(content);
       httpListenerConfigs.addAll(new HttpListenerConfigParser().parse(contentAsDocument));
-    } finally {
-      content.close();
     }
   }
 
