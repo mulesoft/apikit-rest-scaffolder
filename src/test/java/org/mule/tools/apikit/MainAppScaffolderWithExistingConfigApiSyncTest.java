@@ -21,6 +21,7 @@ import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -53,7 +54,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     String raml = "api.raml";
     String ramlFolder = "src/test/resources/rescaffolding-apisync-version/v1";
 
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
@@ -110,7 +111,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
   private ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
                                             List<MuleConfig> muleConfigs) {
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.CE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);

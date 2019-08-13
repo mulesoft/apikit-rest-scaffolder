@@ -1,0 +1,11 @@
+#%RAML 1.0
+title: Example API
+version: v1
+mediaType: application/json
+resourceTypes: !include resources/resourceTypes/resourcetype.yaml
+traits: !include resources/traits/traits.yaml
+/users/{id}:
+  type: collection
+  get:
+    responses:
+      200:

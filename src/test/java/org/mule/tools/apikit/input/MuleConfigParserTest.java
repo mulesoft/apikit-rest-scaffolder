@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mule.tools.apikit.TestUtils.*;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
 
+import org.mule.tools.apikit.TestUtils;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;

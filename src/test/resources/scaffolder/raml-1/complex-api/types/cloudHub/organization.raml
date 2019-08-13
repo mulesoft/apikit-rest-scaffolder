@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+type: object
+displayName: Organization Datatype
+properties:
+  id: string
+  name: string
+  plan:
+    type: object
+    properties:
+      maxProductionWorkers: number
+      maxSandboxWorkers: number
+      maxStandardConnectors: number
+      maxPremiumConnectors: number
+      maxStaticIPs: number
+  usage:
+    type: object
+    properties:
+      sandboxes: number
+      productions: number
+      standardConnectors: number
+      premiumConnectors: number
+      productionApplications: number
+      sandboxApplications: number
+      productionWorkers: number
+      sandboxWorkers: number
+      staticIPs: number
+      vpcs: number
+      lbs: number    

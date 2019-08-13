@@ -8,7 +8,6 @@ package org.mule.tools.apikit;
  */
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -23,11 +22,10 @@ import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -432,7 +430,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     final String api2 = basePath + "api2/api.raml";
     XMLUnit.setIgnoreWhitespace(true);
 
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ScaffoldingConfiguration firstScaffoldingConfiguration = getScaffoldingConfiguration(api1, existingMuleConfigs, domainFile);
@@ -813,7 +811,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   private void doubleRootRaml() throws Exception {
     // In the new Scaffolder API you can't scaffold more than one ApiSpecification at a time.
     // If you want to scaffold more than one ApiSpec, you have to call the scaffolder N times.
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ParserService parserService = new ParserService();

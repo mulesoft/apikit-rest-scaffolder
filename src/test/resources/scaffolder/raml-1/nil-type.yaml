@@ -1,0 +1,18 @@
+#%RAML 1.0
+title: API with Types
+types:
+  NullComment:
+    type: object
+    properties:
+      name:
+      comment: nil
+/comments/{id}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: NullComment
+            example:
+              name: Fred
+              comment:

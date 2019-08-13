@@ -27,7 +27,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 
 public class ConsoleFlowTest {
 
@@ -79,7 +85,7 @@ public class ConsoleFlowTest {
   }
 
   private MainAppScaffolder getScaffolder() {
-    ScaffolderContext context = new ScaffolderContext.Builder()
+    ScaffolderContext context = ScaffolderContextBuilder.builder()
         .withRuntimeEdition(RuntimeEdition.EE)
         .build();
     return new MainAppScaffolder(context);

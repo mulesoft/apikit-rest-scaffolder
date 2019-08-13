@@ -6,7 +6,6 @@
  */
 package org.mule.tools.apikit;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,6 +22,7 @@ import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -72,7 +72,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
                                           List<String> existingMuleConfigsLocations, String muleDomainLocation)
       throws Exception {
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(runtimeEdition).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(runtimeEdition).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     List<MuleConfig> muleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);

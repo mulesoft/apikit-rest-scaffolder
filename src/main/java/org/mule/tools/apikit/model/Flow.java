@@ -6,12 +6,13 @@
  */
 package org.mule.tools.apikit.model;
 
+import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.mule.tools.apikit.output.scopes.Scope;
 
 public class Flow implements Scope {
 
-  private Element content;
+  protected Element content;
 
   public Flow(Element content) {
     this.content = content;
@@ -19,5 +20,15 @@ public class Flow implements Scope {
 
   public Element generate() {
     return content;
+  }
+
+  public String getName() {
+    Attribute nameAttribute = content.getAttribute("name");
+
+    if (nameAttribute == null || nameAttribute.getValue().isEmpty()) {
+      throw new RuntimeException("Flow name is required");
+    }
+
+    return nameAttribute.getValue();
   }
 }

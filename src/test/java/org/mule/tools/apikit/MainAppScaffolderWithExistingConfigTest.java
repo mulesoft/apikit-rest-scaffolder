@@ -7,7 +7,6 @@
 package org.mule.tools.apikit;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
@@ -17,6 +16,7 @@ import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
@@ -93,7 +93,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
     ParseResult parseResult = new ParserService().parse(apiReference);
     assertTrue(parseResult.success());
 
-    ScaffolderContext scaffolderContext = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext scaffolderContext = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(scaffolderContext);
 
     ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());

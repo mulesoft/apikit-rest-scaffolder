@@ -51,7 +51,7 @@ public final class MainAppScaffolder implements Scaffolder {
       MuleConfigGenerator muleConfigGenerator = new MuleConfigGenerator(includedApis,
                                                                         generationModels,
                                                                         muleConfigs,
-                                                                        scaffolderContext.getRuntimeEdition());
+                                                                        scaffolderContext);
 
       List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
       scaffolderResultBuilder.withGeneratedConfigs(generatedConfigs);

@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,6 +34,7 @@ import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
@@ -88,7 +90,7 @@ public class MainAppScaffolderOASTest {
   }
 
   private MuleConfig scaffoldApi(Path api) {
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     ApiReference apiReference = ApiReference.create(api.toUri());

@@ -8,31 +8,13 @@ package org.mule.tools.apikit.model;
 
 public class ScaffolderContext {
 
-  private final RuntimeEdition runtimeEdition;
+  private RuntimeEdition runtimeEdition;
 
-  private ScaffolderContext(RuntimeEdition runtimeEdition) {
+  protected ScaffolderContext(RuntimeEdition runtimeEdition) {
     this.runtimeEdition = runtimeEdition;
   }
 
   public RuntimeEdition getRuntimeEdition() {
     return runtimeEdition;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-
-    private RuntimeEdition runtimeEdition = RuntimeEdition.CE;
-
-    public Builder withRuntimeEdition(RuntimeEdition runtimeEdition) {
-      this.runtimeEdition = runtimeEdition;
-      return this;
-    }
-
-    public ScaffolderContext build() {
-      return new ScaffolderContext(runtimeEdition);
-    }
   }
 }

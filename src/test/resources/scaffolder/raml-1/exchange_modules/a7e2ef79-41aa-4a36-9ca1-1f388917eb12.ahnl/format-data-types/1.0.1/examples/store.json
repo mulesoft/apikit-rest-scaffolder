@@ -1,0 +1,20 @@
+{
+  "id": 1005,
+  "isFranchise": false,
+  "name": "Breda - De Burcht",
+  "address": "De Burcht 1",
+  "addressCodeEan": 8710400010050,
+  "zipCode": "4834HE",
+  "city": "Breda",
+  "countryCode": "NLD",
+  "countryName": "Nederland",
+  "lifeCycleStatus": "open",
+  "phoneNumber": "(076)5654183",
+  "openingHours":"0900",
+  "format": {
+    "id": 19,
+    "description": "AH DNAH",
+    "imageUrl": "http://some-image.png"
+  },
+  "imageUrl": "http://some-image.png"
+}

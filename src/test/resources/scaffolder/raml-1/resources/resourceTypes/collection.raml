@@ -1,0 +1,14 @@
+#%RAML 1.0 ResourceType
+
+description: A collection resource
+usage: Use this to describe a resource that lists items
+get:
+  description: Retrieve all items
+post:
+  description: Add an item
+  headers:
+    Location:
+      type: integer
+      example: 22
+  responses:
+    201:

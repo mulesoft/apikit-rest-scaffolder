@@ -1,0 +1,28 @@
+#%RAML 1.0
+title: MUA Flights API
+version: 1
+/flights:
+  description: This is my flights reservation REST Service
+  /{destination}:
+    description: Airport code that represents the airport destination
+    get:
+      description: Return the list of flights availables for that destination
+      queryParameters:
+        airline:
+          description: The requested airline for the flight
+          example: all
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                {[
+                  "airlineName":"United",
+                  "price":400,
+                  "departureDate":"2015/03/20",
+                  "planeType":"Boeing 737",
+                  "origination":"MUA",
+                  "flightCode":"ER38sd",
+                  "availableSeats":0,
+                  "destination":"SFO"
+                ]}

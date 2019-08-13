@@ -1,0 +1,75 @@
+#%RAML 1.0
+---
+title: Salesforce Chatter Communities REST API
+version: v28.0
+baseUri: https://{communityDomain}.force.com/{communityPath}
+
+/bucket:
+  post:
+    description: The POST operation adds an object to a specified bucket using HTML forms.
+    headers:
+      X-waiting-period:
+        description: |
+          The number of seconds to wait before you can attempt to make a request again.
+        type: integer
+        required: true
+        minimum: 1
+        maximum: 3600
+        example: 34
+        default: 33
+      status-code:
+        type: string
+        required: false
+    body:
+      application/x-www-form-urlencoded:
+        description: |
+          The phone number or client identifier to use as the caller id. If
+          using a phone number, it must be a Twilio number or a Verified
+          outgoing caller id for your account.
+        type: string
+        required: true
+        pattern: (\+1|1)?([2-9]\d\d[2-9]\d{6}) # E.164 standard
+        example: "+14158675309"
+        default: "+22222222222"
+    responses:
+      200:
+        headers:
+          X-waiting-period:
+            description: |
+              The number of seconds to wait before you can attempt to make a request again.
+            type: integer
+            required: true
+            minimum: 1
+            maximum: 3600
+            example: 34
+            default: 22
+          status-code:
+            type: string
+            required: false
+        body:
+          "*/*":
+/product:
+  displayName: Products
+  get:
+    description: |
+      Retrieve all the Products.
+    headers:
+      content-type:
+        description: This is the format for what the API sends
+        enum: [ application/json, application/xml ]
+        default: application/json
+      Accept:
+        description: This is the format for what the API receives
+        enum: [ application/json, application/xml ]
+        default: application/json
+    queryParameters:
+      name:
+        displayName: Product Name
+        required: false
+      category:
+        displayName: Product Category
+        required: false
+    responses:
+      200:
+        body:
+          application/json:

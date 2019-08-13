@@ -1,0 +1,6 @@
+#%RAML 1.0 ResourceType
+  description: <<collectionSummary>>
+  get:
+    description: <<collectionDescription>>
+    is: [ 200-collection: {collectionType: <<collectionType>>, collectionExample: <<collectionExample>>}, 
+        400-fault,404-fault,405-fault,406-fault,407-fault,415-fault,500-fault ]

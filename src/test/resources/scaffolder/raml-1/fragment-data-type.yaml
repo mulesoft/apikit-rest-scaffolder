@@ -1,0 +1,14 @@
+#%RAML 1.0
+title: Users API
+types:
+  User: !include resources/types/user.raml
+/user/{userId}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: User
+            example:
+              firstName: John
+              lastName: Smith

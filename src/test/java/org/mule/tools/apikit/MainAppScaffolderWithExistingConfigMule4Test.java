@@ -15,10 +15,16 @@ import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
-import org.mule.tools.apikit.model.*;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.MuleDomain;
+import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffolderResult;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.Helper.countOccurences;
 import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
@@ -29,7 +35,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   public void testAlreadyExistsMultipleConfigurationsFirstFlowsXml() throws Exception {
     String ramlFilePath = "scaffolder-existing-multiples/api.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig1 =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
@@ -57,7 +63,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   public void testAlreadyExistsMultipleConfigurationsFirstNoFlowsXml() throws Exception {
     String ramlFilePath = "scaffolder-existing-multiples/api.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig1 =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-multiples/resources-flows.xml"));
@@ -94,12 +100,11 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   private void testAlreadyExistsWithExtensionNotPresent() throws Exception {
     String ramlFilePath = "scaffolder-existing-extension/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-extension/simple-extension-not-present-4.xml"));
     List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
-
     ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
         .withApi(parseResult.get())
         .withMuleConfigurations(muleConfigs)
@@ -135,10 +140,11 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   private void testAlreadyExistsGenerate() throws Exception {
     String ramlFilePath = "scaffolder-existing-extension/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing/simple-4.xml"));
     List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
+
     ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
         .withApi(parseResult.get())
         .withMuleConfigurations(muleConfigs)
@@ -174,13 +180,14 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   private void testAlreadyExistsGenerateWithCustomDomain() throws Exception {
     String ramlFilePath = "scaffolder-existing-custom-lc/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
+
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing-custom-lc/simple-4.xml"));
     List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
 
     MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get())
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder().withApi(parseResult.get())
         .withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
@@ -214,14 +221,14 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   private void testAlreadyExistsGenerateWithCustomAndNormalLC() throws Exception {
     String ramlFilePath = "scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig = MuleConfigBuilder
         .fromStream(getResourceAsStream("scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc-4.xml"));
     List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
 
     MuleDomain muleDomain = MuleDomain.fromInputStream(getResourceAsStream("custom-domain-4/mule-domain-config.xml"));
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get())
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder().withApi(parseResult.get())
         .withMuleConfigurations(muleConfigs).withDomain(muleDomain).build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
@@ -254,7 +261,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   private void testAlreadyExistingMuleConfigWithApikitRouter() throws Exception {
     String ramlFilePath = "scaffolder-existing/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
     MuleConfig muleConfig =
         MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder-existing/mule-config-no-api-flows-4.xml"));
@@ -282,45 +289,6 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   }
 
   @Test
-  public void testMultipleMimeTypesWithoutNamedConfigWithOldParser() throws Exception {
-    testMultipleMimeTypesWithoutNamedConfig();
-  }
-
-  @Test
-  public void testMultipleMimeTypesWithoutNamedConfigWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
-    testMultipleMimeTypesWithoutNamedConfig();
-  }
-
-  private void testMultipleMimeTypesWithoutNamedConfig() throws Exception {
-    String ramlFilePath = "scaffolder/multipleMimeTypes.raml";
-    ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
-    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(getResourceAsStream("scaffolder/multipleMimeTypes-4.xml"));
-    List<MuleConfig> muleConfigs = Lists.newArrayList(muleConfig);
-    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
-        .withApi(parseResult.get())
-        .withMuleConfigurations(muleConfigs)
-        .build();
-
-    ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
-    assertTrue(result.isSuccess());
-    assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(8, countOccurences(s, "post:\\pet"));
-    assertTrue(s.contains("post:\\pet:application\\json"));
-    assertTrue(s.contains("post:\\pet:text\\xml"));
-    assertTrue(s.contains("post:\\pet:application\\x-www-form-urlencoded"));
-    assertFalse(s.contains("post:\\pet:application\\xml"));
-    assertEquals(3, countOccurences(s, "post:\\vet"));
-    assertFalse(s.contains("post:\\vet:application\\xml"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
-    assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
-    assertEquals(0, countOccurences(s, "#[mel:null]"));
-  }
-
-  @Test
   public void testMultipleMimeTypesWithOldParser() throws Exception {
     testMultipleMimeTypes("scaffolder/multipleMimeTypes.raml");
   }
@@ -339,9 +307,11 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
   private void testMultipleMimeTypes(String apiPath) throws Exception {
     final String name = fileNameWhithOutExtension(apiPath);
     ParseResult parseResult = new ParserService().parse(ApiReference.create(apiPath));
-    ScaffolderContext context = new ScaffolderContext.Builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingConfiguration configuration = ScaffoldingConfiguration.builder()
+        .withApi(parseResult.get())
+        .build();
 
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());

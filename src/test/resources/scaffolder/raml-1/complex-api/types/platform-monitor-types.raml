@@ -1,0 +1,19 @@
+#%RAML 1.0 Library
+types:
+  Organization: !include cloudHub/organization.raml
+  Environment: !include cloudHub/environment.raml
+  CloudHubApplication: !include cloudHub/application.raml
+  CloudHubStatistics: !include cloudHub/statistics.raml
+  CloudHubQueueStatistics: !include cloudHub/queueStatistics.raml
+  Fault: !include ../libraries/types/platformfault.raml
+  Cluster: !include onPrem/cluster.raml 
+  Server: !include onPrem/server.raml
+  OnPremApplication: !include onPrem/application.raml
+  API: !include cloudHub/api.raml
+  APIAnalytics: !include cloudHub/apiAnalytics.raml
+  MonitorCHApplication: !include monitor/chApplication.raml
+  MonitorAPI: !include monitor/api.raml
+  MonitorStatus: !include monitor/status.raml
+  APIPortal: !include cloudHub/apiPortal.raml 
+  Status: !include cloudHub/status.raml
+  EmptyItem: !include emptyItem.raml

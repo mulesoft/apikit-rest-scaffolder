@@ -15,10 +15,9 @@ import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class MuleConfigBuilder {
 
@@ -42,7 +41,14 @@ public class MuleConfigBuilder {
       if (content instanceof Element) {
         Element contentElement = (Element) content;
         if ("flow".equals(contentElement.getName())) {
-          flowsInConfig.add(new Flow(contentElement));
+          Optional<ApikitRouter> apikitRouter = getRouter(contentElement);
+          if (apikitRouter.isPresent()) {
+            MainFlow mainFlow = new MainFlow(contentElement);
+            mainFlow.setApikitRouter(apikitRouter.get());
+            flowsInConfig.add(mainFlow);
+          } else {
+            flowsInConfig.add(new Flow(contentElement));
+          }
         }
       }
     }
@@ -54,5 +60,21 @@ public class MuleConfigBuilder {
     SAXBuilder builder = new SAXBuilder();
     Document inputAsDocument = builder.build(input);
     return fromDoc(inputAsDocument);
+  }
+
+  public static Optional<ApikitRouter> getRouter(Element flow) {
+    for (Content flowContent : flow.getContent()) {
+      if (flowContent instanceof Element) {
+        Element flowContentElement = (Element) flowContent;
+        if (elementIsApikitRouter(flowContentElement)) {
+          return Optional.of(new ApikitRouter(flowContentElement));
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  private static boolean elementIsApikitRouter(Element element) {
+    return element.getNamespace().getPrefix().equals("apikit") && element.getName().equals("router");
   }
 }

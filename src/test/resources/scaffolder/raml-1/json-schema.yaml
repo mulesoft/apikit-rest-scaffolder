@@ -1,0 +1,59 @@
+#%RAML 1.0
+---
+title: Sample API
+version: v1
+schemas:
+   type-1: |
+      {
+         "title": "Type-1 Schema",
+         "type": "object",
+         "properties": {
+            "id":{
+                "type": "string"
+            },
+            "value": {
+                "type": "string",
+                "required": true
+            }
+         }
+      }
+
+baseUri: http://localhost/api
+/cat:
+    displayName: Cat
+    get:
+        responses:
+            200:
+                body:
+                     application/json:
+                        schema: type-1
+/pet:
+    displayName: Leagues
+    get:
+        responses:
+            200:
+                body:
+                     application/json:
+                        schema: |
+                            {
+                                "title": "League Schema",
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "required": true
+                                    }
+                                }
+                            }
+/jobs:
+    displayName: Jobs
+    post:
+        description: Create a Job
+        body:
+            application/json:
+                schema: type-1
+        responses:
+            200:
+                body:
+                    application/json:
+                        schema: type-1

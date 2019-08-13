@@ -17,6 +17,7 @@ import org.mule.tools.apikit.Helper;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 
 import java.io.File;
@@ -115,10 +116,10 @@ public class MuleConfigGeneratorTest {
     apis.add(api);
 
     MuleConfigGenerator muleConfigGenerator =
-        new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(), RuntimeEdition.CE);
+        new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
+                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build());
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
-    //    Document document = muleConfigGenerator.getMuleConfig(api).getContentAsDocument();
 
     Element rootElement = document.getRootElement();
     assertEquals("mule", rootElement.getName());

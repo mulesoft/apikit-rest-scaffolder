@@ -1,0 +1,9 @@
+#%RAML 1.0
+title: Users API
+traits:
+  paged: !include resources/traits/paged.raml
+/users:
+  is: [paged]
+  get:
+    responses:
+      200:

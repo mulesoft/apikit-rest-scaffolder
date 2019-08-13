@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 
 public class TestUtils {
 
+  public static final String ENABLE_FLOW_SOURCES_TEMPLATE = "<munit:enable-flow-source value=\"%s\" />";
   private static final SAXBuilder BUILDER = new SAXBuilder(XMLReaders.NONVALIDATING);
 
   public static Document getDocumentFromStream(InputStream xmlWithFlows) throws JDOMException, IOException {
@@ -74,5 +75,22 @@ public class TestUtils {
     }
 
     assertTrue(diff.identical());
+  }
+
+  public static String generateMainFlowNameForApi(String name) {
+    return name + "-main";
+  }
+
+  public static int countOccurrences(String string, String substring) {
+    int lastIndex = 0;
+    int count = 0;
+    while (lastIndex >= 0) {
+      lastIndex = string.indexOf(substring, lastIndex);
+      if (lastIndex >= 0) {
+        count++;
+        lastIndex += substring.length();
+      }
+    }
+    return count;
   }
 }

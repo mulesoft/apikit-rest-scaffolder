@@ -1,0 +1,16 @@
+#%RAML 1.0 DataType
+type: object
+displayName: CloudHub Application Queue Statistics Datatype
+properties:
+  queues:
+    type: array
+    items:  
+      type: object
+      properties: 
+        id: string
+        name: string
+        added: number
+        queued: number
+        inFlight: number
+        dequeued: number
+        status: string

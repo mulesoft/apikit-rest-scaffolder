@@ -41,12 +41,14 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private final String version;
   private final List<String> splitPath;
   private final ApikitMainFlowContainer api;
+  private final boolean shouldIncludeMimeTypeInName;
 
   public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action) {
-    this(api, version, resource, action, null);
+    this(api, version, resource, action, null, true);
   }
 
-  public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action, String mimeType) {
+  public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource,
+                         Action action, String mimeType, boolean shouldIncludeMimeTypeInName) {
     this.api = api;
     Validate.notNull(api);
     Validate.notNull(action);
@@ -63,6 +65,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
       splitPath.remove(0);
       splitPath.remove(0);
     }
+    this.shouldIncludeMimeTypeInName = shouldIncludeMimeTypeInName;
   }
 
   public String getVerb() {
@@ -151,6 +154,10 @@ public class GenerationModel implements Comparable<GenerationModel> {
     };
   }
 
+  public Action getAction() {
+    return action;
+  }
+
   public String getName() {
     StringBuilder name = new StringBuilder();
     name.append(this.getStringFromActionType());
@@ -177,8 +184,16 @@ public class GenerationModel implements Comparable<GenerationModel> {
     return name.toString().replace(" ", "");
   }
 
+  public String getMimeType() {
+    return mimeType;
+  }
+
   public String getRelativeURI() {
     return "/" + StringUtils.join(splitPath.toArray(), "/");
+  }
+
+  public Resource getResource() {
+    return resource;
   }
 
   public ApikitMainFlowContainer getApi() {
@@ -191,7 +206,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
         .append(FLOW_NAME_SEPARATOR)
         .append(resource.getResolvedUri(version));
 
-    if (mimeType != null) {
+    if (mimeType != null && shouldIncludeMimeTypeInName) {
       flowName.append(FLOW_NAME_SEPARATOR)
           .append(getMediaType(mimeType));
     }
