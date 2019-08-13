@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.JarFile;
 
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -57,8 +58,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
     JarFile jarArtifact = new JarFile(artifact);
     InputStream muleArtifacts = jarArtifact.getInputStream(jarArtifact.getEntry(MULE_ARTIFACT_LOCATION_IN_JAR));
     MuleDomainModelJsonSerializer serializer = new MuleDomainModelJsonSerializer();
-    MuleDomainModel domainModel = serializer.deserialize(org.mule.tools.apikit.misc.IOUtils
-        .readAsString(muleArtifacts));
+    MuleDomainModel domainModel = serializer.deserialize(IOUtils.toString(muleArtifacts));
 
     Set<String> configs = domainModel.getConfigs();
 
