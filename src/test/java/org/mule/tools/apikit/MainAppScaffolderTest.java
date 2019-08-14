@@ -30,6 +30,7 @@ import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
+import org.mule.tools.apikit.model.MuleDomainFactory;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
@@ -678,7 +679,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   private void simpleGenerateWithCustomExternalDomain() throws Exception {
     String apiLocation = "scaffolder/simple.raml";
     File artifact = new File("src/test/resources", "custom-domain-4/external-domain.jar");
-    MuleDomain muleDomain = MuleDomain.fromDeployableArtifact(artifact);
+    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
     String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
@@ -764,7 +765,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   private void simpleGenerateWithCustomExternalDomainWithMultipleConfigs() throws Exception {
     String apiLocation = "scaffolder/simple.raml";
     File artifact = new File("src/test/resources", "custom-external-domain-multiple-configs/external-domain-2-configs.jar");
-    MuleDomain muleDomain = MuleDomain.fromDeployableArtifact(artifact);
+    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
     String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
