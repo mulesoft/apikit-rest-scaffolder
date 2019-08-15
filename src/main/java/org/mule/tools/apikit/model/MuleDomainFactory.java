@@ -26,11 +26,12 @@ public class MuleDomainFactory {
 
   private static final String MULE_ARTIFACT_LOCATION_IN_JAR = "META-INF/mule-artifact/mule-artifact.json";
   private static final String MULE_DOMAIN_DEFAULT_CONFIG_FILE_NAME = "mule-domain-config.xml";
+  private static final MuleDomainModelJsonSerializer serializer = new MuleDomainModelJsonSerializer();
+  private static final HttpListenerConfigParser configParser = new HttpListenerConfigParser();
 
   public static MuleDomain fromDeployableArtifact(File artifact) throws Exception {
     JarFile jarArtifact = new JarFile(artifact);
     InputStream muleArtifacts = jarArtifact.getInputStream(jarArtifact.getEntry(MULE_ARTIFACT_LOCATION_IN_JAR));
-    MuleDomainModelJsonSerializer serializer = new MuleDomainModelJsonSerializer();
     MuleDomainModel domainModel = serializer.deserialize(IOUtils.toString(muleArtifacts));
 
     Set<String> configs = domainModel.getConfigs();
@@ -53,7 +54,7 @@ public class MuleDomainFactory {
     List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
     try (InputStream content = artifact.getInputStream(artifact.getEntry(configFile))) {
       Document contentAsDocument = new SAXBuilder().build(content);
-      httpListenerConfigs.addAll(new HttpListenerConfigParser().parse(contentAsDocument));
+      httpListenerConfigs = configParser.parse(contentAsDocument);
     }
     return httpListenerConfigs;
   }
