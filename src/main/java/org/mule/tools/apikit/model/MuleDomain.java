@@ -17,9 +17,10 @@ import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 public class MuleDomain implements NamedContent, WithConfigs {
 
+  private InputStream content;
   private List<HttpListenerConfig> configurations;
 
-  MuleDomain(List<HttpListenerConfig> configurations) {
+  MuleDomain(InputStream content, List<HttpListenerConfig> configurations) {
     this.configurations = configurations;
   }
 
@@ -29,7 +30,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
 
   @Override
   public InputStream getContent() {
-    return null;
+    return content;
   }
 
   @Override
@@ -40,7 +41,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
   public static MuleDomain fromInputStream(InputStream content) throws Exception {
     Document contentAsDocument = new SAXBuilder().build(content);
     List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
-    return new MuleDomain(httpListenerConfigs);
+    return new MuleDomain(content, httpListenerConfigs);
   }
 
   public static Builder builder() {
@@ -50,25 +51,24 @@ public class MuleDomain implements NamedContent, WithConfigs {
   public static class Builder {
 
     private InputStream content;
+    private List<HttpListenerConfig> configurations;
 
-    public Builder() {}
+    public Builder() {
+      this.configurations = new ArrayList<>();
+    }
 
     public Builder withContent(InputStream content) {
       this.content = content;
       return this;
     }
 
+    public Builder withConfigurations(List<HttpListenerConfig> configurations) {
+      this.configurations = configurations;
+      return this;
+    }
+
     public MuleDomain build() {
-      if (content == null) {
-        return new MuleDomain(new ArrayList<>());
-      } else {
-        try {
-          return fromInputStream(content);
-        } catch (Exception e) {
-          e.printStackTrace();
-          return new MuleDomain(new ArrayList<>());
-        }
-      }
+      return new MuleDomain(content, configurations);
     }
   }
 }
