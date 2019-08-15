@@ -27,6 +27,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +44,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -95,7 +98,9 @@ public class ScaffolderOASTest {
 
     // When Golden file existe we comparate both Scaffolder versions
     final String expected = readFile(goldenPath);
-    assertEquals(format("Scaffolder differs for API '%s'", api.getFileName()), current, expected);
+    XMLUnit.setIgnoreWhitespace(true);
+    Diff diff = XMLUnit.compareXML(current, expected);
+    assertTrue(format("Scaffolder differs for API '%s'", api.getFileName()), diff.identical());
   }
 
   @Parameterized.Parameters(name = "{0}")
