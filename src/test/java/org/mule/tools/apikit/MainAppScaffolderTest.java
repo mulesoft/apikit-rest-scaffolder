@@ -766,7 +766,8 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   private void simpleGenerateWithCustomExternalDomainWithMultipleConfigs() throws Exception {
     String apiLocation = "scaffolder/simple.raml";
-    URL fileUrl = Thread.currentThread().getContextClassLoader().getResource("custom-external-domain-multiple-configs/external-domain-2-configs.jar");
+    URL fileUrl = Thread.currentThread().getContextClassLoader()
+        .getResource("custom-external-domain-multiple-configs/external-domain-2-configs.jar");
     File artifact = new File(fileUrl.getFile());
     MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
