@@ -14,6 +14,7 @@ import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 import static org.mule.tools.apikit.TestUtils.getResourceAsString;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -678,7 +679,8 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   private void simpleGenerateWithCustomExternalDomain() throws Exception {
     String apiLocation = "scaffolder/simple.raml";
-    File artifact = new File("src/test/resources", "custom-domain-4/external-domain.jar");
+    URL fileUrl = Thread.currentThread().getContextClassLoader().getResource("custom-domain-4/external-domain.jar");
+    File artifact = new File(fileUrl.getFile());
     MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
@@ -764,7 +766,8 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   private void simpleGenerateWithCustomExternalDomainWithMultipleConfigs() throws Exception {
     String apiLocation = "scaffolder/simple.raml";
-    File artifact = new File("src/test/resources", "custom-external-domain-multiple-configs/external-domain-2-configs.jar");
+    URL fileUrl = Thread.currentThread().getContextClassLoader().getResource("custom-external-domain-multiple-configs/external-domain-2-configs.jar");
+    File artifact = new File(fileUrl.getFile());
     MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
