@@ -6,21 +6,21 @@
  */
 package org.mule.tools.apikit.model;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MuleDomain implements NamedContent, WithConfigs {
 
   private InputStream content;
   private List<HttpListenerConfig> configurations;
 
-  private MuleDomain(InputStream content, List<HttpListenerConfig> configurations) {
-    this.content = content;
+  MuleDomain(InputStream content, List<HttpListenerConfig> configurations) {
     this.configurations = configurations;
   }
 
@@ -35,7 +35,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
 
   @Override
   public List<HttpListenerConfig> getHttpListenerConfigs() {
-    return configurations;
+    return Collections.unmodifiableList(configurations);
   }
 
   public static MuleDomain fromInputStream(InputStream content) throws Exception {

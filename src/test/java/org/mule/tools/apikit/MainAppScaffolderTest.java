@@ -1,18 +1,29 @@
-package org.mule.tools.apikit;
-
 /*
  * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
  * The software in this package is published under the terms of the CPAL v1.0
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
+package org.mule.tools.apikit;
 
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.assertXmls;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
+import static org.mule.tools.apikit.TestUtils.getResourceAsString;
+
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
-
 import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
@@ -20,20 +31,14 @@ import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
+import org.mule.tools.apikit.model.MuleDomainFactory;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.*;
+import com.google.common.collect.Lists;
 
 public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
@@ -159,6 +164,17 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   }
 
   @Test
+  public void testSimpleGenerateWithCustomExternalDomainWithOldParser() throws Exception {
+    simpleGenerateWithCustomExternalDomain();
+  }
+
+  @Test
+  public void testSimpleGenerateWithCustomExternalDomainWithNewParser() throws Exception {
+    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+    simpleGenerateWithCustomExternalDomain();
+  }
+
+  @Test
   public void testSimpleGenerateWithCustomDomainAndExtensionWithOldParser() throws Exception {
     simpleGenerateWithCustomDomainAndExtension();
   }
@@ -180,6 +196,16 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     simpleGenerateWithCustomDomainWithMultipleLC();
   }
 
+  @Test
+  public void testSimpleGenerateWithCustomExternalDomainWithMultipleConfigsWithOldParser() throws Exception {
+    simpleGenerateWithCustomExternalDomainWithMultipleConfigs();
+  }
+
+  @Test
+  public void testSimpleGenerateWithCustomExternalDomainWithMultipleConfigsWithNewParser() throws Exception {
+    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+    simpleGenerateWithCustomExternalDomainWithMultipleConfigs();
+  }
 
   @Test
   public void testSimpleGenerateWithEmptyDomainWithOldParser() throws Exception {
@@ -651,6 +677,36 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
+  private void simpleGenerateWithCustomExternalDomain() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    URL fileUrl = Thread.currentThread().getContextClassLoader().getResource("custom-domain-4/external-domain.jar");
+    File artifact = new File(fileUrl.getFile());
+    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
+
+    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    assertEquals(0, countOccurences(s, "<http:listener-config"));
+    assertEquals(2, countOccurences(s, "<http:listener "));
+    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
+    assertEquals(2, countOccurences(s, "<http:response statusCode=\"#[vars.httpStatus default 200]\""));
+    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
+    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
+    assertEquals(7, countOccurences(s, "<on-error-propagate"));
+    assertEquals(4, countOccurences(s, "http:body"));
+    assertEquals(2, countOccurences(s, "#[payload]"));
+    assertEquals(7, countOccurences(s, "<ee:message>"));
+    assertEquals(9, countOccurences(s, "<ee:variables>"));
+    assertEquals(10, countOccurences(s, "<ee:set-variable"));
+    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
+    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
+    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
+    assertEquals(1, countOccurences(s, "<apikit:console"));
+    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
+    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
+  }
+
   private void simpleGenerateWithCustomDomainAndExtension() throws Exception {
     String apiLocation = "scaffolder/simple.raml";
     String muleDomainLocation = "custom-domain-4/mule-domain-config.xml";
@@ -700,6 +756,37 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(0, countOccurences(s, "<http:listener-config"));
     assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
     assertEquals(2, countOccurences(s, "config-ref=\"abcd\""));
+    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
+    assertEquals(1, countOccurences(s, "<apikit:console"));
+    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
+    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
+  }
+
+  private void simpleGenerateWithCustomExternalDomainWithMultipleConfigs() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    URL fileUrl = Thread.currentThread().getContextClassLoader()
+        .getResource("custom-external-domain-multiple-configs/external-domain-2-configs.jar");
+    File artifact = new File(fileUrl.getFile());
+    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
+
+    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    assertEquals(0, countOccurences(s, "<http:listener-config"));
+    assertEquals(2, countOccurences(s, "<http:listener "));
+    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
+    assertEquals(2, countOccurences(s, "<http:response statusCode=\"#[vars.httpStatus default 200]\""));
+    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
+    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
+    assertEquals(7, countOccurences(s, "<on-error-propagate"));
+    assertEquals(4, countOccurences(s, "http:body"));
+    assertEquals(2, countOccurences(s, "#[payload]"));
+    assertEquals(7, countOccurences(s, "<ee:message>"));
+    assertEquals(9, countOccurences(s, "<ee:variables>"));
+    assertEquals(10, countOccurences(s, "<ee:set-variable"));
+    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
+    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
     assertEquals(2, countOccurences(s, "get:\\:simple-config"));
     assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
     assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
