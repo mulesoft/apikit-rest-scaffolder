@@ -6,7 +6,6 @@
  */
 package org.mule.tools.apikit.output;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -19,12 +18,12 @@ import org.mule.raml.interfaces.model.IAction;
 import org.mule.raml.interfaces.model.IActionType;
 import org.mule.raml.interfaces.model.IResource;
 import org.mule.tools.apikit.Helper;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.model.HttpListener4xConfig;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_RUNTIME_EDITION;
 
 public class MuleConfigGeneratorTest {
@@ -88,7 +86,7 @@ public class MuleConfigGeneratorTest {
     assertTrue(file.isFile());
     verify(mock, never()).error(any(CharSequence.class), any(Throwable.class));
 
-    String s = IOUtils.toString(new FileInputStream(file));
+    String s = APIKitTools.readContents(file);
     assertTrue(s.length() > 0);
   }
 

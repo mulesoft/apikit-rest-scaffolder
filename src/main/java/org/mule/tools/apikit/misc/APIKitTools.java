@@ -6,11 +6,17 @@
  */
 package org.mule.tools.apikit.misc;
 
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Namespace;
 
 import org.mule.tools.apikit.ExtensionManager;
 import org.mule.tools.apikit.model.API;
 import org.mule.tools.apikit.output.NamespaceWithLocation;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class APIKitTools {
 
@@ -151,5 +157,17 @@ public class APIKitTools {
       return true;
     }
     return false;
+  }
+
+  public static String readContents(File fileToRead) throws IOException {
+    return readContents(new FileInputStream(fileToRead));
+  }
+
+  public static String readContents(InputStream streamToRead) throws IOException {
+    try {
+      return IOUtils.toString(streamToRead);
+    } finally {
+      IOUtils.closeQuietly(streamToRead);
+    }
   }
 }

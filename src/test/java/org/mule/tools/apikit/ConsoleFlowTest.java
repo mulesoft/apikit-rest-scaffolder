@@ -14,13 +14,10 @@ import static org.mule.tools.apikit.Helper.countOccurences;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_MULE_VERSION;
 import static org.mule.tools.apikit.Scaffolder.DEFAULT_RUNTIME_EDITION;
 
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.misc.FileListUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +52,7 @@ public class ConsoleFlowTest {
     scaffolder.run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
@@ -75,9 +72,10 @@ public class ConsoleFlowTest {
     }
     File file = folder.newFile(s);
     file.createNewFile();
-    InputStream resourceAsStream = ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(s);
-    IOUtils.copy(resourceAsStream,
-                 new FileOutputStream(file));
+    try(InputStream resourceAsStream = ConsoleFlowTest.class.getClassLoader().getResourceAsStream(s);
+        OutputStream outputStream = new FileOutputStream(file)) {
+      IOUtils.copy(resourceAsStream, outputStream);
+    }
     return file;
   }
 

@@ -6,13 +6,12 @@
  */
 package org.mule.tools.apikit;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mule.raml.implv2.ParserV2Utils;
+import org.mule.tools.apikit.misc.APIKitTools;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -49,7 +48,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     createScaffolder(ramls, xmls, muleXmlOut, null, ramlwithEE).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
@@ -82,7 +81,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     scaffolder.run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(0, countOccurences(s, "http:listener-config"));
     assertEquals(0, countOccurences(s, "http:listener"));
     assertEquals(1, countOccurences(s, "http:inbound-endpoint port=\"${serverPort}\" host=\"localhost\" path=\"api\""));
@@ -117,7 +116,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     createScaffolder(ramls, xmls, muleXmlOut, null, null).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(0, countOccurences(s, "http:listener-config"));
     assertEquals(0, countOccurences(s, "http:listener"));
     assertEquals(1, countOccurences(s, "http:inbound-endpoint address"));
@@ -173,7 +172,7 @@ public class ScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase
     File muleXmlSimple = new File(muleXmlOut, name + ".xml");
     assertTrue(muleXmlSimple.exists());
 
-    String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
+    String s = APIKitTools.readContents(muleXmlSimple);
     assertTrue(s.contains("post:\\pet:application\\json:" + name + "-config"));
     assertTrue(s.contains("post:\\pet:text\\xml:" + name + "-config"));
     if (name.endsWith("V10")) {

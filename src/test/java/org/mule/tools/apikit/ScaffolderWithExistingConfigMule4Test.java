@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mule.raml.implv2.ParserV2Utils;
+import org.mule.tools.apikit.misc.APIKitTools;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -41,7 +42,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
 
     assertTrue(resourcesFlows.exists());
     assertTrue(noResourcesFlows.exists());
-    String s = IOUtils.toString(new FileInputStream(noResourcesFlows));
+    String s = APIKitTools.readContents(noResourcesFlows);
     assertEquals(2, countOccurences(s, "get:\\books"));
     assertEquals(2, countOccurences(s, "put:\\shows"));
     assertEquals(0, countOccurences(s, "patch:\\movies"));
@@ -61,7 +62,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
 
     assertTrue(noResourcesFlows.exists());
     assertTrue(resourcesFlows.exists());
-    String s = IOUtils.toString(new FileInputStream(noResourcesFlows));
+    String s = APIKitTools.readContents(noResourcesFlows);
     assertEquals(2, countOccurences(s, "get:\\books"));
     assertEquals(2, countOccurences(s, "put:\\shows"));
     assertEquals(0, countOccurences(s, "patch:\\movies"));
@@ -90,7 +91,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     createScaffolder(ramls, xmls, muleXmlOut, null, ramlwithEE).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"${serverPort}\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
@@ -125,7 +126,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     createScaffolder(ramls, xmls, muleXmlOut, null, ramlwithEE).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\">"));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"${serverPort}\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
@@ -161,7 +162,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     createScaffolder(ramls, xmls, muleXmlOut, null, ramlwithEE).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"${serverPort}\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
@@ -195,7 +196,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     createScaffolder(ramls, xmls, muleXmlOut, null, null).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "inbound-endpoint"));
@@ -230,7 +231,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     createScaffolder(ramls, xmls, muleXmlOut, domainFile, null).run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(0, countOccurences(s, "<http:listener-config"));
     assertEquals(0, countOccurences(s, "http:listener-connection"));
 
@@ -269,7 +270,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     scaffolder.run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"http-lc-0.0.0.0-8081\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "inbound-endpoint"));
@@ -304,7 +305,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     scaffolder.run();
 
     assertTrue(xmlFile.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlFile));
+    String s = APIKitTools.readContents(xmlFile);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\">"));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(1, countOccurences(s, "<apikit:router config-ref=\"apikit-config\" />"));
@@ -341,7 +342,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     File muleXmlSimple = new File(muleXmlOut, "multipleMimeTypes-4.xml");
     assertTrue(muleXmlSimple.exists());
 
-    String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
+    String s = APIKitTools.readContents(muleXmlSimple);
     assertEquals(8, countOccurences(s, "post:\\pet"));
     assertTrue(s.contains("post:\\pet:application\\json"));
     assertTrue(s.contains("post:\\pet:text\\xml"));
@@ -380,7 +381,7 @@ public class ScaffolderWithExistingConfigMule4Test extends AbstractScaffolderTes
     File muleXmlSimple = new File(muleXmlOut, name + ".xml");
     assertTrue(muleXmlSimple.exists());
 
-    String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
+    String s = APIKitTools.readContents(muleXmlSimple);
     assertTrue(s.contains("post:\\pet:application\\json:" + name + "-config"));
     assertTrue(s.contains("post:\\pet:text\\xml:" + name + "-config"));
     if (name.endsWith("V10")) {
