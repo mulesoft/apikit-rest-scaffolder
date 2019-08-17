@@ -220,8 +220,19 @@ public class ScaffolderOASTest {
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-    return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
-                          runtimeEdition);
+
+    try {
+      return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
+                            runtimeEdition);
+    } finally {
+      IOUtils.closeQuietly(domainStream);
+      for (InputStream stream : ramlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+      for (InputStream stream : xmlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+    }
   }
 
   private Map<File, InputStream> toStreamMap(List<File> ramls) {

@@ -105,7 +105,7 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
       return null;
     }
     final File file = folder.newFile(s);
-    try(InputStream resourceAsStream = ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream("mule-artifact.json");
+    try(InputStream resourceAsStream = ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream(s);
         OutputStream outputStream = new FileOutputStream(file)) {
       assertNotNull(resourceAsStream);
       IOUtils.copy(resourceAsStream, outputStream);
@@ -126,8 +126,18 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-    return new Scaffolder(log, muleXmlOut, ramlMap, scaffolderResourceLoaderMock, xmlMap, domainStream, DEFAULT_MULE_VERSION,
-                          DEFAULT_RUNTIME_EDITION);
+    try {
+      return new Scaffolder(log, muleXmlOut, ramlMap, scaffolderResourceLoaderMock, xmlMap, domainStream, DEFAULT_MULE_VERSION,
+                            DEFAULT_RUNTIME_EDITION);
+    } finally {
+      IOUtils.closeQuietly(domainStream);
+      for (InputStream stream : ramlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+      for (InputStream stream : xmlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+    }
   }
 
 

@@ -118,8 +118,22 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-    return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
-                          runtimeEdition);
+    try {
+      return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
+                            runtimeEdition);
+    } finally {
+      if (ramlMap != null) {
+        for (Closeable toClose : ramlMap.values()) {
+          IOUtils.closeQuietly(toClose);
+        }
+      }
+      if (xmlMap != null) {
+        for (Closeable toClose : xmlMap.values()) {
+          IOUtils.closeQuietly(toClose);
+        }
+      }
+      IOUtils.closeQuietly(domainStream);
+    }
   }
 
   private Log getLogger() {

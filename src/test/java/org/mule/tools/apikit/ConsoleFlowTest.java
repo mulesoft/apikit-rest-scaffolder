@@ -92,9 +92,22 @@ public class ConsoleFlowTest {
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-
-    return new Scaffolder(log, muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, DEFAULT_MULE_VERSION,
-                          DEFAULT_RUNTIME_EDITION);
+    try {
+      return new Scaffolder(log, muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, DEFAULT_MULE_VERSION,
+                            DEFAULT_RUNTIME_EDITION);
+    } finally {
+      if (ramlMap != null) {
+        for (Closeable toClose : ramlMap.values()) {
+          IOUtils.closeQuietly(toClose);
+        }
+      }
+      if (xmlMap != null) {
+        for (Closeable toClose : xmlMap.values()) {
+          IOUtils.closeQuietly(toClose);
+        }
+      }
+      IOUtils.closeQuietly(domainStream);
+    }
   }
 
   private Scaffolder createScaffolder(List<File> ramls, List<File> xmls, File muleXmlOut)

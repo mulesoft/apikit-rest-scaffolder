@@ -6,6 +6,7 @@
  */
 package org.mule.tools.apikit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 
@@ -85,8 +86,19 @@ public class Scaffolder {
       log.warn("ExtensionEnabled is deprecated in mule 4");
 
     InputStream domainStream = getDomainStream(log, domainPath);
-    return new Scaffolder(log, muleXmlOutputDirectory, apiStreams, muleStreams, domainStream, ramlWithExtensionEnabled,
-                          minMuleVersion, runtimeEdition);
+    try {
+      return new Scaffolder(log, muleXmlOutputDirectory, apiStreams, muleStreams, domainStream, ramlWithExtensionEnabled,
+                            minMuleVersion, runtimeEdition);
+    } finally {
+      IOUtils.closeQuietly(domainStream);
+      for (InputStream stream : apiStreams.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+      for (InputStream stream : muleStreams.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+    }
+
   }
 
   public Scaffolder(Log log, File muleXmlOutputDirectory, Map<File, InputStream> apis, Map<File, InputStream> xmls,
@@ -188,10 +200,18 @@ public class Scaffolder {
     FileListUtils fileUtils = new FileListUtils(log);
     Map<File, InputStream> muleStreams = fileUtils.toStreamsOrFail(muleXmlFiles);
     InputStream domainStream = getDomainStream(log, domain);
-
-    return new Scaffolder(log, appDir, apiSpecs, scaffolderResourceLoader, muleStreams, domainStream, minMuleVersion,
-                          runtimeEdition);
-
+    try {
+      return new Scaffolder(log, appDir, apiSpecs, scaffolderResourceLoader, muleStreams, domainStream, minMuleVersion,
+                            runtimeEdition);
+    } finally {
+      IOUtils.closeQuietly(domainStream);
+      for (InputStream stream : apiSpecs.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+      for (InputStream stream : muleStreams.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+    }
   }
 
   public ScaffolderReport getScaffolderReport() {
