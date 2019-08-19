@@ -218,7 +218,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
     String path = resource.getResolvedUri(version);
 
     Matcher matcher = uriParamsPattern.matcher(path);
-    while(matcher.find()){
+    while (matcher.find()) {
       result.add(matcher.group(1));
     }
 

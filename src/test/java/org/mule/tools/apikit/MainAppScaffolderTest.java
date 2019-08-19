@@ -763,11 +763,13 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void twoUriParamas() throws Exception {
-    File muleXmlSimple = simpleGeneration("scaffolder/twoUriParams.raml", null);
-    assertTrue(muleXmlSimple.exists());
-    String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, "scaffolder/twoUriParams.raml");
+    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+
     assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"id\">attributes.uriParams.'id'</ee:set-variable>"));
-    assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"mediaTypeExtension\">attributes.uriParams.'mediaTypeExtension'</ee:set-variable>"));
+    assertEquals(1,
+                 countOccurences(s,
+                                 "<ee:set-variable variableName=\"mediaTypeExtension\">attributes.uriParams.'mediaTypeExtension'</ee:set-variable>"));
   }
 
 
