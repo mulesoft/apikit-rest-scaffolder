@@ -5,7 +5,7 @@
 
     <groupId>org.mule.apikit</groupId>
     <artifactId>mule-apikit-scaffolder</artifactId>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.3.2</version>
     <name>APIKit Scaffolder</name>
     <modelVersion>4.0.0</modelVersion>
 
