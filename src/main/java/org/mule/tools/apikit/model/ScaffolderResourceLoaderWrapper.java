@@ -10,6 +10,7 @@ import amf.client.remote.Content;
 import amf.client.resource.ResourceLoader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.mule.tools.apikit.misc.APIKitTools;
 
 import static org.mule.raml.interfaces.common.APISyncUtils.isSyncProtocol;
 import static org.mule.raml.interfaces.common.APISyncUtils.isExchangeModules;
@@ -82,7 +83,7 @@ public class ScaffolderResourceLoaderWrapper
 
     try {
       Content content =
-          new Content(IOUtils.toString(scaffolderResourceLoader.getResourceAsStream(s)),
+          new Content(APIKitTools.readContents(scaffolderResourceLoader.getResourceAsStream(s)),
                       scaffolderResourceLoader.getResource(s).toURL().toString());
       future.complete(content);
     } catch (Exception e) {

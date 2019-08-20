@@ -241,6 +241,7 @@ public class MuleConfigGenerator {
     } else {
       InputStream xmlInputStream = new FileInputStream(xmlFile);
       doc = saxBuilder.build(xmlInputStream);
+      xmlInputStream.close();
     }
     return doc;
   }

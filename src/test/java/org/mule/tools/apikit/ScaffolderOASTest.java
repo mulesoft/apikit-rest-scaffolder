@@ -6,12 +6,7 @@
  */
 package org.mule.tools.apikit;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -167,9 +162,11 @@ public class ScaffolderOASTest {
     Files.createFile(Paths.get(outputFolder.toString(), muleApp));
     final Path artifact = Files.createFile(Paths.get(outputFolder.toString(), "mule-artifact.json"));
 
-    //artifact.toFile().createNewFile(); 
-    InputStream resourceAsStream = ScaffolderOASTest.class.getClassLoader().getResourceAsStream("mule-artifact.json");
-    IOUtils.copy(resourceAsStream, new FileOutputStream(artifact.toFile()));
+    //artifact.toFile().createNewFile();
+    try(InputStream resourceAsStream = ScaffolderOASTest.class.getClassLoader().getResourceAsStream("mule-artifact.json");
+        OutputStream outputStream = new FileOutputStream(artifact.toFile())) {
+      IOUtils.copy(resourceAsStream, outputStream);
+    }
 
     return outputFolder;
   }
@@ -223,8 +220,19 @@ public class ScaffolderOASTest {
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-    return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
-                          runtimeEdition);
+
+    try {
+      return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
+                            runtimeEdition);
+    } finally {
+      IOUtils.closeQuietly(domainStream);
+      for (InputStream stream : ramlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+      for (InputStream stream : xmlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+    }
   }
 
   private Map<File, InputStream> toStreamMap(List<File> ramls) {

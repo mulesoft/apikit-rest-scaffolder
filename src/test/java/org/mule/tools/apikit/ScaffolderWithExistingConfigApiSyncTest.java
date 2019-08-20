@@ -16,13 +16,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.mule.raml.implv2.ParserV2Utils;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.ScaffolderResourceLoader;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -64,14 +61,15 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
 
     assertTrue(muleXmlOut.exists());
     final URI expected = getClass().getResource("/rescaffolding-apisync-version/v1/api.xml").toURI();
-    assertEquals("First Scaffolding differs from expected", IOUtils.toString(expected), IOUtils.toString(muleXmlOut.toURI()));
+    final File expectedFile = new File(expected);
+    assertEquals("First Scaffolding differs from expected", APIKitTools.readContents(expectedFile), APIKitTools.readContents(muleXmlOut));
 
     List<File> xmls = singletonList(muleXmlOut);
     scaffolder = createScaffolder(ramls, xmls, outputFolder, null, false);
     scaffolder.run();
 
     assertTrue(muleXmlOut.exists());
-    assertEquals("Second Scaffolding differs from expected", IOUtils.toString(expected), IOUtils.toString(muleXmlOut.toURI()));
+    assertEquals("Second Scaffolding differs from expected", APIKitTools.readContents(expectedFile), APIKitTools.readContents(muleXmlOut));
   }
 
   @Test
@@ -87,7 +85,8 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
 
     assertTrue(muleXmlOut.exists());
     final URI expectedV1 = getClass().getResource("/rescaffolding-apisync-version/v1/api.xml").toURI();
-    assertEquals("First Scaffolding differs from expected", IOUtils.toString(expectedV1), IOUtils.toString(muleXmlOut.toURI()));
+    final File expectedFileV1 = new File(expectedV1);
+    assertEquals("First Scaffolding differs from expected", APIKitTools.readContents(expectedFileV1), APIKitTools.readContents(muleXmlOut));
 
     List<File> xmls = singletonList(muleXmlOut);
     final List<File> ramlsV2 = singletonList(getFile("rescaffolding-apisync-version/v2/api.raml"));
@@ -96,7 +95,8 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
 
     assertTrue(muleXmlOut.exists());
     final URI expectedV2 = getClass().getResource("/rescaffolding-apisync-version/v2/api.xml").toURI();
-    assertEquals("Second Scaffolding differs from expected", IOUtils.toString(expectedV2), IOUtils.toString(muleXmlOut.toURI()));
+    final File expectedV2File = new File(expectedV2);
+    assertEquals("Second Scaffolding differs from expected", APIKitTools.readContents(expectedV2File), APIKitTools.readContents(muleXmlOut));
 
   }
 
@@ -105,9 +105,11 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
       return null;
     }
     final File file = folder.newFile(s);
-    final InputStream resourceAsStream = ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream(s);
-    assertNotNull(resourceAsStream);
-    IOUtils.copy(resourceAsStream, new FileOutputStream(file));
+    try(InputStream resourceAsStream = ScaffolderWithExistingConfigApiSyncTest.class.getClassLoader().getResourceAsStream(s);
+        OutputStream outputStream = new FileOutputStream(file)) {
+      assertNotNull(resourceAsStream);
+      IOUtils.copy(resourceAsStream, outputStream);
+    }
     return file;
   }
 
@@ -124,8 +126,18 @@ public class ScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderT
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-    return new Scaffolder(log, muleXmlOut, ramlMap, scaffolderResourceLoaderMock, xmlMap, domainStream, DEFAULT_MULE_VERSION,
-                          DEFAULT_RUNTIME_EDITION);
+    try {
+      return new Scaffolder(log, muleXmlOut, ramlMap, scaffolderResourceLoaderMock, xmlMap, domainStream, DEFAULT_MULE_VERSION,
+                            DEFAULT_RUNTIME_EDITION);
+    } finally {
+      IOUtils.closeQuietly(domainStream);
+      for (InputStream stream : ramlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+      for (InputStream stream : xmlMap.values()) {
+        IOUtils.closeQuietly(stream);
+      }
+    }
   }
 
 

@@ -7,6 +7,7 @@
 package org.mule.tools.apikit;
 
 import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderReport;
 
@@ -131,7 +132,7 @@ public class ScaffolderAPI {
                                                dependency.getVersion(), dependency.getClassifier(), dependency.getType(), "%s");
       InputStream exchangeJson =
           scaffolderResourceLoader.getResourceAsStream(format(dependencyResourceFormat, EXCHANGE_JSON));
-      String rootApiFileName = APISyncUtils.getMainApi(IOUtils.toString(exchangeJson));
+      String rootApiFileName = APISyncUtils.getMainApi(APIKitTools.readContents(exchangeJson));
       String rootApiResource = format(dependencyResourceFormat, rootApiFileName);
       InputStream rootApi = scaffolderResourceLoader.getResourceAsStream(rootApiResource);
       apiSpecs.put(rootApiResource, rootApi);

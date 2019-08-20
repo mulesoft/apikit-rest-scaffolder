@@ -6,12 +6,7 @@
  */
 package org.mule.tools.apikit;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -66,8 +61,10 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
     final File tmpFile = new File(tmpFolder, fileName);
     tmpFile.createNewFile();
-    InputStream resourceAsStream = ScaffolderMule4Test.class.getClassLoader().getResourceAsStream(resource);
-    IOUtils.copy(resourceAsStream, new FileOutputStream(tmpFile));
+    try(InputStream resourceAsStream = AbstractScaffolderTestCase.class.getClassLoader().getResourceAsStream(resource);
+        OutputStream outputStream = new FileOutputStream(tmpFile)) {
+        IOUtils.copy(resourceAsStream, outputStream);
+    }
     return tmpFile;
   }
 
@@ -121,8 +118,22 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     if (domainFile != null) {
       domainStream = new FileInputStream(domainFile);
     }
-    return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
-                          runtimeEdition);
+    try {
+      return new Scaffolder(getLogger(), muleXmlOut, ramlMap, xmlMap, domainStream, ramlsWithExtensionEnabled, muleVersion,
+                            runtimeEdition);
+    } finally {
+      if (ramlMap != null) {
+        for (Closeable toClose : ramlMap.values()) {
+          IOUtils.closeQuietly(toClose);
+        }
+      }
+      if (xmlMap != null) {
+        for (Closeable toClose : xmlMap.values()) {
+          IOUtils.closeQuietly(toClose);
+        }
+      }
+      IOUtils.closeQuietly(domainStream);
+    }
   }
 
   private Log getLogger() {

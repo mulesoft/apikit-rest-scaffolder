@@ -16,6 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.ScaffolderReport;
 import org.mule.tools.apikit.model.ScaffolderResourceLoader;
 
@@ -100,7 +101,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     File xmlOut = generateScaffolder(ramlFolder, rootRaml, Collections.singletonList("included.raml"));
 
     assertTrue(xmlOut.exists());
-    String s = IOUtils.toString(new FileInputStream(xmlOut));
+    String s = APIKitTools.readContents(xmlOut);
     assertNotNull(s);
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
@@ -147,7 +148,7 @@ public class ScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     File muleXmlSimple = generateScaffolder(ramlFolder, rootRaml);
 
     assertTrue(muleXmlSimple.exists());
-    String s = IOUtils.toString(new FileInputStream(muleXmlSimple));
+    String s = APIKitTools.readContents(muleXmlSimple);
 
     assertSimple(s, rootRaml);
   }
