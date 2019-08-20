@@ -7,7 +7,6 @@
 package org.mule.tools.apikit.munit;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserMode;
@@ -15,16 +14,9 @@ import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.MunitScaffolder;
 import org.mule.tools.apikit.TestUtils;
-import org.mule.tools.apikit.model.MuleConfig;
-import org.mule.tools.apikit.model.MuleConfigBuilder;
-import org.mule.tools.apikit.model.MunitScaffolderContext;
-import org.mule.tools.apikit.model.RuntimeEdition;
-import org.mule.tools.apikit.model.ScaffolderContextBuilder;
-import org.mule.tools.apikit.model.ScaffoldingConfiguration;
-import org.mule.tools.apikit.model.ScaffoldingResult;
+import org.mule.tools.apikit.model.*;
 
 import java.io.File;
-import java.io.InputStream;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;

@@ -12,6 +12,7 @@ import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -43,7 +44,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
 
   private void testAlreadyExistsOldGenerate() throws Exception {
     MuleConfig muleConfig = scaffoldApi("scaffolder-existing-old/simple.raml", "scaffolder-existing-old/simple.xml");
-    String s = IOUtils.toString(muleConfig.getContent());
+    String s = APIKitTools.readContents(muleConfig.getContent());
 
     assertEquals(0, countOccurences(s, "http:listener-config"));
     assertEquals(0, countOccurences(s, "http:listener"));
@@ -73,7 +74,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
   private void testMultipleMimeTypes(final String apiPath) throws Exception {
     String name = fileNameWhithOutExtension(apiPath);
     MuleConfig muleConfig = scaffoldApi(apiPath, null);
-    String s = IOUtils.toString(muleConfig.getContent());
+    String s = APIKitTools.readContents(muleConfig.getContent());
     assertTrue(s.contains("post:\\pet:application\\json:" + name + "-config"));
     assertTrue(s.contains("post:\\pet:text\\xml:" + name + "-config"));
     if (name.endsWith("V10")) {

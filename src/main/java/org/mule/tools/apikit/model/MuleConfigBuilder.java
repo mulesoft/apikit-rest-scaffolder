@@ -6,6 +6,7 @@
  */
 package org.mule.tools.apikit.model;
 
+import org.apache.commons.io.IOUtils;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -59,6 +60,7 @@ public class MuleConfigBuilder {
   public static MuleConfig fromStream(InputStream input) throws Exception {
     SAXBuilder builder = new SAXBuilder();
     Document inputAsDocument = builder.build(input);
+    input.close();
     return fromDoc(inputAsDocument);
   }
 

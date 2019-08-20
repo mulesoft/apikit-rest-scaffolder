@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.Resource;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.Flow;
@@ -96,9 +97,10 @@ public class MuleConfigTest {
     String path = "src/test/resources/test-mule-config/api.xml";
     InputStream fileAsInputStream = new FileInputStream(path);
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(fileAsInputStream);
+    fileAsInputStream.close();
 
     String originalFileAsString = FileUtils.readFileToString(new File(path));
-    String muleConfigContentAsString = IOUtils.toString(muleConfig.getContent());
+    String muleConfigContentAsString = APIKitTools.readContents(muleConfig.getContent());
     Diff diff = XMLUnit.compareXML(originalFileAsString, muleConfigContentAsString);
     assertTrue(diff.identical());
   }
@@ -110,6 +112,7 @@ public class MuleConfigTest {
 
     InputStream fileAsInputStream = new FileInputStream(path);
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(fileAsInputStream);
+    fileAsInputStream.close();
 
     String originalFileAsString = FileUtils.readFileToString(new File(path));
     String generatedString = new XMLOutputter().outputString(muleConfig.getContentAsDocument());
@@ -122,6 +125,7 @@ public class MuleConfigTest {
     String path = "src/test/resources/test-mule-config/api.xml";
     InputStream fileAsInputStream = new FileInputStream(path);
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(fileAsInputStream);
+    fileAsInputStream.close();
 
     ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     APIKitConfig fakeApikitConfig = mock(APIKitConfig.class);
@@ -143,15 +147,18 @@ public class MuleConfigTest {
     Document generatedContent = muleConfig.buildContent();
 
     // Verify flow doesn't exist in the original MuleConfig
-    Document originalContent = new SAXBuilder().build(muleConfig.getContent());
-    Element flowShouldNotExist =
-        findElementByAttribute(originalContent.getRootElement().getContent(), "name", "new-customers:api-config");
-    assertTrue(flowShouldNotExist == null);
 
-    // Verify the new flow is in the updated MuleConfig
-    Element newFlowInMuleConfig =
-        findElementByAttribute(generatedContent.getRootElement().getContent(), "name", "new-customers:api-config");
-    assertTrue(newFlowInMuleConfig != null);
+    try (InputStream contentStream = muleConfig.getContent()) {
+      Document originalContent = new SAXBuilder().build(contentStream);
+      Element flowShouldNotExist =
+          findElementByAttribute(originalContent.getRootElement().getContent(), "name", "new-customers:api-config");
+      assertTrue(flowShouldNotExist == null);
+
+      // Verify the new flow is in the updated MuleConfig
+      Element newFlowInMuleConfig =
+          findElementByAttribute(generatedContent.getRootElement().getContent(), "name", "new-customers:api-config");
+      assertTrue(newFlowInMuleConfig != null);
+    }
   }
 
   private Element findElementByAttribute(List<Content> contentList, String attributeName, String attributeValue) {

@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mule.tools.apikit.TestUtils;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedContent =
         "<http:headers>#[{\"Accept\":\"*/*\",\"X-waiting-period\":\"34\",\"Content-Type\":\"application/x-www-form-urlencoded\"}]</http:headers>";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedContent));
@@ -49,7 +50,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedContent =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;Snowball&quot;,&quot;nickname&quot;:&quot;Snow&quot;}')]\"";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedContent));
@@ -63,7 +64,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpressionEqualToJson =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;Acme&quot;}')]\"";
     String expectedExpressionEqualToOk =
@@ -83,7 +84,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:{&quot;firstname&quot;:&quot;John&quot;,&quot;lastname&quot;:&quot;Silver&quot;},&quot;age&quot;:33}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
@@ -97,7 +98,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedQueryParams = "<http:query-params>#[{\"qty\":\"20\"}]</http:query-params>";
     assertTrue(generatedContent.contains(expectedQueryParams));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
@@ -110,7 +111,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedSetPayload =
         "<set-payload value=\"#['{&quot;firstName&quot;:&quot;Bruce&quot;,&quot;lastName&quot;:&quot;Banner&quot;}']\" />";
     assertTrue(generatedContent.contains(expectedSetPayload));
@@ -124,7 +125,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpressionJsonName =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;&quot;}')]\"";
     String expectedExpressionJsonId =
@@ -143,7 +144,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;id&quot;:&quot;&quot;,&quot;value&quot;:&quot;&quot;}')]\"";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedExpression));
@@ -157,7 +158,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;firstname&quot;:&quot;John&quot;,&quot;lastname&quot;:&quot;Silver&quot;,&quot;age&quot;:33}')]\"";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedExpression));
@@ -171,7 +172,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;firstname&quot;:&quot;John&quot;,&quot;lastname&quot;:&quot;Smith&quot;,&quot;age&quot;:25}')]\"";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedExpression));
@@ -185,7 +186,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpHeaders =
         "<http:headers>#[{\"access_token\":\"5757gh76\",\"Accept\":\"application/json\"}]</http:headers>";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHttpHeaders));
@@ -199,7 +200,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;songId&quot;:&quot;&quot;,&quot;songTitle&quot;:&quot;&quot;,&quot;albumId&quot;:&quot;&quot;}')]\"";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedExpression));
@@ -213,7 +214,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpQueryParams =
         "<http:query-params>#[{\"digest_all_fields\":\"fallback\",\"title\":\"resource\"}]</http:query-params>";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHttpQueryParams));
@@ -227,7 +228,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpQueryParams =
         "<http:query-params>#[{\"access_token\":\"tokenExample\",\"numPages\":\"10\",\"digest_all_fields\":\"fallbackParam\",\"title\":\"queryParam\"}]</http:query-params>";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHttpQueryParams));
@@ -241,7 +242,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpQueryParams = "<http:query-params>#[{\"start\":\"25\"}]</http:query-params>";
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedHttpQueryParams));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
@@ -254,7 +255,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpHeaders = "<http:headers>#[{\"Accept\":\"application/json\",\"Location\":\"22\"}]</http:headers>";
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('&quot;44W&quot;')]\"";
@@ -270,7 +271,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;firstName&quot;:&quot;John&quot;,&quot;lastName&quot;:&quot;Smith&quot;}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
@@ -284,7 +285,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpQueryParam = "<http:query-params>#[{\"start\":\"25\"}]</http:query-params>";
     assertTrue(generatedContent.contains(expectedHttpQueryParam));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
@@ -297,7 +298,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;id&quot;:&quot;JohnS&quot;}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
@@ -311,7 +312,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('&quot;John&quot;')]\"";
     Assert.assertTrue(generatedContent.contains(expectedExpression));
@@ -325,7 +326,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpQueryParams = "<http:query-params>#[{\"airline\":\"all\"}]</http:query-params>";
     assertTrue(generatedContent.contains(expectedHttpQueryParams));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
@@ -338,7 +339,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedHttpHeaders = "<http:headers>#[{\"status-code\":\"XXX\",\"Accept\":\"*/*\"}]</http:headers>";
     assertTrue(generatedContent.contains(expectedHttpHeaders));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
@@ -351,7 +352,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;Fred&quot;,&quot;comment&quot;:null}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
@@ -365,7 +366,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedSetVariableTicketShow =
         "<set-variable variableName=\"ticketShow\" value=\"#['The Who']\" doc:name=\"ticketShow\" />";
     String expectedSetVariableTicketDate =
@@ -384,7 +385,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;firstName&quot;:&quot;John&quot;,&quot;lastName&quot;:&quot;Doe&quot;}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
@@ -403,7 +404,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;Bestiario&quot;}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));
@@ -417,7 +418,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
-    String generatedContent = IOUtils.toString(muleConfig.getContent());
+    String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;myfile&quot;,&quot;length&quot;:4000}')]\"";
     assertTrue(generatedContent.contains(expectedExpression));

@@ -32,6 +32,7 @@ import org.mule.amf.impl.DocumentParser;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
@@ -68,7 +69,7 @@ public class MainAppScaffolderOASTest {
   @Test
   public void scaffolder() throws Exception {
     MuleConfig generatedMuleConfig = scaffoldApi(api);
-    final String current = IOUtils.toString(generatedMuleConfig.getContent());
+    final String current = APIKitTools.readContents(generatedMuleConfig.getContent());
     if (current.trim().isEmpty()) {
       Assert.fail(format("Scaffolder generation fail parsing ApikitMainFlowContainer '%s'", api.getFileName()));
     }

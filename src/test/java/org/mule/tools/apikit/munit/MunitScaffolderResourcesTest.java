@@ -8,6 +8,7 @@ package org.mule.tools.apikit.munit;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.ScaffolderResource;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
@@ -26,12 +27,12 @@ public class MunitScaffolderResourcesTest extends AbstractMunitScaffolderTest {
     ScaffoldingResult result = simpleGenerationWithResource("example");
     String expectedContent =
         "expression=\"#[output application/java ---write(payload, 'text/xml') as String]\" is=\"#[MunitTools::equalTo(MunitTools::getResourceAsString('scaffolder/response/get_200_pet_text_xml.xml'))]\"";
-    String generatedConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String generatedConfigContent = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertTrue(generatedConfigContent.contains(expectedContent));
 
     ScaffolderResource generatedResource = getResourceByName(result.getGeneratedResources(), "get_200_pet_application_json.json");
     assertNotNull(generatedResource);
-    assertEquals("{\"name\":\"Bobby\",\"food\":\"Ice Cream\"}", IOUtils.toString(generatedResource.getContent()));
+    assertEquals("{\"name\":\"Bobby\",\"food\":\"Ice Cream\"}", APIKitTools.readContents(generatedResource.getContent()));
   }
 
   @Test
@@ -42,7 +43,7 @@ public class MunitScaffolderResourcesTest extends AbstractMunitScaffolderTest {
     String expectedSetPayload =
         "<set-payload value=\"#[MunitTools::getResourceAsString('scaffolder/request/post_albums_application_json.json')]\" />";
 
-    String generatedConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String generatedConfigContent = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertTrue(generatedConfigContent.contains(expectedAssertion));
     assertTrue(generatedConfigContent.contains(expectedSetPayload));
 
@@ -55,8 +56,8 @@ public class MunitScaffolderResourcesTest extends AbstractMunitScaffolderTest {
     assertNotNull(requestResource);
     assertNotNull(responseResource);
 
-    assertEquals(expectedGeneratedRequestResourceContent, IOUtils.toString(requestResource.getContent()));
-    assertEquals(expectedGeneratedResponseResourceContent, IOUtils.toString(responseResource.getContent()));
+    assertEquals(expectedGeneratedRequestResourceContent, APIKitTools.readContents(requestResource.getContent()));
+    assertEquals(expectedGeneratedResponseResourceContent, APIKitTools.readContents(responseResource.getContent()));
   }
 
   @Test
@@ -70,8 +71,8 @@ public class MunitScaffolderResourcesTest extends AbstractMunitScaffolderTest {
                                                                 "post_200_albums_application_json.json");
     ScaffolderResource xmlResponseResource = getResourceByName(result.getGeneratedResources(), "post_200_albums_text_xml.xml");
 
-    assertEquals(expectedJsonResponse, IOUtils.toString(jsonResponseResource.getContent()));
-    assertEquals(expectedXmlResponse, IOUtils.toString(xmlResponseResource.getContent()));
+    assertEquals(expectedJsonResponse, APIKitTools.readContents(jsonResponseResource.getContent()));
+    assertEquals(expectedXmlResponse, APIKitTools.readContents(xmlResponseResource.getContent()));
   }
 
   private ScaffolderResource getResourceByName(List<ScaffolderResource> resources, String name) {
