@@ -12,7 +12,6 @@
     <properties>
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <sonar.jacoco.reportPaths>target/jacoco.exec</sonar.jacoco.reportPaths>
         <mavenVersion>3.3.9</mavenVersion>
 
         <apikit.module.version>1.3.4</apikit.module.version>
@@ -23,6 +22,12 @@
         <mule.service.scheduler.version>1.1.7</mule.service.scheduler.version>
         <project.reactor.version>3.2.0.M1</project.reactor.version>
         <rest.assured.version>3.2.0</rest.assured.version>
+
+        <jacoco.version>0.7.9</jacoco.version>
+        <allureJunitVersion>2.0-BETA17</allureJunitVersion>
+        <allureReportVersion>2.3.4</allureReportVersion>
+        <allure.maven.plugin.version>2.8</allure.maven.plugin.version>
+
     </properties>
 
     <dependencies>
@@ -117,6 +122,13 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit4</artifactId>
+            <version>${allureJunitVersion}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -183,6 +195,46 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8 -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile='${session.executionRootDirectory}/target/jacoco.exec'</argLine>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>io.qameta.allure.junit4.AllureJunit4</value>
+                        </property>
+                    </properties>
+                    <systemPropertyVariables>
+                        <!-- Just propagate this variable due to surefire will not do this when forked vm for tests -->
+                        <mule.freePortFinder.lockPath>${java.io.tmpdir}/mule/freePortFinder</mule.freePortFinder.lockPath>
+                        <maven.projectVersion>${project.version}</maven.projectVersion>
+                    </systemPropertyVariables>
+                    <systemProperties>
+                        <property>
+                            <name>allure.results.directory</name>
+                            <value>${project.build.directory}/allure-results</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.agent</artifactId>
+                        <version>${jacoco.version}</version>
+                        <classifier>runtime</classifier>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure.maven.plugin.version}</version>
+                <configuration>
+                    <reportVersion>${allureReportVersion}</reportVersion>
+                </configuration>
             </plugin>
         </plugins>
     </build>
