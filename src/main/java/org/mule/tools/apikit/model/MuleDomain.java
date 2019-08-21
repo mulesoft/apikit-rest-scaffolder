@@ -40,6 +40,7 @@ public class MuleDomain implements NamedContent, WithConfigs {
 
   public static MuleDomain fromInputStream(InputStream content) throws Exception {
     Document contentAsDocument = new SAXBuilder().build(content);
+    content.close();
     List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
     return new MuleDomain(content, httpListenerConfigs);
   }

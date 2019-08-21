@@ -21,6 +21,7 @@ import org.jdom2.input.SAXBuilder;
 import org.mule.runtime.api.deployment.meta.MuleDomainModel;
 import org.mule.runtime.api.deployment.persistence.MuleDomainModelJsonSerializer;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
+import org.mule.tools.apikit.misc.APIKitTools;
 
 public class MuleDomainFactory {
 
@@ -32,7 +33,7 @@ public class MuleDomainFactory {
   public static MuleDomain fromDeployableArtifact(File artifact) throws Exception {
     JarFile jarArtifact = new JarFile(artifact);
     InputStream muleArtifacts = jarArtifact.getInputStream(jarArtifact.getEntry(MULE_ARTIFACT_LOCATION_IN_JAR));
-    MuleDomainModel domainModel = serializer.deserialize(IOUtils.toString(muleArtifacts));
+    MuleDomainModel domainModel = serializer.deserialize(APIKitTools.readContents(muleArtifacts));
 
     Set<String> configs = domainModel.getConfigs();
 

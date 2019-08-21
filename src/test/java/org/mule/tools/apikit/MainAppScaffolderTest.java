@@ -28,6 +28,7 @@ import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
@@ -74,7 +75,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(7, countOccurences(s, "<on-error-propagate"));
@@ -115,7 +116,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(7, countOccurences(s, "<on-error-propagate"));
@@ -136,7 +137,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder-with-examples/src/main/resources/api/api.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
     assertEquals(1, result.getGeneratedConfigs().size());
-    String actual = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String actual = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     String expected = getResourceAsString("scaffolder-with-examples/api.xml");
     assertXmls(actual, expected);
   }
@@ -236,7 +237,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
@@ -278,7 +279,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<error-handler name="));
     assertEquals(1, countOccurences(s, "<flow name=\"post:\\oneResource:api-config\">"));
     assertEquals(1, countOccurences(s, "<http:listener-config name="));
@@ -311,7 +312,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder/example-v10.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "{\n" +
         "  name: \"Bobby\",\n" +
         "  food: \"Ice Cream\"\n" +
@@ -334,7 +335,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   public void testExampleGenerateForCE() throws Exception {
     String apiLocation = "scaffolder/example-v10.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiLocation);
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     String name = fileNameWhithOutExtension(apiLocation);
 
     assertEquals(1, countOccurences(s, "<logger level=\"INFO\" message=\"get:\\pet:" + name + "-config\" />"));
@@ -376,7 +377,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder-exchange/api.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(1, countOccurences(s, "get:\\resource1:api-config"));
     assertEquals(1, countOccurences(s, "get:\\resource2:api-config"));
@@ -391,7 +392,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder/api-with-resource-type.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "post:\\v4\\items:application\\json:api-with-resource-type-config"));
     assertEquals(1, countOccurences(s, "<apikit:console"));
@@ -404,7 +405,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "parser/amf-only.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "get:\\test:amf-only-config"));
     assertEquals(1, countOccurences(s, "<apikit:console"));
@@ -417,7 +418,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "parser/raml-parser-only.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "get:\\test:raml-parser-only-config"));
     assertEquals(1, countOccurences(s, "<apikit:console"));
@@ -465,9 +466,9 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
     MuleConfig generatedMuleConfig = result.getGeneratedConfigs().get(0);
 
-    String firstGeneratedMuleConfigContent = IOUtils.toString(generatedMuleConfig.getContent());
+    String firstGeneratedMuleConfigContent = APIKitTools.readContents(generatedMuleConfig.getContent());
     Diff firstMuleConfigDiff = XMLUnit.compareXML(firstGeneratedMuleConfigContent,
-                                                  IOUtils.toString(getResourceAsStream(testFolder + "api.xml")));
+                                                  APIKitTools.readContents(getResourceAsStream(testFolder + "api.xml")));
 
     existingMuleConfigs.add(generatedMuleConfig);
     ScaffoldingConfiguration secondScaffoldingConfiguration = getScaffoldingConfiguration(api2, existingMuleConfigs, domainFile);
@@ -475,9 +476,9 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String secondGeneratedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String secondGeneratedMuleConfigContent = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     Diff secondMuleConfigDiff = XMLUnit.compareXML(secondGeneratedMuleConfigContent,
-                                                   IOUtils.toString(getResourceAsStream(testFolder + "api-2.xml")));
+                                                   APIKitTools.readContents(getResourceAsStream(testFolder + "api-2.xml")));
 
     assertTrue(firstMuleConfigDiff.identical());
     assertTrue(secondMuleConfigDiff.identical());
@@ -490,7 +491,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     final String name = fileNameWhithOutExtension(apiPath);
-    final String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    final String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "http:listener-config name=\"simple"));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
     assertEquals(2, countOccurences(s, "http:listener "));
@@ -535,7 +536,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     final String name = fileNameWhithOutExtension(apiPath);
-    final String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    final String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "http:listener-config name=\"simple"));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
     assertEquals(2, countOccurences(s, "http:listener "));
@@ -575,7 +576,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(7, countOccurences(s, "<on-error-propagate"));
@@ -601,7 +602,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(7, countOccurences(s, "<on-error-propagate"));
@@ -627,7 +628,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
@@ -654,7 +655,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String muleDomainLocation = "custom-domain-4/mule-domain-config.xml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(0, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "<http:listener "));
     assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
@@ -684,7 +685,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(0, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "<http:listener "));
     assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
@@ -714,7 +715,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
 
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
@@ -742,7 +743,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String muleDomainLocation = "custom-domain-multiple-lc-4/mule-domain-config.xml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
@@ -772,7 +773,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(0, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "<http:listener "));
     assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
@@ -800,7 +801,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String muleDomainLocation = "empty-domain/mule-domain-config.xml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
@@ -826,7 +827,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder/nested.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
@@ -851,7 +852,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder/no-name.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
@@ -869,7 +870,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     String apiLocation = "scaffolder/example.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
     assertEquals(7, countOccurences(s, "<on-error-propagate"));
@@ -917,7 +918,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertTrue(result.isSuccess());
     assertTrue(result.getGeneratedConfigs().size() == 1);
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(2, countOccurences(s, "get:\\:simple-config"));
     assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
@@ -936,7 +937,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertTrue(result.isSuccess());
     assertTrue(result.getGeneratedConfigs().size() == 1);
 
-    String s2 = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s2 = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s2, "get:\\pet:two-config"));
     assertEquals(2, countOccurences(s2, "post:\\pet:two-config"));
     assertEquals(2, countOccurences(s2, "get:\\car:two-config"));
@@ -961,9 +962,10 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals("Files are different", IOUtils.toString(getResourceAsStream("scaffolder/expected-result-without-resources.xml"))
-        .replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""),
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    assertEquals("Files are different",
+                 APIKitTools.readContents(getResourceAsStream("scaffolder/expected-result-without-resources.xml"))
+                     .replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""),
                  s.replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""));
   }
 }

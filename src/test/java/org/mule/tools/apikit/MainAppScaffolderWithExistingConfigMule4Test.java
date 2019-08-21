@@ -15,6 +15,7 @@ import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
@@ -53,7 +54,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "get:\\books"));
     assertEquals(2, countOccurences(s, "put:\\shows"));
     assertEquals(0, countOccurences(s, "patch:\\movies"));
@@ -80,7 +81,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(2, countOccurences(s, "get:\\books"));
     assertEquals(2, countOccurences(s, "put:\\shows"));
     assertEquals(0, countOccurences(s, "patch:\\movies"));
@@ -113,7 +114,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"${serverPort}\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
@@ -153,7 +154,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "inbound-endpoint"));
@@ -193,7 +194,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(0, countOccurences(s, "<http:listener-config"));
     assertEquals(0, countOccurences(s, "http:listener-connection"));
 
@@ -234,7 +235,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "<http:listener-config"));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"http-lc-0.0.0.0-8081\" path=\"/api/*\""));
     assertEquals(0, countOccurences(s, "inbound-endpoint"));
@@ -275,7 +276,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\">"));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(1, countOccurences(s, "<apikit:router config-ref=\"apikit-config\" />"));
@@ -316,7 +317,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     ScaffolderResult result = (ScaffolderResult) mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
-    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertTrue(s.contains("post:\\pet:application\\json:" + name + "-config"));
     assertTrue(s.contains("post:\\pet:text\\xml:" + name + "-config"));
     if (name.endsWith("V10")) {

@@ -17,6 +17,7 @@ import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
@@ -75,7 +76,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     InputStream generatedInputStream = muleConfig.getContent();
 
     XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(IOUtils.toString(expectedInputStream), IOUtils.toString(generatedInputStream));
+    Diff diff = XMLUnit.compareXML(APIKitTools.readContents(expectedInputStream), APIKitTools.readContents(generatedInputStream));
     assertTrue(diff.identical());
   }
 
@@ -87,7 +88,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     InputStream generatedInputStream = muleConfig.getContent();
 
     XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(IOUtils.toString(expectedInputStream), IOUtils.toString(generatedInputStream));
+    Diff diff = XMLUnit.compareXML(APIKitTools.readContents(expectedInputStream), APIKitTools.readContents(generatedInputStream));
     assertTrue(diff.identical());
   }
 
@@ -98,7 +99,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
     MuleConfig muleConfig = generateMuleConfigForApiSync(ramlFolder, rootRaml);
     InputStream generatedInputStream = muleConfig.getContent();
-    String s = IOUtils.toString(generatedInputStream);
+    String s = APIKitTools.readContents(generatedInputStream);
 
     assertNotNull(s);
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
@@ -145,8 +146,9 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
 
-    String expectedMuleConfigContent = IOUtils.toString(getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
-    String generatedMuleConfigContent = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String expectedMuleConfigContent =
+        APIKitTools.readContents(getResourceAsStream("api-sync/library-reference-to-root/expected.xml"));
+    String generatedMuleConfigContent = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
 
     XMLUnit.setIgnoreWhitespace(true);
     Diff diff = XMLUnit.compareXML(expectedMuleConfigContent, generatedMuleConfigContent);
@@ -160,7 +162,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String resultAsString = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+    String resultAsString = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
     assertSimple(resultAsString, rootRaml);
   }
 
@@ -205,8 +207,8 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     if (!isAmf()) {
       MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/fallback-raml-08", "api");
       InputStream expectedInputStream = getResourceAsStream("api-sync/fallback-raml-08/expected.xml");
-      String expectedString = IOUtils.toString(expectedInputStream);
-      String generatedContentString = IOUtils.toString(muleConfig.getContent());
+      String expectedString = APIKitTools.readContents(expectedInputStream);
+      String generatedContentString = APIKitTools.readContents(muleConfig.getContent());
 
       XMLUnit.setIgnoreWhitespace(true);
       Diff diff = XMLUnit.compareXML(expectedString, generatedContentString);

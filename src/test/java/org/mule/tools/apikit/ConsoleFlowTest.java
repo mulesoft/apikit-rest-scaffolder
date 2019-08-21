@@ -20,6 +20,7 @@ import org.mule.parser.service.result.ParseResult;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 import org.apache.commons.io.IOUtils;
@@ -27,6 +28,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -69,7 +71,7 @@ public class ConsoleFlowTest {
     MuleConfig generatedConfig = result.getGeneratedConfigs().get(0);
     assertEquals("HTTP_Listener_Configuration", generatedConfig.getHttpListenerConfigs().get(0).getName());
 
-    String s = IOUtils.toString(generatedConfig.getContent());
+    String s = APIKitTools.readContents(generatedConfig.getContent());
 
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
@@ -117,9 +119,10 @@ public class ConsoleFlowTest {
     }
     File file = folder.newFile(s);
     file.createNewFile();
-    InputStream resourceAsStream = getResourceAsStream(s);
-    IOUtils.copy(resourceAsStream,
-                 new FileOutputStream(file));
+    try (InputStream resourceAsStream = ConsoleFlowTest.class.getClassLoader().getResourceAsStream(s);
+        OutputStream outputStream = new FileOutputStream(file)) {
+      IOUtils.copy(resourceAsStream, outputStream);
+    }
     return file;
   }
 }

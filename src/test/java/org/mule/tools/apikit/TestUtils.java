@@ -19,6 +19,7 @@ import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.xml.sax.SAXException;
 
 public class TestUtils {
@@ -33,8 +34,8 @@ public class TestUtils {
   }
 
   public static String getResourceAsString(String res) {
-    try {
-      return IOUtils.toString(getResourceAsStream(res));
+    try (InputStream stream = getResourceAsStream(res)) {
+      return APIKitTools.readContents(stream);
     } catch (Exception e) {
       throw new RuntimeException("cannot fetch resource " + res);
     }
