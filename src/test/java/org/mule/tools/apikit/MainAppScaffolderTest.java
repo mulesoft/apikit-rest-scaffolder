@@ -847,6 +847,17 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
+  @Test
+  public void twoUriParamas() throws Exception {
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, "scaffolder/twoUriParams.raml");
+    String s = IOUtils.toString(result.getGeneratedConfigs().get(0).getContent());
+
+    assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"id\">attributes.uriParams.'id'</ee:set-variable>"));
+    assertEquals(1,
+                 countOccurences(s,
+                                 "<ee:set-variable variableName=\"mediaTypeExtension\">attributes.uriParams.'mediaTypeExtension'</ee:set-variable>"));
+  }
+
 
   private void noNameGenerate() throws Exception {
     String apiLocation = "scaffolder/no-name.raml";

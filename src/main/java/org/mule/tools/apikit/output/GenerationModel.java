@@ -24,6 +24,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toMap;
 import static org.mule.module.apikit.helpers.AttributesHelper.getMediaType;
@@ -226,11 +228,15 @@ public class GenerationModel implements Comparable<GenerationModel> {
 
   public List<String> getUriParameters() {
     action.getResolvedUriParameters();
+    Pattern uriParamsPattern = Pattern.compile("\\{([^}]+)\\}");
     List<String> result = new ArrayList<>();
-    for (String part : Lists.newArrayList(resource.getResolvedUri(version).split("/"))) {
-      if (part.startsWith("{") && part.endsWith("}"))
-        result.add(part.substring(1, part.length() - 1));
+    String path = resource.getResolvedUri(version);
+
+    Matcher matcher = uriParamsPattern.matcher(path);
+    while (matcher.find()) {
+      result.add(matcher.group(1));
     }
+
     return result;
   }
 }

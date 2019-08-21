@@ -1,0 +1,12 @@
+#%RAML 1.0
+title: Sample API
+
+/applications: 
+  /{id}{mediaTypeExtension}:
+    put:
+      body: 
+        application/json: 
+      responses: 
+        200: 
+          body: 
+            application/json: 
