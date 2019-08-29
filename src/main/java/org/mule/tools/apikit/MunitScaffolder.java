@@ -87,7 +87,7 @@ public final class MunitScaffolder implements Scaffolder {
     for (MuleConfig muleConfig : muleConfigs) {
       for (APIKitConfig config : muleConfig.getApikitConfigs()) {
         String currentConfigApiLocation = config.getApiSpecificationLocation();
-        if (currentConfigApiLocation.endsWith(apiLocation)) {
+        if (apiLocation.endsWith(currentConfigApiLocation)) {
           apikitConfigs.add(config);
         }
       }

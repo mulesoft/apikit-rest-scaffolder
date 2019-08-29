@@ -10,7 +10,6 @@ public class MunitScaffolderContext extends ScaffolderContext {
 
   private boolean shouldCreateMunitResources;
   private String munitSuiteName;
-  private String apikitMainFlowName;
 
   protected MunitScaffolderContext(RuntimeEdition runtimeEdition, boolean shouldCreateMunitResources, String munitSuiteName) {
     super(runtimeEdition);
