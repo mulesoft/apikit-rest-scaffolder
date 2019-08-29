@@ -21,7 +21,8 @@ public class MunitScaffolderErrors extends AbstractMunitScaffolderTest {
   @Test
   public void twoApikitConfigsReferencingTheSameAPI() throws Exception {
     String muleConfigLocation = "two-apikit-configs-referencing-same-raml.xml";
-    String expectedErrorMessage = String.format(MunitScaffolder.MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE, "scaffolder/simple.yaml");
+    String fullPath = Thread.currentThread().getContextClassLoader().getResource("scaffolder/simple.yaml").getPath();
+    String expectedErrorMessage = String.format(MunitScaffolder.MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE, fullPath);
     makeAssertion(muleConfigLocation, expectedErrorMessage);
   }
 
@@ -35,7 +36,8 @@ public class MunitScaffolderErrors extends AbstractMunitScaffolderTest {
   @Test
   public void noApikitConfigFound() throws Exception {
     String muleConfigLocation = "missing-apikit-config-for-raml.xml";
-    String expectedErrorMessage = String.format(MunitScaffolder.NO_APIKIT_CONFIGS_ERROR_TEMPLATE, "scaffolder/simple.yaml");
+    String fullPath = Thread.currentThread().getContextClassLoader().getResource("scaffolder/simple.yaml").getPath();
+    String expectedErrorMessage = String.format(MunitScaffolder.NO_APIKIT_CONFIGS_ERROR_TEMPLATE, fullPath);
     makeAssertion(muleConfigLocation, expectedErrorMessage);
   }
 
