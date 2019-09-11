@@ -48,14 +48,16 @@ public abstract class AbstractMunitScaffolderTest {
     String suiteFileName = String.format("%s.xml", name);
     String mainFlowName = name + "-main";
 
-    ApiReference apiReference = ApiReference.create(resourcesFolder + File.separator + String.format("%s.yaml", name));
+    String resourceRelativePath = resourcesFolder + File.separator + String.format("%s.yaml", name);
+    String resourcesFullPath = Thread.currentThread().getContextClassLoader().getResource(resourceRelativePath).getPath();
+    ApiReference apiReference = ApiReference.create(resourcesFullPath);
     ParseResult parseResult = new ParserService().parse(apiReference, ParserMode.RAML);
 
     assertTrue(parseResult.success());
 
     String defaultMuleConfig = TestUtils.getResourceAsString("scaffolder" + File.separator + muleConfigLocation);
     String fileContent = defaultMuleConfig.replace(APIKIT_MAIN_FLOW_NAME_PLACEHOLDER, mainFlowName)
-        .replace(API_SPEC_LOCATION_PLACEHOLDER, parseResult.get().getLocation());
+        .replace(API_SPEC_LOCATION_PLACEHOLDER, resourceRelativePath);
 
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(IOUtils.toInputStream(fileContent));
 
