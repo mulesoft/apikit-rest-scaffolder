@@ -32,6 +32,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
   @Test
   public void testHeadersGenerate() throws Exception {
     String apiSpecFile = "headers";
+    String expectedMuleConfigName = apiSpecFile + ".xml";
     String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
@@ -39,6 +40,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedContent =
         "<http:headers>#[{\"Accept\":\"*/*\",\"X-waiting-period\":\"34\",\"Content-Type\":\"application/x-www-form-urlencoded\"}]</http:headers>";
+    assertEquals(muleConfig.getName(), expectedMuleConfigName);
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedContent));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
@@ -46,6 +48,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
   @Test
   public void testMultiplesExamplesResponses() throws Exception {
     String apiSpecFile = "multiple-examples-responses";
+    String expectedMuleConfigName = apiSpecFile + ".xml";
     String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
@@ -53,6 +56,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedContent =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:&quot;Snowball&quot;,&quot;nickname&quot;:&quot;Snow&quot;}')]\"";
+    assertEquals(muleConfig.getName(), expectedMuleConfigName);
     assertEquals(1, TestUtils.countOccurrences(generatedContent, expectedContent));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
@@ -60,6 +64,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
   @Test
   public void testTypesWithExamplesForResponsesAndRequests() throws Exception {
     String apiSpecFile = "types-with-examples";
+    String expectedMuleConfigName = apiSpecFile + ".xml";
     String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
@@ -71,6 +76,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('&quot;OK&quot;')]\"";
     String expectedSetPayload =
         "<set-payload value=\"#['{&quot;name&quot;:&quot;Doe Enterprise&quot;,&quot;value&quot;:&quot;Silver&quot;}']\" />";
+    assertEquals(muleConfig.getName(), expectedMuleConfigName);
     assertTrue(generatedContent.contains(expectedExpressionEqualToJson));
     assertTrue(generatedContent.contains(expectedExpressionEqualToOk));
     assertTrue(generatedContent.contains(expectedSetPayload));
@@ -80,6 +86,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
   @Test
   public void testDatatypesDefinedInTypesSection() throws Exception {
     String apiSpecFile = "datatypes";
+    String expectedMuleConfigName = apiSpecFile + ".xml";
     String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
@@ -87,6 +94,7 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
     String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedExpression =
         "expression=\"#[output application/java ---write(payload, 'application/json') as String]\" is=\"#[MunitTools::equalTo('{&quot;name&quot;:{&quot;firstname&quot;:&quot;John&quot;,&quot;lastname&quot;:&quot;Silver&quot;},&quot;age&quot;:33}')]\"";
+    assertEquals(muleConfig.getName(), expectedMuleConfigName);
     assertTrue(generatedContent.contains(expectedExpression));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
@@ -94,12 +102,14 @@ public class MunitScaffolderRamlOneTest extends AbstractMunitScaffolderTest {
   @Test
   public void testMultipleExamplesQueryParameters() throws Exception {
     String apiSpecFile = "multiple-examples-query-parameters";
+    String expectedMuleConfigName = apiSpecFile + ".xml";
     String apikitMainFlowName = generateMainFlowNameForApi(apiSpecFile);
     String expectedEnableFlowSources = String.format(ENABLE_FLOW_SOURCES_TEMPLATE, apikitMainFlowName);
 
     MuleConfig muleConfig = simpleGenerationRamlOne(apiSpecFile);
     String generatedContent = APIKitTools.readContents(muleConfig.getContent());
     String expectedQueryParams = "<http:query-params>#[{\"qty\":\"20\"}]</http:query-params>";
+    assertEquals(muleConfig.getName(), expectedMuleConfigName);
     assertTrue(generatedContent.contains(expectedQueryParams));
     assertTrue(generatedContent.contains(expectedEnableFlowSources));
   }
