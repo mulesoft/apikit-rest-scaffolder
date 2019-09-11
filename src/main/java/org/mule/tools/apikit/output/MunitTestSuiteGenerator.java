@@ -81,6 +81,7 @@ public class MunitTestSuiteGenerator {
     Document document = new Document();
     document.setRootElement(new MuleScope(false, true).generate());
     MuleConfig muleConfig = MuleConfigBuilder.fromDoc(document);
+    muleConfig.setName(scaffolderContext.getMunitSuiteName());
     apikitMainFlow.setMuleConfig(muleConfig);
     return muleConfig;
   }
