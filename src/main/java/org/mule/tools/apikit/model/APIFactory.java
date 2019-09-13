@@ -103,13 +103,17 @@ public class APIFactory {
         .build();
   }
 
+  private String getUriLastSegment(String ramlPathUri) {
+    return ramlPathUri.substring(ramlPathUri.lastIndexOf("/") + 1);
+  }
+
   private String buildApiId(String ramlFilePath) {
     final String apiId;
 
     if (ApiSyncUtils.isSyncProtocol(ramlFilePath))
       apiId = FilenameUtils.removeExtension(ApiSyncUtils.getFileName(ramlFilePath));
     else
-      apiId = FilenameUtils.removeExtension(FileUtils.basename(ramlFilePath)).trim();
+      apiId = FilenameUtils.removeExtension(getUriLastSegment(ramlFilePath)).trim();
 
     final List<String> apiIds = apis.values().stream().map(ApikitMainFlowContainer::getId).collect(toList());
 
