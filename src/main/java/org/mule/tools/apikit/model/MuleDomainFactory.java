@@ -40,13 +40,13 @@ public class MuleDomainFactory {
     if (configs.isEmpty()) {
       List<HttpListenerConfig> httpListenerConfigs =
           parseHttpListenerConfigsFromConfigFile(jarArtifact, MULE_DOMAIN_DEFAULT_CONFIG_FILE_NAME);
-      return new MuleDomain(null, httpListenerConfigs);
+      return new MuleDomain(httpListenerConfigs);
     } else {
       List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
       for (String config : configs) {
         httpListenerConfigs.addAll(parseHttpListenerConfigsFromConfigFile(jarArtifact, config));
       }
-      return new MuleDomain(null, httpListenerConfigs);
+      return new MuleDomain(httpListenerConfigs);
     }
   }
 

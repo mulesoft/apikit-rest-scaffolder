@@ -6,21 +6,22 @@
  */
 package org.mule.tools.apikit.model;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.jdom2.Document;
+import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
-public class MuleDomain implements NamedContent, WithConfigs {
+public class MuleDomain implements WithConfigs {
 
-  private InputStream content;
   private List<HttpListenerConfig> configurations;
 
-  MuleDomain(InputStream content, List<HttpListenerConfig> configurations) {
+  MuleDomain(List<HttpListenerConfig> configurations) {
     this.configurations = configurations;
   }
 
@@ -29,20 +30,21 @@ public class MuleDomain implements NamedContent, WithConfigs {
   }
 
   @Override
-  public InputStream getContent() {
-    return content;
-  }
-
-  @Override
   public List<HttpListenerConfig> getHttpListenerConfigs() {
     return Collections.unmodifiableList(configurations);
   }
 
+  /**
+   * @param content stream will be closed after parsing model
+   */
   public static MuleDomain fromInputStream(InputStream content) throws Exception {
+    return new MuleDomain(parseHttpListenerConfigs(content));
+  }
+
+  private static List<HttpListenerConfig> parseHttpListenerConfigs(InputStream content) throws JDOMException, IOException {
     Document contentAsDocument = new SAXBuilder().build(content);
     content.close();
-    List<HttpListenerConfig> httpListenerConfigs = new HttpListenerConfigParser().parse(contentAsDocument);
-    return new MuleDomain(content, httpListenerConfigs);
+    return new HttpListenerConfigParser().parse(contentAsDocument);
   }
 
   public static Builder builder() {
@@ -68,8 +70,11 @@ public class MuleDomain implements NamedContent, WithConfigs {
       return this;
     }
 
-    public MuleDomain build() {
-      return new MuleDomain(content, configurations);
+    public MuleDomain build() throws Exception {
+      if (this.content != null && this.configurations == null) {
+        this.configurations = MuleDomain.parseHttpListenerConfigs(content);
+      }
+      return new MuleDomain(configurations);
     }
   }
 }
