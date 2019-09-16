@@ -120,7 +120,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   @Test
   public void libraryReferenceToRoot() throws Exception {
-    final String rootRaml = "test-api";
+    final String rootRaml = "test api";
     final String ramlFolder = "src/test/resources/api-sync/library-reference-to-root/root/";
     final String libraryFolder = "src/test/resources/api-sync/library-reference-to-root/library/";
     final List<String> libraryFiles = Arrays.asList("library.raml", "reused-fragment.raml");
