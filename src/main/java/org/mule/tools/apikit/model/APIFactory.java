@@ -7,9 +7,7 @@
 package org.mule.tools.apikit.model;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.codehaus.plexus.util.FileUtils;
 import org.mule.apikit.common.ApiSyncUtils;
 
 import java.util.ArrayList;
@@ -20,10 +18,10 @@ import java.util.Map;
 import static java.io.File.separator;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.isNumeric;
+import static org.mule.tools.apikit.model.APIKitConfig.DEFAULT_CONFIG_NAME;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_BASE_PATH;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_HOST;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PROTOCOL;
-import static org.mule.tools.apikit.model.APIKitConfig.DEFAULT_CONFIG_NAME;
 
 public class APIFactory {
 
@@ -107,11 +105,15 @@ public class APIFactory {
     return ramlPathUri.substring(ramlPathUri.lastIndexOf("/") + 1);
   }
 
+  private String sanitizeApiId(String fileName) {
+    return fileName.replaceAll(" ", "-");
+  }
+
   private String buildApiId(String ramlFilePath) {
     final String apiId;
 
     if (ApiSyncUtils.isSyncProtocol(ramlFilePath))
-      apiId = FilenameUtils.removeExtension(ApiSyncUtils.getFileName(ramlFilePath));
+      apiId = sanitizeApiId(FilenameUtils.removeExtension(ApiSyncUtils.getFileName(ramlFilePath)));
     else
       apiId = FilenameUtils.removeExtension(getUriLastSegment(ramlFilePath)).trim();
 
