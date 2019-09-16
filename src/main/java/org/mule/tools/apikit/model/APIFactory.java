@@ -106,17 +106,17 @@ public class APIFactory {
   }
 
   private String sanitizeApiId(String fileName) {
-    return fileName.replaceAll(" ", "-");
+    return fileName.replaceAll(" ", "-").replaceAll("%20","-");
   }
 
   private String buildApiId(String ramlFilePath) {
-    final String apiId;
+    String apiId;
 
     if (ApiSyncUtils.isSyncProtocol(ramlFilePath))
-      apiId = sanitizeApiId(FilenameUtils.removeExtension(ApiSyncUtils.getFileName(ramlFilePath)));
+      apiId = ApiSyncUtils.getFileName(ramlFilePath);
     else
-      apiId = FilenameUtils.removeExtension(getUriLastSegment(ramlFilePath)).trim();
-
+      apiId = getUriLastSegment(ramlFilePath);
+    apiId = FilenameUtils.removeExtension(sanitizeApiId(apiId)).trim();
     final List<String> apiIds = apis.values().stream().map(ApikitMainFlowContainer::getId).collect(toList());
 
     final List<String> configNames = apis.values().stream()
