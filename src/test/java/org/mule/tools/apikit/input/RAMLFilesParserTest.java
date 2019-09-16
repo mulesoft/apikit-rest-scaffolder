@@ -33,7 +33,7 @@ public class RAMLFilesParserTest {
 
   @Test
   public void testCreation() {
-    ApiReference apiRef = ApiReference.create(getResourceAsUrl("scaffolder/simple.raml").toString());
+    ApiReference apiRef = ApiReference.create(getResourceAsUrl("scaffolder/simple with spaces.raml").toString());
 
     ParseResult parseResult = parserService.parse(apiRef);
     assertTrue(parseResult.success());
@@ -55,7 +55,7 @@ public class RAMLFilesParserTest {
     assertEquals("0.0.0.0", triplet.getApi().getHttpListenerConfig().getHost());
     assertEquals("8081", triplet.getApi().getHttpListenerConfig().getPort());
     assertEquals("/", triplet.getApi().getHttpListenerConfig().getBasePath());
-    assertEquals("simple-httpListenerConfig", triplet.getApi().getHttpListenerConfig().getName());
+    assertEquals("simple-with-spaces-httpListenerConfig", triplet.getApi().getHttpListenerConfig().getName());
     ResourceActionMimeTypeTriplet triplet2 = (ResourceActionMimeTypeTriplet) CollectionUtils.find(ramlEntries, property -> {
       ResourceActionMimeTypeTriplet triplet1 = ((ResourceActionMimeTypeTriplet) property);
       return "/api/pet".equals(triplet1.getUri()) && "GET".equals(triplet1.getVerb())
@@ -64,7 +64,7 @@ public class RAMLFilesParserTest {
     assertEquals("0.0.0.0", triplet2.getApi().getHttpListenerConfig().getHost());
     assertEquals("8081", triplet2.getApi().getHttpListenerConfig().getPort());
     assertEquals("/", triplet2.getApi().getHttpListenerConfig().getBasePath());
-    assertEquals("simple-httpListenerConfig", triplet2.getApi().getHttpListenerConfig().getName());
+    assertEquals("simple-with-spaces-httpListenerConfig", triplet2.getApi().getHttpListenerConfig().getName());
 
   }
 
