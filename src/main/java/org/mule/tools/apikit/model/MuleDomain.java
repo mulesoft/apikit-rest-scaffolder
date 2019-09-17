@@ -15,6 +15,7 @@ import java.util.List;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 public class MuleDomain implements WithConfigs {
@@ -70,11 +71,15 @@ public class MuleDomain implements WithConfigs {
       return this;
     }
 
-    public MuleDomain build() throws Exception {
-      if (this.content != null && this.configurations == null) {
-        this.configurations = MuleDomain.parseHttpListenerConfigs(content);
+    public MuleDomain build() {
+      try {
+        if (this.content != null && this.configurations == null) {
+          this.configurations = MuleDomain.parseHttpListenerConfigs(content);
+        }
+        return new MuleDomain(configurations == null ? new ArrayList<>() : configurations);
+      } catch (JDOMException | IOException e) {
+        throw new IllegalStateException(e);
       }
-      return new MuleDomain(configurations);
     }
   }
 }
