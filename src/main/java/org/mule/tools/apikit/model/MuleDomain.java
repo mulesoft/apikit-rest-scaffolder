@@ -53,15 +53,14 @@ public class MuleDomain implements WithConfigs {
 
   public static class Builder {
 
-    private InputStream content;
     private List<HttpListenerConfig> configurations;
 
     public Builder() {
       this.configurations = new ArrayList<>();
     }
 
-    public Builder withContent(InputStream content) {
-      this.content = content;
+    public Builder withContent(InputStream content) throws Exception {
+      this.configurations = MuleDomain.parseHttpListenerConfigs(content);
       return this;
     }
 
@@ -70,10 +69,7 @@ public class MuleDomain implements WithConfigs {
       return this;
     }
 
-    public MuleDomain build() throws Exception {
-      if (this.content != null && this.configurations == null) {
-        this.configurations = MuleDomain.parseHttpListenerConfigs(content);
-      }
+    public MuleDomain build() {
       return new MuleDomain(configurations);
     }
   }
