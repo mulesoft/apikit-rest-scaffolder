@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import java.io.InputStream;
@@ -27,6 +28,7 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
   private List<Flow> flows;
+  private static final String INDENTATION = "    ";
 
   protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows) {
     this.configurations = configurations;
@@ -54,7 +56,11 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
   @Override
   public InputStream getContent() {
-    XMLOutputter xout = new XMLOutputter();
+    Format prettyFormat = Format.getPrettyFormat();
+    prettyFormat.setIndent(INDENTATION);
+    prettyFormat.setLineSeparator(System.getProperty("line.separator"));
+    prettyFormat.setEncoding("UTF-8");
+    XMLOutputter xout = new XMLOutputter(prettyFormat);
     String contentAsString = xout.outputString(originalContent);
     return IOUtils.toInputStream(contentAsString);
   }
