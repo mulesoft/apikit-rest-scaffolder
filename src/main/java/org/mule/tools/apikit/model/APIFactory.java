@@ -25,7 +25,7 @@ import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PROTOC
 
 public class APIFactory {
 
-  private static final String RESOURCE_API_FOLDER = "src/main/resources/api/".replace("/", separator);
+  private static final String RESOURCE_API_FOLDER = "src/main/resources/api/";
 
   private Map<String, ApikitMainFlowContainer> apis = new HashMap<>();
   private List<HttpListenerConfig> httpListenerConfigs;
