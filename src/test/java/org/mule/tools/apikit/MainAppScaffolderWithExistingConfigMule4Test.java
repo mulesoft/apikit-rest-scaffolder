@@ -321,14 +321,12 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(s.contains("post:\\pet:application\\json:" + name + "-config"));
     assertTrue(s.contains("post:\\pet:text\\xml:" + name + "-config"));
     if (name.endsWith("V10")) {
-      assertTrue(s.contains("post:\\pet:" + name + "-config"));
+      assertTrue(s.contains("post:\\pet:application\\xml:" + name + "-config"));
     } else {
       assertTrue(s.contains("post:\\pet:application\\x-www-form-urlencoded:" + name + "-config"));
     }
-    assertTrue(s.contains("post:\\pet:" + name + "-config"));
-    assertTrue(!s.contains("post:\\pet:application\\xml:" + name + "-config"));
-    assertTrue(s.contains("post:\\vet:" + name + "-config"));
-    assertTrue(!s.contains("post:\\vet:application\\xml:" + name + "-config"));
+    assertTrue(s.contains("post:\\pet:application\\xml:" + name + "-config"));
+    assertTrue(s.contains("post:\\vet:application\\xml:" + name + "-config"));
     assertEquals(0, countOccurences(s, "extensionEnabled"));
   }
 }
