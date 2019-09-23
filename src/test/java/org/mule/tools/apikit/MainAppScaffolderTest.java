@@ -979,4 +979,14 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
                      .replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""),
                  s.replaceAll("api=(.*)raml\"", "api=\"\"").replaceAll("\\s+", ""));
   }
+
+  @Test
+  public void multipleContentTypesWithoutSchemaDefinition() throws Exception {
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, "scaffolder/body-with-mime-types-without-schema/testing-api.raml");
+    String muleConfig = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+
+    assertEquals(APIKitTools.readContents(getResourceAsStream("scaffolder/body-with-mime-types-without-schema/output.xml"))
+        .replaceAll("\\s+", ""), muleConfig.replaceAll("\\s+", ""));
+
+  }
 }

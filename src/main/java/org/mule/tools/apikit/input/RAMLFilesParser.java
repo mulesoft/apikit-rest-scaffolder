@@ -55,10 +55,10 @@ public class RAMLFilesParser {
         Map<String, MimeType> mimeTypes = action.getBody();
         if (mimeTypes != null && !mimeTypes.isEmpty()) {
           for (MimeType mimeType : mimeTypes.values()) {
-            addResource(api, resource, action, mimeType.getType(), version, shouldIncludeMimeTypeInName(mimeType));
+            addResource(api, resource, action, mimeType.getType(), version);
           }
         } else {
-          addResource(api, resource, action, null, version, false);
+          addResource(api, resource, action, null, version);
         }
       }
 
@@ -67,7 +67,7 @@ public class RAMLFilesParser {
   }
 
   private void addResource(ApikitMainFlowContainer api, Resource resource, Action action,
-                           String mimeType, String version, boolean shouldIncludeMimeTypeInName) {
+                           String mimeType, String version) {
 
     String completePath = APIKitTools
         .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
@@ -77,10 +77,6 @@ public class RAMLFilesParser {
                                           action.getType().toString(),
                                           mimeType);
     entries.put(resourceActionTriplet, new GenerationModel(api, version, resource, action,
-                                                           mimeType, shouldIncludeMimeTypeInName));
-  }
-
-  private boolean shouldIncludeMimeTypeInName(MimeType mimeType) {
-    return mimeType.getSchema() != null || (mimeType.getFormParameters() != null && !mimeType.getFormParameters().isEmpty());
+                                                           mimeType));
   }
 }

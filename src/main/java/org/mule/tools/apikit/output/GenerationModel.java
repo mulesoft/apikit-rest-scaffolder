@@ -43,14 +43,13 @@ public class GenerationModel implements Comparable<GenerationModel> {
   private final String version;
   private final List<String> splitPath;
   private final ApikitMainFlowContainer api;
-  private final boolean shouldIncludeMimeTypeInName;
 
   public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource, Action action) {
-    this(api, version, resource, action, null, true);
+    this(api, version, resource, action, null);
   }
 
   public GenerationModel(ApikitMainFlowContainer api, String version, Resource resource,
-                         Action action, String mimeType, boolean shouldIncludeMimeTypeInName) {
+                         Action action, String mimeType) {
     this.api = api;
     Validate.notNull(api);
     Validate.notNull(action);
@@ -67,7 +66,6 @@ public class GenerationModel implements Comparable<GenerationModel> {
       splitPath.remove(0);
       splitPath.remove(0);
     }
-    this.shouldIncludeMimeTypeInName = shouldIncludeMimeTypeInName;
   }
 
   public String getVerb() {
@@ -208,7 +206,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
         .append(FLOW_NAME_SEPARATOR)
         .append(resource.getResolvedUri(version));
 
-    if (mimeType != null && shouldIncludeMimeTypeInName) {
+    if (mimeType != null) {
       flowName.append(FLOW_NAME_SEPARATOR)
           .append(getMediaType(mimeType));
     }
