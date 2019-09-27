@@ -182,6 +182,7 @@
                     <aggregator>false</aggregator>
                     <executionRoot>true</executionRoot>
                     <encoding>UTF-8</encoding>
+                    <lineEnding>LF</lineEnding>
                 </configuration>
                 <executions>
                     <execution>
