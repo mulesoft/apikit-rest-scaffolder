@@ -24,6 +24,8 @@ import org.xml.sax.SAXException;
 
 public class TestUtils {
 
+  public static final String PARSER_V2_PROPERTY = "apikit.raml.parser.v2";
+
   public static final String ENABLE_FLOW_SOURCES_TEMPLATE = "<munit:enable-flow-source value=\"%s\" />";
   private static final SAXBuilder BUILDER = new SAXBuilder(XMLReaders.NONVALIDATING);
 

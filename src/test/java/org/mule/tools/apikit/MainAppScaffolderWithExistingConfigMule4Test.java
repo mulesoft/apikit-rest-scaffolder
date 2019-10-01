@@ -9,9 +9,8 @@ package org.mule.tools.apikit;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.mule.apikit.implv2.ParserV2Utils;
+
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -94,7 +93,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
   @Test
   public void testAlreadyExistsWithExtensionNotPresentWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     testAlreadyExistsWithExtensionNotPresent();
   }
 
@@ -134,7 +133,6 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
   @Test
   public void testAlreadyExistsGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
     testAlreadyExistsGenerate();
   }
 
@@ -174,7 +172,6 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
   @Test
   public void testAlreadyExistsGenerateWithCustomDomainWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
     testAlreadyExistsGenerateWithCustomDomain();
   }
 
@@ -215,7 +212,6 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
   @Test
   public void testAlreadyExistsGenerateWithCustomAndNormalLCWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
     testAlreadyExistsGenerateWithCustomAndNormalLC();
   }
 
@@ -255,7 +251,6 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
   @Test
   public void testAlreadyExistingMuleConfigWithApikitRouterWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
     testAlreadyExistingMuleConfigWithApikitRouter();
   }
 
@@ -296,7 +291,6 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
 
   @Test
   public void testMultipleMimeTypesWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
     testMultipleMimeTypes("scaffolder/multipleMimeTypes.raml");
   }
 
