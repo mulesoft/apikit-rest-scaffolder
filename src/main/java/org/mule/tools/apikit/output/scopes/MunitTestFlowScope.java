@@ -24,13 +24,23 @@ import org.mule.tools.apikit.schemas.JsonSchemaDataGenerator;
 import org.yaml.snakeyaml.Yaml;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static java.lang.String.join;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.*;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.*;
-import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.*;
+import static org.apache.commons.lang3.StringUtils.strip;
+import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.wrapInEqualTo;
+import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.wrapInStringExpression;
+import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.wrapInWriteToString;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
+import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.DOC_NAMESPACE;
+import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.MUNIT_NAMESPACE;
+import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.MUNIT_TOOLS_NAMESPACE;
 
 public class MunitTestFlowScope {
 
@@ -295,7 +305,7 @@ public class MunitTestFlowScope {
   }
 
   private String buildGetResourceFunction(ScaffolderResource resource) {
-    String relativePath = "scaffolder/" + resource.getDirectory() + "/" + resource.getName();
+    String relativePath = join("/", "scaffolder", strip(resource.getDirectory(), "/"), resource.getName());
     return String.format(GET_RESOURCE_WRAPPER, relativePath);
   }
 
