@@ -106,7 +106,7 @@ public class APIFactory {
   }
 
   private String sanitizeApiId(String fileName) {
-    return fileName.replaceAll(" ", "-").replaceAll("%20", "-");
+    return fileName.replaceAll("\\s", "-").replaceAll("%20", "-");
   }
 
   private String buildApiId(String ramlFilePath) {

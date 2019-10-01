@@ -6,20 +6,12 @@
  */
 package org.mule.tools.apikit;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.MuleConfig;
-import org.mule.tools.apikit.model.MuleConfigBuilder;
-import org.mule.tools.apikit.model.RuntimeEdition;
-import org.mule.tools.apikit.model.ScaffolderContext;
-import org.mule.tools.apikit.model.ScaffolderContextBuilder;
-import org.mule.tools.apikit.model.ScaffoldingConfiguration;
-import org.mule.tools.apikit.model.ScaffoldingResult;
+import org.mule.tools.apikit.model.*;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -62,7 +54,6 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
 
   @Test
   public void testMultipleMimeTypesWithNewParser() throws Exception {
-
     testMultipleMimeTypes("scaffolder/multipleMimeTypes.raml");
   }
 

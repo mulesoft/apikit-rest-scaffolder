@@ -7,12 +7,12 @@
 package org.mule.tools.apikit.munit;
 
 import org.junit.Test;
-import org.mule.tools.apikit.MunitScaffolder;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
-import static org.mule.tools.apikit.MunitScaffolder.*;
+import static org.mule.tools.apikit.MunitScaffolder.MULTIPLE_APIKIT_CONFIGS_ERROR_TEMPLATE;
+import static org.mule.tools.apikit.MunitScaffolder.MULTIPLE_MAIN_FLOWS_ERROR_TEMPLATE;
 import static org.mule.tools.apikit.MunitScaffolder.NO_APIKIT_CONFIGS_ERROR_TEMPLATE;
 import static org.mule.tools.apikit.MunitScaffolder.NO_MAIN_FLOWS_ERROR_TEMPLATE;
 
