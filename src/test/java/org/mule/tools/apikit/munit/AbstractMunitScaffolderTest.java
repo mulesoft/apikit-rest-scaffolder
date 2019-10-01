@@ -48,9 +48,8 @@ public abstract class AbstractMunitScaffolderTest {
     String suiteFileName = String.format("%s.xml", name);
     String mainFlowName = name + "-main";
 
-    String resourceRelativePath = resourcesFolder + File.separator + String.format("%s.yaml", name);
-    String resourcesFullPath = Thread.currentThread().getContextClassLoader().getResource(resourceRelativePath).getPath();
-    ApiReference apiReference = ApiReference.create(resourcesFullPath);
+    String resourceRelativePath = String.format("%s/%s.yaml", resourcesFolder, name);
+    ApiReference apiReference = ApiReference.create(resourceRelativePath);
     ParseResult parseResult = new ParserService().parse(apiReference, ParserMode.RAML);
 
     assertTrue(parseResult.success());

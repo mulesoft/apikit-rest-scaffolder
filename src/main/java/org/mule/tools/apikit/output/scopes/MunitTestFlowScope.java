@@ -295,7 +295,7 @@ public class MunitTestFlowScope {
   }
 
   private String buildGetResourceFunction(ScaffolderResource resource) {
-    String relativePath = "scaffolder" + File.separator + resource.getDirectory() + File.separator + resource.getName();
+    String relativePath = "scaffolder/" + resource.getDirectory() + "/" + resource.getName();
     return String.format(GET_RESOURCE_WRAPPER, relativePath);
   }
 

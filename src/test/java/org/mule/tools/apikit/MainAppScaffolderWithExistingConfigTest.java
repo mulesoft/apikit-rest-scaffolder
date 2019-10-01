@@ -8,7 +8,7 @@ package org.mule.tools.apikit;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.mule.apikit.implv2.ParserV2Utils;
+;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -38,7 +38,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
 
   @Test
   public void testAlreadyExistsOldGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     testAlreadyExistsOldGenerate();
   }
 
@@ -62,7 +62,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
 
   @Test
   public void testMultipleMimeTypesWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     testMultipleMimeTypes("scaffolder/multipleMimeTypes.raml");
   }
 

@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
-import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -38,7 +37,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
   @After
   public void after() {
-    System.clearProperty(ParserV2Utils.PARSER_V2_PROPERTY);
+    System.clearProperty(TestUtils.PARSER_V2_PROPERTY);
   }
 
   protected List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {

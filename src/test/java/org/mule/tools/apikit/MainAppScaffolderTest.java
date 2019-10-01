@@ -27,7 +27,7 @@ import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
-import org.mule.apikit.implv2.ParserV2Utils;
+;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -82,26 +82,25 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "post:\\Queue:application\\json:api-config"));
-    assertEquals(2, countOccurences(s, "post:\\Queue:text\\xml:api-config"));
-    assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
-    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
+    String content = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    assertEquals(2, countOccurences(content, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
+    assertEquals(2, countOccurences(content, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
+    assertEquals(7, countOccurences(content, "<on-error-propagate"));
+    assertEquals(7, countOccurences(content, "<ee:message>"));
+    assertEquals(7, countOccurences(content, "<ee:variables>"));
+    assertEquals(7, countOccurences(content, "<ee:set-variable"));
+    assertEquals(7, countOccurences(content, "<ee:set-payload>"));
+    assertEquals(4, countOccurences(content, "http:body"));
+    assertEquals(2, countOccurences(content, "#[payload]"));
+    assertEquals(0, countOccurences(content, "interpretRequestErrors=\"true\""));
+    assertEquals(2, countOccurences(content, "post:\\Queue:application\\json:api-config"));
+    assertEquals(2, countOccurences(content, "post:\\Queue:text\\xml:api-config"));
+    assertEquals(0, countOccurences(content, "#[NullPayload.getInstance()]"));
+    assertEquals(2, countOccurences(content, "<logger level=\"INFO\" message="));
   }
 
   @Test
   public void testSimpleGenerateWithExtensionWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
     simpleGenerateWithExtension();
   }
 
@@ -112,15 +111,14 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithExtensionInNullWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithExtensionInNull();
   }
 
   @Test
   public void generateWithIncludes10() throws Exception {
     // TODO(APIMF-1705): ignoring this test when running on windows until AMF fixes the referenced issue
-    assumeThat(parser, is(RAML));
-    assumeThat(SystemUtils.IS_OS_WINDOWS, is(false));
+    assumeThat(SystemUtils.IS_OS_WINDOWS && isAmf(), is(false));
 
     String apiLocation = "scaffolder-include-10/api.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
@@ -160,7 +158,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithListenerAndExtensionWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithListenerAndExtension();
   }
 
@@ -171,7 +169,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithCustomDomainWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithCustomDomain();
   }
 
@@ -182,7 +180,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithCustomExternalDomainWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithCustomExternalDomain();
   }
 
@@ -193,7 +191,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithCustomDomainAndExtensionWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithCustomDomainAndExtension();
   }
 
@@ -204,7 +202,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithCustomDomainWithMultipleLCWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithCustomDomainWithMultipleLC();
   }
 
@@ -215,7 +213,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithCustomExternalDomainWithMultipleConfigsWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithCustomExternalDomainWithMultipleConfigs();
   }
 
@@ -226,7 +224,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testSimpleGenerateWithEmptyDomainWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     simpleGenerateWithEmptyDomain();
   }
 
@@ -237,7 +235,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testTwoResourceGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     testTwoResourceGenerate();
   }
 
@@ -278,7 +276,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testNestedGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     nestedGenerate();
   }
 
@@ -303,7 +301,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testNoNameGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     noNameGenerate();
   }
 
@@ -314,7 +312,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testExampleGenerateWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     exampleGenerate();
   }
 
@@ -379,7 +377,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
   @Test
   public void doubleRootRamlWithNewParser() throws Exception {
-    System.setProperty(ParserV2Utils.PARSER_V2_PROPERTY, "true");
+
     doubleRootRaml();
   }
 

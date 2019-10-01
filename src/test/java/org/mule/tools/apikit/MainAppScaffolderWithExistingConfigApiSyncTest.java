@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mule.apikit.implv2.ParserV2Utils;
+;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
@@ -134,6 +134,6 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
   @After
   public void after() {
-    System.clearProperty(ParserV2Utils.PARSER_V2_PROPERTY);
+    System.clearProperty(TestUtils.PARSER_V2_PROPERTY);
   }
 }
