@@ -76,8 +76,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   public void generateWithIncludes08() throws Exception {
 
     // TODO(APIMF-1705): ignoring this test when running on windows until AMF fixes the referenced issue
-    assumeThat(parser, is(RAML));
-    assumeThat(SystemUtils.IS_OS_WINDOWS, is(false));
+    assumeThat(SystemUtils.IS_OS_WINDOWS && isAmf(), is(false));
 
     String apiLocation = "scaffolder-include-08/api.raml";
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
