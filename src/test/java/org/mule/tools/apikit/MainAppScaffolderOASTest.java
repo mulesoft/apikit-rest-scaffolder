@@ -86,7 +86,7 @@ public class MainAppScaffolderOASTest {
     final String expected = readFile(goldenPath);
 
     XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(current, expected);
+    Diff diff = XMLUnit.compareXML(current.trim(), expected.trim());
     assertTrue(format("Scaffolder differs for ApikitMainFlowContainer '%s'", api.getFileName()), diff.identical());
   }
 

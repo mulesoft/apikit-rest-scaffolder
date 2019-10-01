@@ -11,6 +11,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,7 @@ import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.mule.apikit.implv2.ParserV2Utils;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
@@ -94,7 +97,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
   protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
                                                                  MuleDomain muleDomain) {
-    ApiReference apiReference = ApiReference.create(apiPath);
+    ApiReference apiReference = ApiReference.create(Paths.get(apiPath).toString());
     ParseResult parseResult = new ParserService().parse(apiReference);
     ScaffoldingConfiguration.Builder configuration = new ScaffoldingConfiguration.Builder();
     configuration.withApi(parseResult.get());
@@ -106,6 +109,17 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
       configuration.withDomain(muleDomain);
     }
     return configuration.build();
+  }
+
+  private static String resource(String path) {
+    URI result = null;
+    path = path.startsWith("/") ? path : "/" + path;
+    try {
+      result = AbstractScaffolderTestCase.class.getResource(path).toURI();
+    } catch (URISyntaxException e) {
+      Assert.fail(e.getMessage());
+    }
+    return result.toString();
   }
 
   protected static String fileNameWhithOutExtension(final String path) {

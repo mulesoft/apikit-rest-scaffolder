@@ -16,6 +16,7 @@ import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.MuleConfig;
 
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     for (Element element : elements) {
       APIKitConfig config = getApikitConfig(element);
 
-      String currentApiPath = config.getApi() == null ? config.getRaml() : config.getApi();
+      String currentApiPath = config.getApi() == null ? Paths.get(config.getRaml()).toString() : config.getApi();
       for (String apiPath : allApisPathsInApplication) {
         if (compareApisLocation(currentApiPath, apiPath)) {
           Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
@@ -164,7 +165,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
   private Set<String> getAllApisPathsInApplication() {
     Set<String> paths = Sets.newHashSet(apiFilePath);
     apikitConfigs.forEach(config -> {
-      String apiPath = config.getApi() != null ? config.getApi() : config.getRaml();
+      String apiPath = config.getApi() != null ? config.getApi() : Paths.get(config.getRaml()).toString();
       if (paths.stream().noneMatch(path -> path.endsWith(apiPath))) {
         paths.add(apiPath);
       }

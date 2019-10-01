@@ -25,7 +25,7 @@ import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PROTOC
 
 public class APIFactory {
 
-  private static final String RESOURCE_API_FOLDER = "src/main/resources/api/";
+  private static final String RESOURCE_API_FOLDER = "src/main/resources/api/".replace("/", separator);
 
   private Map<String, ApikitMainFlowContainer> apis = new HashMap<>();
   private List<HttpListenerConfig> httpListenerConfigs;
@@ -142,9 +142,9 @@ public class APIFactory {
     if (!ApiSyncUtils.isSyncProtocol(path)
         && !(path.startsWith("http://") || path.startsWith("https://"))
         && path.contains(RESOURCE_API_FOLDER))
-      return path.substring(path.lastIndexOf(RESOURCE_API_FOLDER) + RESOURCE_API_FOLDER.length());
+      return path.substring(path.lastIndexOf(RESOURCE_API_FOLDER) + RESOURCE_API_FOLDER.length()).replace(separator, "/");
 
-    return path;
+    return path.replace(separator, "/");
   }
 
   public List<HttpListenerConfig> getHttpListenerConfigs() {
