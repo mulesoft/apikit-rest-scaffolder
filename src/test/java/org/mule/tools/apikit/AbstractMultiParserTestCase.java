@@ -23,8 +23,8 @@ public abstract class AbstractMultiParserTestCase {
   @Parameterized.Parameter(value = 0)
   public String parser;
 
-  private static final String AMF = "AMF";
-  private static final String RAML = "RAML";
+  public static final String AMF = "AMF";
+  public static final String RAML = "RAML";
 
   @Parameterized.Parameters(name = "{0}")
   public static Iterable<Object[]> data() {
