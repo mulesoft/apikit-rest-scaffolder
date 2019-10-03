@@ -19,8 +19,10 @@ import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,62 +38,58 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void testGenerateFlowWithJsonExample() throws Exception {
-    GenerationModel flowEntry = mock(GenerationModel.class);
-    when(flowEntry.getFlowName()).thenReturn("get:\\pet");
-    when(flowEntry.getExampleWrapper()).thenReturn("{\"name\": \"John\", \"kind\": \"dog\"}");
-
-    Document doc = new Document();
-    Element mule = new Element("mule");
-    doc.setContent(mule);
-    mule.addContent(new APIKitFlowScope(flowEntry).generate());
-
-    String s = Helper.nonSpaceOutput(doc);
-
-    Diff diff = XMLUnit.compareXML(
-                                   "<flow xmlns=\"http://www.mulesoft.org/schema/mule/core\" name=\"get:\\pet\"><ee:transform xmlns:ee=\"http://www.mulesoft.org/schema/mule/ee/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\"><ee:message><ee:set-payload><![CDATA[%dw 2.0 output application/json --- { name: \"John\", kind: \"dog\" }]]></ee:set-payload></ee:message></ee:transform></flow>",
-                                   s);
-
-    assertTrue(diff.toString(), diff.similar());
+    GenerationModel flowEntry = mockGenerationModel("{\"name\": \"John\", \"kind\": \"dog\"}");
+    String s = scaffoldFlow(flowEntry);
+    final String expected = "<![CDATA[%dw 2.0 output application/json --- { name: \"John\", kind: \"dog\" }]]>";
+    assertFlowScope(s, expected);
   }
 
   @Test
   public void testGenerateFlowWithXmlExample() throws Exception {
-    GenerationModel flowEntry = mock(GenerationModel.class);
-    when(flowEntry.getFlowName()).thenReturn("get:\\pet");
-    when(flowEntry.getExampleWrapper()).thenReturn("<Pet> <name>John</name> <lastname>Doe</lastname> </Pet>");
-
-    Document doc = new Document();
-    Element mule = new Element("mule");
-    doc.setContent(mule);
-    mule.addContent(new APIKitFlowScope(flowEntry).generate());
-
-    String s = Helper.nonSpaceOutput(doc);
-
-    Diff diff = XMLUnit.compareXML(
-                                   "<flow xmlns=\"http://www.mulesoft.org/schema/mule/core\" name=\"get:\\pet\"><ee:transform xmlns:ee=\"http://www.mulesoft.org/schema/mule/ee/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\"><ee:message><ee:set-payload><![CDATA[%dw 2.0 output application/xml --- { Pet: { name: \"John\", lastname: \"Doe\" } }]]></ee:set-payload></ee:message></ee:transform></flow>",
-                                   s);
-
-    assertTrue(diff.toString(), diff.similar());
+    GenerationModel flowEntry = mockGenerationModel("<Pet> <name>John</name> <lastname>Doe</lastname> </Pet>");
+    String s = scaffoldFlow(flowEntry);
+    final String expected = "<![CDATA[%dw 2.0 output application/xml --- { Pet: { name: \"John\", lastname: \"Doe\" } }]]>";
+    assertFlowScope(s, expected);
   }
 
   @Test
   public void testGenerateFlowWithRamlExample() throws Exception {
-    GenerationModel flowEntry = mock(GenerationModel.class);
-    when(flowEntry.getFlowName()).thenReturn("get:\\pet");
-    when(flowEntry.getExampleWrapper()).thenReturn("name: John\nkind: dog");
+    GenerationModel flowEntry = mockGenerationModel("name: John\nkind: dog");
+    String s = scaffoldFlow(flowEntry);
+    final String expected = "<![CDATA[%dw 2.0 output application/json --- { name: \"John\", kind: \"dog\" }]]>";
+    assertFlowScope(s, expected);
+  }
 
+  @Test
+  public void testGenerateFlowWithTextPlainExample() throws Exception {
+    final String example = "# something clever";
+    GenerationModel flowEntry = mockGenerationModel(example);
+    final String expected = "<![CDATA[%dw 2.0 output text/plain --- \"# something clever\"]]>";
+    assertFlowScope(scaffoldFlow(flowEntry), expected);
+  }
+
+  private void assertFlowScope(String s, String expected) throws SAXException, IOException {
+    final String expectedFlowScope =
+        "<flow xmlns=\"http://www.mulesoft.org/schema/mule/core\" name=\"get:\\pet\"><ee:transform xmlns:ee=\"http://www.mulesoft.org/schema/mule/ee/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\"><ee:message><ee:set-payload>"
+            + expected + "</ee:set-payload></ee:message></ee:transform></flow>";
+    Diff diff = XMLUnit.compareXML(expectedFlowScope, s);
+    assertTrue(diff.toString(), diff.similar());
+  }
+
+  private String scaffoldFlow(GenerationModel flowEntry) {
     Document doc = new Document();
     Element mule = new Element("mule");
     doc.setContent(mule);
     mule.addContent(new APIKitFlowScope(flowEntry).generate());
 
-    String s = Helper.nonSpaceOutput(doc);
+    return Helper.nonSpaceOutput(doc);
+  }
 
-    Diff diff = XMLUnit.compareXML(
-                                   "<flow xmlns=\"http://www.mulesoft.org/schema/mule/core\" name=\"get:\\pet\"><ee:transform xmlns:ee=\"http://www.mulesoft.org/schema/mule/ee/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\"><ee:message><ee:set-payload><![CDATA[%dw 2.0 output application/json --- { name: \"John\", kind: \"dog\" }]]></ee:set-payload></ee:message></ee:transform></flow>",
-                                   s);
-
-    assertTrue(diff.toString(), diff.similar());
+  private GenerationModel mockGenerationModel(String example) {
+    GenerationModel flowEntry = mock(GenerationModel.class);
+    when(flowEntry.getFlowName()).thenReturn("get:\\pet");
+    when(flowEntry.getExampleWrapper()).thenReturn(example);
+    return flowEntry;
   }
 
   @Test

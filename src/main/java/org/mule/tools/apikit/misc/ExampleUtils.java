@@ -6,22 +6,22 @@
  */
 package org.mule.tools.apikit.misc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.mule.weave.v2.runtime.DataWeaveResult;
 import org.mule.weave.v2.runtime.DataWeaveScriptingEngine;
 import org.mule.weave.v2.runtime.ScriptingBindings;
 import org.yaml.snakeyaml.Yaml;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
 public class ExampleUtils {
 
   private static final String APPLICATION_XML_CONTENT_TYPE = "application/xml";
+  private static final String TEXT_PLAIN_CONTENT_TYPE = "text/plain";
   private static final String DEFAULT_CONTENT_TYPE = "application/json";
 
   private ExampleUtils() {}
@@ -47,8 +47,14 @@ public class ExampleUtils {
   public static String getDataWeaveExpressionText(String example) {
     String transformContentType = getExampleContentType(example);
     example = getExampleAsJSONIfNeeded(example);
+    String weaveResult;
 
-    final String weaveResult = asDataWeave(example, transformContentType);
+    try {
+      weaveResult = asDataWeave(example, transformContentType);
+    } catch (Exception e) { // Fallback to text/plain content type
+      transformContentType = TEXT_PLAIN_CONTENT_TYPE;
+      weaveResult = asDataWeave(example, transformContentType);
+    }
 
     return "%dw 2.0\n" +
         "output " + transformContentType + "\n" +
@@ -85,10 +91,8 @@ public class ExampleUtils {
   private static String transformYamlExampleIntoJSON(String example) {
     Yaml yaml = new Yaml();
     Object yamlObject = yaml.load(example);
-
     try {
-      return new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
-
+      return yamlObject == null ? example : new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
     } catch (JsonProcessingException e) {
       return example;
     }
@@ -99,10 +103,8 @@ public class ExampleUtils {
   }
 
   public static boolean isValidJSON(String payload) {
-
     try {
       new ObjectMapper().disableDefaultTyping().readTree(payload);
-
     } catch (IOException e) {
       return false;
     }
