@@ -66,7 +66,7 @@ public class MuleConfigGeneratorTest {
   public void testGenerateFlowWithTextPlainExample() throws Exception {
     final String example = "# something clever";
     GenerationModel flowEntry = mockGenerationModel(example);
-    final String expected = "<![CDATA[%dw 2.0 output text/plain --- \"# something clever\"]]>";
+    final String expected = "<![CDATA[%dw 2.0 output application/json --- \"# something clever\"]]>";
     assertFlowScope(scaffoldFlow(flowEntry), expected);
   }
 

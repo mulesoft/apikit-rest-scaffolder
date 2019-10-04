@@ -21,8 +21,7 @@ import java.nio.charset.Charset;
 public class ExampleUtils {
 
   private static final String APPLICATION_XML_CONTENT_TYPE = "application/xml";
-  private static final String TEXT_PLAIN_CONTENT_TYPE = "text/plain";
-  private static final String APPLICATION_JSON_CONTENT_TYPE = "application/json";
+  private static final String DEFAULT_CONTENT_TYPE = "application/json";
 
   private ExampleUtils() {}
 
@@ -30,11 +29,8 @@ public class ExampleUtils {
     if (isValidXML(example)) {
       return APPLICATION_XML_CONTENT_TYPE;
     }
-    if (isValidJSON(example)) {
-      return APPLICATION_JSON_CONTENT_TYPE;
-    }
 
-    return TEXT_PLAIN_CONTENT_TYPE;
+    return DEFAULT_CONTENT_TYPE;
   }
 
   public static String getExampleAsJSONIfNeeded(String payload) {
@@ -87,10 +83,15 @@ public class ExampleUtils {
     Yaml yaml = new Yaml();
     Object yamlObject = yaml.load(example);
     try {
-      return yamlObject == null ? example : new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
+      return yamlObject == null ? surroundWithQuotes(example)
+          : new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
     } catch (JsonProcessingException e) {
-      return example;
+      return surroundWithQuotes(example);
     }
+  }
+
+  private static String surroundWithQuotes(String example) {
+    return "\"" + example + "\"";
   }
 
   public static boolean isValidXML(String payload) {
