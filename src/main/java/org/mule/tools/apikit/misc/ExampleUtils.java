@@ -6,18 +6,17 @@
  */
 package org.mule.tools.apikit.misc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.mule.weave.v2.runtime.DataWeaveResult;
 import org.mule.weave.v2.runtime.DataWeaveScriptingEngine;
 import org.mule.weave.v2.runtime.ScriptingBindings;
 import org.yaml.snakeyaml.Yaml;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
 public class ExampleUtils {
 
@@ -27,7 +26,6 @@ public class ExampleUtils {
   private ExampleUtils() {}
 
   public static String getExampleContentType(String example) {
-
     if (isValidXML(example)) {
       return APPLICATION_XML_CONTENT_TYPE;
     }
@@ -44,11 +42,10 @@ public class ExampleUtils {
     return payload;
   }
 
-  public static String getDataWeaveExpressionText(String example) {
+  public static String getDataWeaveExpressionText(String payload) {
+    String example = getExampleAsJSONIfNeeded(payload);
     String transformContentType = getExampleContentType(example);
-    example = getExampleAsJSONIfNeeded(example);
-
-    final String weaveResult = asDataWeave(example, transformContentType);
+    String weaveResult = asDataWeave(example, transformContentType);
 
     return "%dw 2.0\n" +
         "output " + transformContentType + "\n" +
@@ -85,13 +82,16 @@ public class ExampleUtils {
   private static String transformYamlExampleIntoJSON(String example) {
     Yaml yaml = new Yaml();
     Object yamlObject = yaml.load(example);
-
     try {
-      return new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
-
+      return yamlObject == null ? surroundWithQuotes(example)
+          : new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
     } catch (JsonProcessingException e) {
-      return example;
+      return surroundWithQuotes(example);
     }
+  }
+
+  private static String surroundWithQuotes(String example) {
+    return "\"" + example + "\"";
   }
 
   public static boolean isValidXML(String payload) {
@@ -99,10 +99,8 @@ public class ExampleUtils {
   }
 
   public static boolean isValidJSON(String payload) {
-
     try {
       new ObjectMapper().disableDefaultTyping().readTree(payload);
-
     } catch (IOException e) {
       return false;
     }
