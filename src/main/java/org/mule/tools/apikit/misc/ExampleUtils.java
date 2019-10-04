@@ -22,17 +22,19 @@ public class ExampleUtils {
 
   private static final String APPLICATION_XML_CONTENT_TYPE = "application/xml";
   private static final String TEXT_PLAIN_CONTENT_TYPE = "text/plain";
-  private static final String DEFAULT_CONTENT_TYPE = "application/json";
+  private static final String APPLICATION_JSON_CONTENT_TYPE = "application/json";
 
   private ExampleUtils() {}
 
   public static String getExampleContentType(String example) {
-
     if (isValidXML(example)) {
       return APPLICATION_XML_CONTENT_TYPE;
     }
+    if (isValidJSON(example)) {
+      return APPLICATION_JSON_CONTENT_TYPE;
+    }
 
-    return DEFAULT_CONTENT_TYPE;
+    return TEXT_PLAIN_CONTENT_TYPE;
   }
 
   public static String getExampleAsJSONIfNeeded(String payload) {
@@ -44,17 +46,10 @@ public class ExampleUtils {
     return payload;
   }
 
-  public static String getDataWeaveExpressionText(String example) {
+  public static String getDataWeaveExpressionText(String payload) {
+    String example = getExampleAsJSONIfNeeded(payload);
     String transformContentType = getExampleContentType(example);
-    example = getExampleAsJSONIfNeeded(example);
-    String weaveResult;
-
-    try {
-      weaveResult = asDataWeave(example, transformContentType);
-    } catch (Exception e) { // Fallback to text/plain content type
-      transformContentType = TEXT_PLAIN_CONTENT_TYPE;
-      weaveResult = asDataWeave(example, transformContentType);
-    }
+    String weaveResult = asDataWeave(example, transformContentType);
 
     return "%dw 2.0\n" +
         "output " + transformContentType + "\n" +
