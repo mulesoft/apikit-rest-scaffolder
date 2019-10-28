@@ -166,7 +166,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     Set<String> paths = Sets.newHashSet(apiFilePath);
     apikitConfigs.forEach(config -> {
       String apiPath = config.getApi() != null ? config.getApi() : Paths.get(config.getRaml()).toString();
-      if (paths.stream().noneMatch(path -> path.endsWith(apiPath))) {
+      if (paths.stream().noneMatch(path -> compareApisLocation(apiPath, path))) {
         paths.add(apiPath);
       }
     });
