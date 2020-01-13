@@ -87,6 +87,11 @@ public class ExampleUtilsTest {
   }
 
   @Test
+  public void getMultipleYamlKeyValueAsJSON() {
+    assertThat(ExampleUtils.getExampleAsJSONIfNeeded("id: 10\nname: Mandy"), is("{\"id\":10,\"name\":\"Mandy\"}"));
+  }
+
+  @Test
   public void getSimpleYamlStringAsJSON() {
     assertThat(ExampleUtils.getExampleAsJSONIfNeeded("Mandy"), is("\"Mandy\""));
   }
