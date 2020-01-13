@@ -11,6 +11,7 @@ paths:
         - application/json
       responses:
         200:
+          description: "Success"
           schema:
             $ref: '#/definitions/Example'
           examples:
