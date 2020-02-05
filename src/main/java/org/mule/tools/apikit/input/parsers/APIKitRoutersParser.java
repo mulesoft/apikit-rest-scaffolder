@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -86,7 +87,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
       return ApiSyncUtils.compareResourcesLocation(configRaml, currentRootRaml, false);
     }
 
-    return currentRootRaml.endsWith(configRaml);
+    return currentRootRaml.endsWith(FilenameUtils.separatorsToSystem(configRaml));
   }
 
   private APIKitConfig getApikitConfig(Element element) throws IllegalStateException {
