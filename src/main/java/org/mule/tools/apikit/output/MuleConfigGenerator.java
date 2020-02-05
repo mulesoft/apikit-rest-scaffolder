@@ -152,6 +152,9 @@ public class MuleConfigGenerator {
 
   // it checks both elements have the same attributes
   private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
+    if (apikitConfigFromMuleConfig == null) {
+      return false;
+    }
     for (Attribute attr : apikitConfigFromApi.getAttributes()) {
       Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
       if (muleConfigAttr == null) {
