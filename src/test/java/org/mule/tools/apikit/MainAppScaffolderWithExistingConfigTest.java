@@ -33,7 +33,8 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
   @Test
   public void testApiReferencesWorkCorrectlyWithExistingConfig() throws Exception {
     MuleConfig muleConfig =
-        scaffoldApi("scaffolder-se-14662/api/simple.raml", "scaffolder-se-14662/simple.xml", "scaffolder-se-14662/global.xml");
+        scaffoldApi("scaffolder-with-global-apikit-config/api/simple.raml", "scaffolder-with-global-apikit-config/simple.xml",
+                    "scaffolder-with-global-apikit-config/global.xml");
     String s = APIKitTools.readContents(muleConfig.getContent());
 
     assertEquals(2, countOccurences(s, "http:listener-config"));
