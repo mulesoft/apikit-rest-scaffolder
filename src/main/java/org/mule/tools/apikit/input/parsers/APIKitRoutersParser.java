@@ -62,7 +62,8 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
     for (Element element : elements) {
       APIKitConfig config = getApikitConfig(element);
 
-      String currentApiPath = config.getApi() == null ? Paths.get(config.getRaml()).toString() : config.getApi();
+      String currentApiPath =
+          FilenameUtils.separatorsToSystem(config.getApi() == null ? Paths.get(config.getRaml()).toString() : config.getApi());
       for (String apiPath : allApisPathsInApplication) {
         if (compareApisLocation(currentApiPath, apiPath)) {
           Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
@@ -87,7 +88,7 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
       return ApiSyncUtils.compareResourcesLocation(configRaml, currentRootRaml, false);
     }
 
-    return currentRootRaml.endsWith(FilenameUtils.separatorsToSystem(configRaml));
+    return currentRootRaml.endsWith(configRaml);
   }
 
   private APIKitConfig getApikitConfig(Element element) throws IllegalStateException {
@@ -166,7 +167,8 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
   private Set<String> getAllApisPathsInApplication() {
     Set<String> paths = Sets.newHashSet(apiFilePath);
     apikitConfigs.forEach(config -> {
-      String apiPath = config.getApi() != null ? config.getApi() : Paths.get(config.getRaml()).toString();
+      String apiPath =
+          FilenameUtils.separatorsToSystem(config.getApi() != null ? config.getApi() : Paths.get(config.getRaml()).toString());
       if (paths.stream().noneMatch(path -> compareApisLocation(apiPath, path))) {
         paths.add(apiPath);
       }
