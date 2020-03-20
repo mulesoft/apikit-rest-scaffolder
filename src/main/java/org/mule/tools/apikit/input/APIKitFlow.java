@@ -6,11 +6,11 @@
  */
 package org.mule.tools.apikit.input;
 
+import org.mule.apikit.common.RamlUtils;
+import org.mule.tools.apikit.misc.FlowNameUtils;
+
 import java.util.Collection;
 import java.util.regex.Matcher;
-
-import org.mule.module.apikit.helpers.FlowName;
-import org.mule.apikit.common.RamlUtils;
 
 public class APIKitFlow {
 
@@ -44,17 +44,17 @@ public class APIKitFlow {
   }
 
   public static APIKitFlow buildFromName(String name, Collection<String> existingConfigs) {
-    final Matcher matcher = FlowName.getMatcher(name);
+    final Matcher matcher = FlowNameUtils.getMatcher(name);
 
-    final String action = FlowName.getAction(matcher);
+    final String action = FlowNameUtils.getAction(matcher);
     if (!RamlUtils.isValidAction(action)) {
       throw new IllegalArgumentException(action + " is not a valid action type");
     }
 
-    final String resource = FlowName.getResource(matcher);
+    final String resource = FlowNameUtils.getResource(matcher);
 
-    final String mimeType = FlowName.getMimeType(matcher, existingConfigs).orElse(null);
-    final String config = FlowName.getConfig(matcher, existingConfigs).orElse(null);
+    final String mimeType = FlowNameUtils.getMimeType(matcher, existingConfigs).orElse(null);
+    final String config = FlowNameUtils.getConfig(matcher, existingConfigs).orElse(null);
 
     return new APIKitFlow(action, resource, mimeType, config);
   }
