@@ -64,7 +64,7 @@ public class HttpRequestScope implements Scope {
 
       if (!headers.isEmpty()) {
         Element element = new Element("headers", HTTP_NAMESPACE.getNamespace());
-        element.addContent(wrapInExpression(new ObjectMapper().disableDefaultTyping().writeValueAsString(headers)));
+        element.addContent(wrapInExpression(new ObjectMapper().deactivateDefaultTyping().writeValueAsString(headers)));
         request.addContent(element);
       }
     } catch (Exception e) {
