@@ -34,6 +34,7 @@ public class HttpRequestScope implements Scope {
     this.flowEntry = flowEntry;
   }
 
+  @Override
   public Element generate() {
     Element element = new Element("request", HTTP_NAMESPACE.getNamespace());
     element.setAttribute("config-ref", "HTTP_Request_Configuration");
@@ -63,7 +64,7 @@ public class HttpRequestScope implements Scope {
 
       if (!headers.isEmpty()) {
         Element element = new Element("headers", HTTP_NAMESPACE.getNamespace());
-        element.addContent(wrapInExpression(new ObjectMapper().writeValueAsString(headers)));
+        element.addContent(wrapInExpression(new ObjectMapper().disableDefaultTyping().writeValueAsString(headers)));
         request.addContent(element);
       }
     } catch (Exception e) {
@@ -120,7 +121,7 @@ public class HttpRequestScope implements Scope {
             .filter((queryParam) -> queryParam.getValue().isRequired())
             .collect(toMap(Map.Entry::getKey, this::getQueryParameterValue));
 
-        element.addContent(wrapInExpression(new ObjectMapper().writeValueAsString(queryParams)));
+        element.addContent(wrapInExpression(new ObjectMapper().disableDefaultTyping().writeValueAsString(queryParams)));
 
         request.addContent(element);
         return true;

@@ -6,26 +6,25 @@
  */
 package org.mule.tools.apikit.input.parsers;
 
-import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
-
-import org.mule.module.apikit.helpers.FlowName;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.mule.tools.apikit.input.APIKitFlow;
 import org.mule.tools.apikit.misc.APIKitTools;
+import org.mule.tools.apikit.misc.FlowNameUtils;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.filter.Filters;
-import org.jdom2.xpath.XPathExpression;
-import org.jdom2.xpath.XPathFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
 
 public class APIKitFlowsParser implements MuleConfigFileParser<Set<ResourceActionMimeTypeTriplet>> {
 
@@ -44,7 +43,7 @@ public class APIKitFlowsParser implements MuleConfigFileParser<Set<ResourceActio
                                                                   Filters.element(XMLNS_NAMESPACE.getNamespace()));
     List<Element> elements = xp.evaluate(document);
     for (Element element : elements) {
-      String name = FlowName.decode(element.getAttributeValue("name"));
+      String name = FlowNameUtils.decode(element.getAttributeValue("name"));
       APIKitFlow flow;
       try {
         flow = APIKitFlow.buildFromName(name, includedApis.keySet());
