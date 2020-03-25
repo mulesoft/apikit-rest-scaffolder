@@ -9,6 +9,7 @@ package org.mule.tools.apikit.output.scopes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Element;
 import org.mule.apikit.model.ActionType;
@@ -22,7 +23,6 @@ import org.mule.tools.apikit.model.ScaffolderResource;
 import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.schemas.JsonSchemaDataGenerator;
 import org.yaml.snakeyaml.Yaml;
-import org.apache.commons.io.IOUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,7 +130,7 @@ public class MunitTestFlowScope {
     try {
       Yaml yaml = new Yaml();
       Object yamlObject = yaml.load(example);
-      return new ObjectMapper().writeValueAsString(yamlObject);
+      return new ObjectMapper().disableDefaultTyping().writeValueAsString(yamlObject);
 
     } catch (Throwable e) {
       // If example couldn't have been processed, we return a null JSON.
