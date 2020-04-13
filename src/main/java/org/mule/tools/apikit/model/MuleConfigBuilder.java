@@ -6,7 +6,6 @@
  */
 package org.mule.tools.apikit.model;
 
-import org.apache.commons.io.IOUtils;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -58,7 +57,7 @@ public class MuleConfigBuilder {
   }
 
   public static MuleConfig fromStream(InputStream input) throws Exception {
-    SAXBuilder builder = new SAXBuilder();
+    SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();
     Document inputAsDocument = builder.build(input);
     input.close();
     return fromDoc(inputAsDocument);
@@ -78,5 +77,20 @@ public class MuleConfigBuilder {
 
   private static boolean elementIsApikitRouter(Element element) {
     return element.getNamespace().getPrefix().equals("apikit") && element.getName().equals("router");
+  }
+
+  /**
+   * Used for Mule configuration only.
+   * As a good practice it prevents any potential XXE attack.
+   * No need to relax it by externalized configuration due it is not allowed by design.
+   *
+   * @return
+   */
+  static SAXBuilder getSaxBuilder() {
+    SAXBuilder builder = new SAXBuilder();
+    builder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    builder.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    return builder;
   }
 }

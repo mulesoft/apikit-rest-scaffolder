@@ -6,17 +6,16 @@
  */
 package org.mule.tools.apikit.model;
 
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.jdom2.Document;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-
-import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 public class MuleDomain implements WithConfigs {
 
@@ -43,7 +42,8 @@ public class MuleDomain implements WithConfigs {
   }
 
   private static List<HttpListenerConfig> parseHttpListenerConfigs(InputStream content) throws JDOMException, IOException {
-    Document contentAsDocument = new SAXBuilder().build(content);
+    SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();
+    Document contentAsDocument = builder.build(content);
     content.close();
     return new HttpListenerConfigParser().parse(contentAsDocument);
   }
