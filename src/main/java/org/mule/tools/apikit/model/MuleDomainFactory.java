@@ -6,15 +6,6 @@
  */
 package org.mule.tools.apikit.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.jar.JarFile;
-
-import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -22,6 +13,14 @@ import org.mule.runtime.api.deployment.meta.MuleDomainModel;
 import org.mule.runtime.api.deployment.persistence.MuleDomainModelJsonSerializer;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 import org.mule.tools.apikit.misc.APIKitTools;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.jar.JarFile;
 
 public class MuleDomainFactory {
 
@@ -52,9 +51,10 @@ public class MuleDomainFactory {
 
   private static List<HttpListenerConfig> parseHttpListenerConfigsFromConfigFile(JarFile artifact, String configFile)
       throws JDOMException, IOException {
-    List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
+    List<HttpListenerConfig> httpListenerConfigs;
+    SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();
     try (InputStream content = artifact.getInputStream(artifact.getEntry(configFile))) {
-      Document contentAsDocument = new SAXBuilder().build(content);
+      Document contentAsDocument = builder.build(content);
       httpListenerConfigs = configParser.parse(contentAsDocument);
     }
     return httpListenerConfigs;
