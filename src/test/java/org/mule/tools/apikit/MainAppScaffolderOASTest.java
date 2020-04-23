@@ -16,11 +16,13 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Assert;
@@ -45,11 +47,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.amf.impl.DocumentParser.VendorEx.OAS20_JSON;
 import static org.mule.amf.impl.DocumentParser.VendorEx.OAS20_YAML;
+import static org.mule.amf.impl.DocumentParser.VendorEx.OAS30_JSON;
+import static org.mule.amf.impl.DocumentParser.VendorEx.OAS30_YAML;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 @RunWith(Parameterized.class)
 public class MainAppScaffolderOASTest {
 
+  private static final Set<DocumentParser.VendorEx> OAS_VENDORS = Collections.unmodifiableSet(EnumSet.of(OAS20_JSON, OAS20_YAML, OAS30_JSON, OAS30_YAML));
   private Path api;
 
   private static final PathMatcher API_MATCHER = FileSystems.getDefault().getPathMatcher("glob:*.{json,yaml, yml}");
@@ -145,7 +150,7 @@ public class MainAppScaffolderOASTest {
       return false;
 
     final DocumentParser.VendorEx vendor = DocumentParser.getVendor(path.toUri());
-    return OAS20_JSON.equals(vendor) || OAS20_YAML.equals(vendor);
+    return OAS_VENDORS.contains(vendor);
   }
 
   private static String fileNameWithOutExtension(final Path path) {

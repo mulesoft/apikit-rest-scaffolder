@@ -6,28 +6,12 @@
  */
 package org.mule.tools.apikit;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
-import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.assertXmls;
-import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
-import static org.mule.tools.apikit.TestUtils.getResourceAsString;
-
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
-
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -42,7 +26,21 @@ import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
+import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.assertXmls;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
+import static org.mule.tools.apikit.TestUtils.getResourceAsString;
 
 public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
