@@ -54,7 +54,8 @@ import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 @RunWith(Parameterized.class)
 public class MainAppScaffolderOASTest {
 
-  private static final Set<DocumentParser.VendorEx> OAS_VENDORS = Collections.unmodifiableSet(EnumSet.of(OAS20_JSON, OAS20_YAML, OAS30_JSON, OAS30_YAML));
+  private static final Set<DocumentParser.VendorEx> OAS_VENDORS =
+      Collections.unmodifiableSet(EnumSet.of(OAS20_JSON, OAS20_YAML, OAS30_JSON, OAS30_YAML));
   private Path api;
 
   private static final PathMatcher API_MATCHER = FileSystems.getDefault().getPathMatcher("glob:*.{json,yaml, yml}");
