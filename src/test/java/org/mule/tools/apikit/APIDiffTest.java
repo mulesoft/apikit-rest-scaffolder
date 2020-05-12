@@ -6,17 +6,13 @@
  */
 package org.mule.tools.apikit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.mule.tools.apikit.input.APIDiff;
 import org.mule.tools.apikit.input.MuleConfigParser;
 import org.mule.tools.apikit.input.RAMLFilesParser;
-import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIFactory;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
 
@@ -25,8 +21,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 public class APIDiffTest {
@@ -51,8 +50,8 @@ public class APIDiffTest {
 
   @Test
   public void testComputeDifferenceEmpty() throws Exception {
-    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
-    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<ResourceActionMimeTypeTriplet>();
+    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<>();
+    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<>();
 
     Set<ResourceActionMimeTypeTriplet> heavenFlowEntries = computeDifferenceSetHelper(a, b);
 
@@ -65,11 +64,11 @@ public class APIDiffTest {
     ApikitMainFlowContainer fromRAMLFile =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", "http://localhost:8080", "/api/*", null);
 
-    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
+    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<>();
     ResourceActionMimeTypeTriplet fab = new ResourceActionMimeTypeTriplet(fromRAMLFile, "a", "b");
     a.put(fab, mock(GenerationModel.class));
 
-    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<ResourceActionMimeTypeTriplet>();
+    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<>();
     ResourceActionMimeTypeTriplet feb = new ResourceActionMimeTypeTriplet(fromRAMLFile, "a", "b");
     b.add(feb);
 
@@ -85,12 +84,12 @@ public class APIDiffTest {
     ApikitMainFlowContainer fromRAMLFile =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", "http://localhost:8080", "/api/*", null);
 
-    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
+    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<>();
     ResourceActionMimeTypeTriplet fab = new ResourceActionMimeTypeTriplet(fromRAMLFile, "b", "b");
     a.put(fab, mock(GenerationModel.class));
     a.put(new ResourceActionMimeTypeTriplet(fromRAMLFile, "a", "b"), mock(GenerationModel.class));
 
-    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<ResourceActionMimeTypeTriplet>();
+    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<>();
     ResourceActionMimeTypeTriplet feb = new ResourceActionMimeTypeTriplet(fromRAMLFile, "a", "b");
     b.add(feb);
 
@@ -106,11 +105,11 @@ public class APIDiffTest {
     ApikitMainFlowContainer fromRAMLFile =
         apiFactory.createAPIBindingInboundEndpoint("sample.raml", "http://localhost:8080", "/api/*", null);
 
-    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<ResourceActionMimeTypeTriplet, GenerationModel>();
+    HashMap<ResourceActionMimeTypeTriplet, GenerationModel> a = new HashMap<>();
     ResourceActionMimeTypeTriplet fab = new ResourceActionMimeTypeTriplet(fromRAMLFile, "b", "b");
     a.put(fab, mock(GenerationModel.class));
 
-    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<ResourceActionMimeTypeTriplet>();
+    HashSet<ResourceActionMimeTypeTriplet> b = new HashSet<>();
     ResourceActionMimeTypeTriplet feb = new ResourceActionMimeTypeTriplet(fromRAMLFile, "a", "b");
     b.add(feb);
 

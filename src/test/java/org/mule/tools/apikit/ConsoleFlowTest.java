@@ -7,27 +7,15 @@
 
 package org.mule.tools.apikit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
-
 import org.apache.commons.io.FileUtils;
-import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.ParserService;
-import org.mule.parser.service.result.ParseResult;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
@@ -36,6 +24,17 @@ import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.Helper.countOccurences;
 
 public class ConsoleFlowTest {
 
@@ -72,18 +71,23 @@ public class ConsoleFlowTest {
     assertEquals("HTTP_Listener_Configuration", generatedConfig.getHttpListenerConfigs().get(0).getName());
 
     String s = APIKitTools.readContents(generatedConfig.getContent());
-
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(1)
+        .withHttpHeadersOutboundHeadersDefaultCount(1)
+        .withEESetPayloadTagCount(2)
+        .withHttpHeadersCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(1)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
-    assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
     assertEquals(1, countOccurences(s, "get:\\pet:simpleV10-config"));
     assertEquals(2, countOccurences(s, "post:\\pet:simpleV10-config"));
     assertEquals(1, countOccurences(s, "get:\\:simpleV10-config\""));
     assertEquals(2, countOccurences(s, "get:\\users"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
     assertEquals(0, countOccurences(s, "<flow name=\"simple-enabled-console\">"));
-    assertEquals(0, countOccurences(s, "apikit:console"));
-    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   private MainAppScaffolder getScaffolder() {
