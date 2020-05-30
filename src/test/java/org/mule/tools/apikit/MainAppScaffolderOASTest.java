@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mule.amf.impl.DocumentParser;
+import org.mule.amf.impl.VendorUtils.VendorEx;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -45,16 +45,17 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mule.amf.impl.DocumentParser.VendorEx.OAS20_JSON;
-import static org.mule.amf.impl.DocumentParser.VendorEx.OAS20_YAML;
-import static org.mule.amf.impl.DocumentParser.VendorEx.OAS30_JSON;
-import static org.mule.amf.impl.DocumentParser.VendorEx.OAS30_YAML;
+import static org.mule.amf.impl.VendorUtils.VendorEx.OAS20_JSON;
+import static org.mule.amf.impl.VendorUtils.VendorEx.OAS20_YAML;
+import static org.mule.amf.impl.VendorUtils.VendorEx.OAS30_JSON;
+import static org.mule.amf.impl.VendorUtils.VendorEx.OAS30_YAML;
+import static org.mule.amf.impl.VendorUtils.getVendor;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 @RunWith(Parameterized.class)
 public class MainAppScaffolderOASTest {
 
-  private static final Set<DocumentParser.VendorEx> OAS_VENDORS =
+  private static final Set<VendorEx> OAS_VENDORS =
       Collections.unmodifiableSet(EnumSet.of(OAS20_JSON, OAS20_YAML, OAS30_JSON, OAS30_YAML));
   private Path api;
 
@@ -154,7 +155,7 @@ public class MainAppScaffolderOASTest {
     if (!isOas)
       return false;
 
-    final DocumentParser.VendorEx vendor = DocumentParser.getVendor(path.toUri());
+    final VendorEx vendor = getVendor(path.toUri());
     return OAS_VENDORS.contains(vendor);
   }
 
