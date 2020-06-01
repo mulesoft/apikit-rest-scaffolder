@@ -71,7 +71,7 @@ public class MainAppScaffolderOASTest {
   @Test
   public void scaffolder() throws Exception {
     // TODO Get rid of conditional when APIMF-2084 is fixed (4.1.2)
-    if (api.endsWith("AmeriDuo-hplussportsapi-100.json") || api.endsWith("openapi.yaml")) {
+    if (api.endsWith("external-references.json") || api.endsWith("openapi.yaml")) {
       return;
     }
     MuleConfig generatedMuleConfig = scaffoldApi(api);
