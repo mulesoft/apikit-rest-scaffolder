@@ -70,7 +70,7 @@ public class RAMLFilesParserTest {
 
   @Test
   public void oasCreation() {
-    String path = "oas/OpenAPI-Specification/examples/v2.0/json/src/main/resources/api/petstore.json";
+    String path = "oas/v2/OpenAPI-Specification/json/src/main/resources/api/petstore.json";
     ApiReference apiReference = ApiReference.create(getResourceAsUrl(path).getPath());
     ParseResult parseResult = parserService.parse(apiReference);
 

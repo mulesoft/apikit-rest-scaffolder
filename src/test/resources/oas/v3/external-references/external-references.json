@@ -1,0 +1,260 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "H Plus Sports API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "description": "Production Instance",
+      "url": "http://hplus.eastus.cloudapp.azure.com/hplussport1/catalog/1.0.0"
+    },
+    {
+      "description": "SwaggerHub API Auto Mocking",
+      "url": "https://virtserver.swaggerhub.com/hplussport1/catalog/1.0.0"
+    }
+  ],
+  "tags": [
+    {
+      "name": "order",
+      "description": "This is an order related operation"
+    },
+    {
+      "name": "product",
+      "description": "This is a product related operation"
+    }
+  ],
+  "paths": {
+    "/order": {
+      "post": {
+        "tags": [
+          "order"
+        ],
+        "security": [
+          {
+            "password": [
+              "write"
+            ]
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://api.swaggerhub.com/domains/hplussport1/hplus/2.0.0#/components/schemas/Order"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "This is a successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://api.swaggerhub.com/domains/hplussport1/hplus/2.0.0#/components/schemas/Order"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/{productId}": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 12345
+            }
+          },
+          {
+            "in": "header",
+            "name": "customer-security-header",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": "12312-323423-2323"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This is a list of the products in the catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/500ApiError"
+          }
+        }
+      }
+    },
+    "/product": {
+      "post": {
+        "security": [
+          {
+            "password": [
+              "write"
+            ]
+          }
+        ],
+        "tags": [
+          "product"
+        ],
+        "description": "Add a product to the catalog",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The product has been created."
+          },
+          "500": {
+            "$ref": "#/components/responses/500ApiError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PageNumber"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This is a list of the products in the catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/500ApiError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "password": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "tokenUrl": "http://example.com/oauth/token",
+            "scopes": {
+              "write": "allows modifying resources",
+              "read": "allows reading resources"
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "PageNumber": {
+        "in": "query",
+        "name": "pageNumber",
+        "description": "Page number to return",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "example": 1
+        }
+      },
+      "PageSize": {
+        "in": "query",
+        "name": "pageSize",
+        "description": "Number of results in the page",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "example": 10,
+          "maximum": 100
+        }
+      }
+    },
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 400
+          },
+          "name": {
+            "type": "string",
+            "example": "Lemon Water"
+          },
+          "description": {
+            "type": "string",
+            "example": "A refreshing drink"
+          },
+          "image_title": {
+            "type": "string",
+            "example": "mineral-water-lemon-lime"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://hplussport.com/images/1234"
+          }
+        }
+      }
+    },
+    "responses": {
+      "500ApiError": {
+        "description": "This is an unexpected error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "string",
+                  "example": 500
+                },
+                "message": {
+                  "type": "string",
+                  "example": "This is an error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

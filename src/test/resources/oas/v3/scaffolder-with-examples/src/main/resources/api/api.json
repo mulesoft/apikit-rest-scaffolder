@@ -1,0 +1,218 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sample ApikitMainFlowContainer",
+    "version": "undefined"
+  },
+  "servers": [],
+  "paths": {
+    "/persons": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "GET_persons"
+      }
+    },
+    "/customers": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "idNumber": 35877877,
+                    "firstName": "Jose",
+                    "middleName": "Ramiro",
+                    "lastName": "Funes Mori",
+                    "gender": "M",
+                    "customerId": 1234
+                  },
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Person"
+                    },
+                    {
+                      "properties": {
+                        "customerId": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "GET_customers"
+      }
+    },
+    "/providers": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Person"
+                    },
+                    {
+                      "properties": {
+                        "providerId": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "GET_providers"
+      }
+    },
+    "/otherPerson": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "idNumber": 35877876,
+                  "firstName": "Rogelio",
+                  "lastName": "Funes Mori",
+                  "gender": "M"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "GET_otherPerson"
+      }
+    },
+    "/personas": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Persona"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "GET_personas"
+      }
+    },
+    "/union": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MyString"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MyDateOnly"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "GET_union"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Person": {
+        "example":   {
+          "idNumber": 35877877,
+          "firstName": "Jose",
+          "middleName": "Ramiro",
+          "lastName": "Funes Mori",
+          "gender": "M"
+        },
+        "type": "object",
+        "properties": {
+          "idNumber": {
+            "type": "integer"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "gender": {
+            "enum": [
+              "F",
+              "M"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "idNumber",
+          "firstName",
+          "lastName",
+          "gender"
+        ]
+      },
+      "Persona": {
+        "$ref": "#/components/schemas/Person"
+      },
+      "MyString": {
+        "example": "Hello World",
+        "type": "string"
+      },
+      "MyDateOnly": {
+        "example": "2018-08-16",
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "responses": {},
+    "parameters": {},
+    "examples": {},
+    "requestBodies": {},
+    "headers": {},
+    "securitySchemes": {},
+    "links": {},
+    "callbacks": {}
+  }
+}

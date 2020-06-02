@@ -1,0 +1,1299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <http:listener-config name="Ruben4-berlin13-berlin13-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="Ruben4-berlin13-berlin13-config" api="Ruben4-berlin13-berlin13.json" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="Ruben4-berlin13-berlin13-main">
+        <http:listener config-ref="Ruben4-berlin13-berlin13-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="Ruben4-berlin13-berlin13-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="Ruben4-berlin13-berlin13-console">
+        <http:listener config-ref="Ruben4-berlin13-berlin13-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="Ruben4-berlin13-berlin13-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\v1\consents\(consentId)\authorisations\(authorisationId):application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+                <ee:set-variable variableName="authorisationId">attributes.uriParams.'authorisationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scatransactionStatus: "psuIdentified",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\v1\signing-baskets\(basketId)\authorisations\(authorisationId):application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+                <ee:set-variable variableName="authorisationId">attributes.uriParams.'authorisationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scatransactionStatus: "psuIdentified",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\v1\(payment-service)\(payment-product)\(paymentId)\authorisations\(authorisationId):application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+                <ee:set-variable variableName="authorisationId">attributes.uriParams.'authorisationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scatransactionStatus: "psuIdentified",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="put:\v1\(payment-service)\(payment-product)\(paymentId)\cancellation-authorisations\(cancellationId):application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+                <ee:set-variable variableName="cancellationId">attributes.uriParams.'cancellationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scatransactionStatus: "psuIdentified",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\v1\consents\(consentId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\v1\signing-baskets\(basketId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\v1\(payment-service)\(payment-product)\(paymentId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionStatus: "ACTC",
+  "_links": {
+    self: {
+      href: "/v1/payments/123456scheduled789"
+    },
+    status: {
+      href: "/v1/payments/123456scheduled789/status"
+    },
+    startAuthorisation: {
+      href: "/v1/payments/123456scheduled789/cancellation-authorisations"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\accounts:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  accounts: [
+    {
+      resourceId: "3dc3d5b3-7023-4848-9853-f5400a64e80f",
+      iban: "DE2310010010123456789",
+      currency: "EUR",
+      product: "Girokonto",
+      cashAccountType: "CACC",
+      name: "Main Account",
+      "_links": {
+        balances: {
+          href: "/v1/accounts/3dc3d5b3-7023-4848-9853-f5400a64e80f/balances"
+        },
+        transactions: {
+          href: "/v1/accounts/3dc3d5b3-7023-4848-9853-f5400a64e80f/transactions"
+        }
+      }
+    }, 
+    {
+      resourceId: "3dc3d5b3-7023-4848-9853-f5400a64e81g",
+      iban: "DE2310010010123456788",
+      currency: "USD",
+      product: "Fremdwährungskonto",
+      cashAccountType: "CACC",
+      name: "US Dollar Account",
+      "_links": {
+        balances: {
+          href: "/v1/accounts/3dc3d5b3-7023-4848-9853-f5400a64e81g/balances"
+        }
+      }
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\accounts\(account-id):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  account: {
+    resourceId: "3dc3d5b3-7023-4848-9853-f5400a64e80f",
+    iban: "FR7612345987650123456789014",
+    currency: "EUR",
+    product: "Girokonto",
+    cashAccountType: "CACC",
+    name: "Main Account",
+    "_links": {
+      balances: {
+        href: "/v1/accounts/3dc3d5b3-7023-4848-9853-f5400a64e80f/balances"
+      },
+      transactions: {
+        href: "/v1/accounts/3dc3d5b3-7023-4848-9853-f5400a64e80f/transactions"
+      }
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\accounts\(account-id)\balances:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  account: {
+    iban: "FR7612345987650123456789014"
+  },
+  balances: [
+    {
+      balanceType: "closingBooked",
+      balanceAmount: {
+        currency: "EUR",
+        amount: "500.00"
+      },
+      referenceDate: "2017-10-25"
+    }, 
+    {
+      balanceType: "expected",
+      balanceAmount: {
+        currency: "EUR",
+        amount: "900.00"
+      },
+      lastChangeDateTime: "2017-10-25T15:30:35.035Z"
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\accounts\(account-id)\transactions:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  account: {
+    iban: "DE2310010010123456788"
+  },
+  transactions: {
+    booked: [
+      {
+        transactionId: "1234567",
+        creditorName: "John Miles",
+        creditorAccount: {
+          iban: "DE67100100101306118605"
+        },
+        transactionAmount: {
+          currency: "EUR",
+          amount: "256.67"
+        },
+        bookingDate: "2017-10-25",
+        valueDate: "2017-10-26",
+        remittanceInformationUnstructured: "Example 1"
+      }, 
+      {
+        transactionId: "1234568",
+        debtorName: "Paul Simpson",
+        debtorAccount: {
+          iban: "NL76RABO0359400371"
+        },
+        transactionAmount: {
+          currency: "EUR",
+          amount: "343.01"
+        },
+        bookingDate: "2017-10-25",
+        valueDate: "2017-10-26",
+        remittanceInformationUnstructured: "Example 2"
+      }
+    ],
+    pending: [
+      {
+        transactionId: "1234569",
+        creditorName: "Claude Renault",
+        creditorAccount: {
+          iban: "FR7612345987650123456789014"
+        },
+        transactionAmount: {
+          currency: "EUR",
+          amount: "-100.03"
+        },
+        valueDate: "2017-10-26",
+        remittanceInformationUnstructured: "Example 3"
+      }
+    ],
+    "_links": {
+      account: {
+        href: "/v1/accounts/3dc3d5b3-7023-4848-9853-f5400a64e80f"
+      }
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\accounts\(account-id)\transactions\(transactionId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+                <ee:set-variable variableName="transactionId">attributes.uriParams.'transactionId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionsDetails: {
+    transactionId: "1234567",
+    creditorName: "John Miles",
+    creditorAccount: {
+      iban: "DE67100100101306118605"
+    },
+    mandateId: "Mandate-2018-04-20-1234",
+    transactionAmount: {
+      currency: "EUR",
+      amount: "-256.67"
+    },
+    bookingDate: "2017-10-25",
+    valueDate: "2017-10-26",
+    remittanceInformationUnstructured: "Example 1",
+    bankTransactionCode: "PMNT-RCVD-ESDD"
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\card-accounts:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  cardAccounts: [
+    {
+      resourceId: "3d9a81b3-a47d-4130-8765-a9c0ff861b99",
+      maskedPan: "525412******3241",
+      currency: "EUR",
+      name: "Main",
+      product: "Basic Credit",
+      status: "enabled",
+      creditLimit: {
+        currency: "EUR",
+        amount: "15000"
+      },
+      balances: [
+        {
+          balanceType: "interimBooked",
+          balanceAmount: {
+            currency: "EUR",
+            amount: "14355.78"
+          }
+        }, 
+        {
+          balanceType: "nonInvoiced",
+          balanceAmount: {
+            currency: "EUR",
+            amount: "4175.86"
+          }
+        }
+      ],
+      "_links": {
+        transactions: {
+          href: "/v1/card-accounts/3d9a81b3-a47d-4130-8765-a9c0ff861b99/transactions"
+        }
+      }
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\card-accounts\(account-id):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  cardAccount: {
+    resourceId: "3d9a81b3-a47d-4130-8765-a9c0ff861b99",
+    maskedPan: "525412******3241",
+    currency: "EUR",
+    name: "Main",
+    product: "Basic Credit",
+    status: "enabled",
+    creditLimit: {
+      currency: "EUR",
+      amount: "15000"
+    },
+    balances: [
+      {
+        balanceType: "interimBooked",
+        balanceAmount: {
+          currency: "EUR",
+          amount: "14355.78"
+        }
+      }, 
+      {
+        balanceType: "nonInvoiced",
+        balanceAmount: {
+          currency: "EUR",
+          amount: "4175.86"
+        }
+      }
+    ],
+    "_links": {
+      transactions: {
+        href: "/v1/card-accounts/3d9a81b3-a47d-4130-8765-a9c0ff861b99/transactions"
+      }
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\card-accounts\(account-id)\balances:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  cardAccount: {
+    maskedPan: "525412******3241"
+  },
+  balances: [
+    {
+      balanceType: "interimBooked",
+      balanceAmount: {
+        currency: "EUR",
+        amount: "14355.78"
+      }
+    }, 
+    {
+      balanceType: "nonInvoiced",
+      balanceAmount: {
+        currency: "EUR",
+        amount: "4175.86"
+      }
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\card-accounts\(account-id)\transactions:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="account-id">attributes.uriParams.'account-id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\consents\(consentId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  access: {
+    balances: [
+      {
+        iban: "DE2310010010123456789"
+      }
+    ],
+    transactions: [
+      {
+        iban: "DE2310010010123456789"
+      }, 
+      {
+        pan: "123456xxxxxx3457"
+      }
+    ]
+  },
+  recurringIndicator: "true",
+  validUntil: "2017-11-01",
+  frequencyPerDay: "4",
+  consentStatus: "valid",
+  "_links": {
+    account: {
+      href: "/v1/accounts"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\consents\(consentId)\authorisations:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  authorisationIds: [
+    "123auth456"
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\consents\(consentId)\authorisations\(authorisationId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+                <ee:set-variable variableName="authorisationId">attributes.uriParams.'authorisationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\consents\(consentId)\status:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  consentStatus: "valid"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\signing-baskets\(basketId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  payments: [
+    "1234pay567", 
+    "1234pay568", 
+    "1234pay888"
+  ],
+  transactionStatus: "ACTC"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\signing-baskets\(basketId)\authorisations:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  authorisationIds: [
+    "123auth456"
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\signing-baskets\(basketId)\authorisations\(authorisationId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+                <ee:set-variable variableName="authorisationId">attributes.uriParams.'authorisationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\signing-baskets\(basketId)\status:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\(payment-service)\(payment-product)\(paymentId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+do {
+  ns ns0 urn:iso:std:iso:20022:tech:xsd:pain.001.001.03
+  ---
+  {
+    ns0#Document: {
+      ns0#CstmrCdtTrfInitn: {
+        ns0#GrpHdr: {
+          ns0#MsgId: "MIPI-123456789RI-123456789",
+          ns0#CreDtTm: "2017-02-14T20:23:34.000Z",
+          ns0#NbOfTxs: "1",
+          ns0#CtrlSum: "123",
+          ns0#InitgPty: {
+            ns0#Nm: "PaymentInitiator",
+            ns0#Id: {
+              ns0#OrgId: {
+                ns0#Othr: {
+                  ns0#Id: "DE10000000012",
+                  ns0#SchmeNm: {
+                    ns0#Prptry: "PISP"
+                  }
+                }
+              }
+            }
+          }
+        },
+        ns0#PmtInf: {
+          ns0#PmtInfId: "BIPI-123456789RI-123456789",
+          ns0#PmtMtd: "TRF",
+          ns0#NbOfTxs: "1",
+          ns0#CtrlSum: "123",
+          ns0#PmtTpInf: {
+            ns0#SvcLvl: {
+              ns0#Cd: "SEPA"
+            }
+          },
+          ns0#ReqdExctnDt: "2017-02-15",
+          ns0#Dbtr: {
+            ns0#Nm: "PSU Name"
+          },
+          ns0#DbtrAcct: {
+            ns0#Id: {
+              ns0#IBAN: "DE87200500001234567890"
+            }
+          },
+          ns0#ChrgBr: "SLEV",
+          ns0#CdtTrfTxInf: {
+            ns0#PmtId: {
+              ns0#EndToEndId: "RI-123456789"
+            },
+            ns0#Amt: {
+              ns0#InstdAmt @(Ccy: "EUR"): "123"
+            },
+            ns0#Cdtr: {
+              ns0#Nm: "Merchant123"
+            },
+            ns0#CdtrAcct: {
+              ns0#Id: {
+                ns0#IBAN: " DE23100120020123456789"
+              }
+            },
+            ns0#RmtInf: {
+              ns0#Ustrd: "Ref Number Merchant-123456"
+            }
+          }
+        }
+      }
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\(payment-service)\(payment-product)\(paymentId)\authorisations:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  authorisationIds: [
+    "123auth456"
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\(payment-service)\(payment-product)\(paymentId)\authorisations\(authorisationId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+                <ee:set-variable variableName="authorisationId">attributes.uriParams.'authorisationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\(payment-service)\(payment-product)\(paymentId)\cancellation-authorisations:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  cancellationIds: [
+    "123auth456"
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\(payment-service)\(payment-product)\(paymentId)\cancellation-authorisations\(cancellationId):Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+                <ee:set-variable variableName="cancellationId">attributes.uriParams.'cancellationId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+  {
+    category: "ERROR",
+    code: "STATUS_INVALID",
+    text: "additional text information of the ASPSP up to 512 characters"
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\v1\(payment-service)\(payment-product)\(paymentId)\status:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionStatus: "ACCP"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\consents\(consentId)\authorisations:application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="consentId">attributes.uriParams.'consentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scaStatus: "received",
+  authorisationId: "123auth456",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\consents:application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  consentStatus: "received",
+  consentId: "1234-wertiq-983",
+  "_links": {
+    scaRedirect: {
+      href: "https://www.testbank.com/authentication/1234-wertiq-983"
+    },
+    status: {
+      href: "/v1/consents/1234-wertiq-983/status"
+    },
+    scaStatus: {
+      href: "v1/consents/1234-wertiq-983/authorisations/123auth567"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\funds-confirmations:application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  fundsAvailable: "true"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\signing-baskets\(basketId)\authorisations:application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="basketId">attributes.uriParams.'basketId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scaStatus: "received",
+  authorisationId: "123auth456",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\signing-baskets:application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionStatus: "RCVD",
+  basketId: "1234-basket-567",
+  "_links": {
+    self: {
+      href: "/v1/signing-baskets/1234-basket-567"
+    },
+    status: {
+      href: "/v1/signing-baskets/1234-basket-567/status"
+    },
+    startAuthorisation: {
+      href: "/v1/signing-baskets/1234-basket-567/authorisations"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\(payment-service)\(payment-product)\(paymentId)\authorisations:application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scaStatus: "received",
+  authorisationId: "123auth456",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\(payment-service)\(payment-product)\(paymentId)\cancellation-authorisations:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+                <ee:set-variable variableName="paymentId">attributes.uriParams.'paymentId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  scaStatus: "received",
+  authorisationId: "123auth456",
+  psuMessage: "Please use your BankApp for transaction Authorisation.",
+  "_links": {
+    scaStatus: {
+      href: "/v1/payments/qwer3456tzui7890/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\(payment-service)\(payment-product):application\json:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionStatus: "RCVD",
+  paymentId: "1234-wertiq-983",
+  "_links": {
+    scaRedirect: {
+      href: "https://www.testbank.com/asdfasdfasdf"
+    },
+    self: {
+      href: "/v1/payments/sepa-credit-transfers/1234-wertiq-983"
+    },
+    status: {
+      href: "/v1/payments/1234-wertiq-983/status"
+    },
+    scaStatus: {
+      href: "/v1/payments/1234-wertiq-983/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\(payment-service)\(payment-product):application\xml:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionStatus: "RCVD",
+  paymentId: "1234-wertiq-983",
+  "_links": {
+    scaRedirect: {
+      href: "https://www.testbank.com/asdfasdfasdf"
+    },
+    self: {
+      href: "/v1/payments/sepa-credit-transfers/1234-wertiq-983"
+    },
+    status: {
+      href: "/v1/payments/1234-wertiq-983/status"
+    },
+    scaStatus: {
+      href: "/v1/payments/1234-wertiq-983/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\v1\(payment-service)\(payment-product):multipart\form-data:Ruben4-berlin13-berlin13-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="payment-service">attributes.uriParams.'payment-service'</ee:set-variable>
+                <ee:set-variable variableName="payment-product">attributes.uriParams.'payment-product'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  transactionStatus: "RCVD",
+  paymentId: "1234-wertiq-983",
+  "_links": {
+    scaRedirect: {
+      href: "https://www.testbank.com/asdfasdfasdf"
+    },
+    self: {
+      href: "/v1/payments/sepa-credit-transfers/1234-wertiq-983"
+    },
+    status: {
+      href: "/v1/payments/1234-wertiq-983/status"
+    },
+    scaStatus: {
+      href: "/v1/payments/1234-wertiq-983/authorisations/123auth456"
+    }
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>
