@@ -3,7 +3,8 @@
     <http:listener-config name="union-types-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="union-types-api-config" api="/Users/dcourtil/Workspace/apikit-projects/apikit-rest-scaffolder/target/test-classes/oas/v3/union-types/union-types-api.yaml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="union-types-api-config" api="union-types-api.yaml" outboundHeadersMapName="outboundHeaders"
+                   httpStatusVarName="httpStatus"/>
     <flow name="union-types-api-main">
         <http:listener config-ref="union-types-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">

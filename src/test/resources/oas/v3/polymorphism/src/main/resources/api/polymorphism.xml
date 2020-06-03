@@ -3,7 +3,8 @@
     <http:listener-config name="polymorphism-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="polymorphism-config" api="/Users/dcourtil/Workspace/apikit-projects/apikit-rest-scaffolder/target/test-classes/oas/v3/polymorphism/polymorphism.yaml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="polymorphism-config" api="polymorphism.yaml" outboundHeadersMapName="outboundHeaders"
+                   httpStatusVarName="httpStatus"/>
     <flow name="polymorphism-main">
         <http:listener config-ref="polymorphism-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
