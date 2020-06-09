@@ -142,7 +142,8 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withShowConsole(true).build();
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
 
@@ -225,7 +226,8 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(EE).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withShowConsole(true).build();
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     return result.getGeneratedConfigs().get(0);

@@ -25,7 +25,7 @@ public class ScaffoldingConfiguration {
     this.showConsole = showConsole;
   }
 
-    public ApiSpecification getApi() {
+  public ApiSpecification getApi() {
     return api;
   }
 
@@ -37,7 +37,7 @@ public class ScaffoldingConfiguration {
     return domain;
   }
 
-  public boolean isShowConsole(){
+  public boolean isShowConsole() {
     return showConsole;
   }
 

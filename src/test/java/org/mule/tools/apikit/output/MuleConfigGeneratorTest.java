@@ -149,7 +149,7 @@ public class MuleConfigGeneratorTest {
   @Test
   public void blankDocumentWithoutLCInDomainHideConsole() {
     HttpListenerConfig listenerConfig =
-            new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
+        new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
     ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     when(api.getPath()).thenReturn("/api/*");
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
@@ -168,8 +168,8 @@ public class MuleConfigGeneratorTest {
     apis.add(api);
 
     MuleConfigGenerator muleConfigGenerator =
-            new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
-                    ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), HIDE_CONSOLE1);
+        new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
+                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), HIDE_CONSOLE1);
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
 

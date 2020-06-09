@@ -145,7 +145,7 @@ public class MuleConfigGenerator {
 
     muleConfig.addConfig(api.getConfig());
     muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
-    if(showConsole){
+    if (showConsole) {
       muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
     }
   }

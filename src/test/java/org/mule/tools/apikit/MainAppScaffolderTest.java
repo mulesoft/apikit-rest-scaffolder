@@ -573,11 +573,11 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
     assertEquals(0, countOccurences(s, "#[null]"));
     assertEquals(0,
-            countOccurences(s,
-                    "expression-component>mel:flowVars['variables.outboundHeaders default {}'].put('Content-Type', 'application/json')</expression-component>"));
+                 countOccurences(s,
+                                 "expression-component>mel:flowVars['variables.outboundHeaders default {}'].put('Content-Type', 'application/json')</expression-component>"));
     assertEquals(0,
-            countOccurences(s,
-                    "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
+                 countOccurences(s,
+                                 "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
     assertEquals(0, countOccurences(s, "exception-strategy"));
     assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
@@ -973,9 +973,9 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertTrue(secondRamlParsingResult.success());
 
     ScaffoldingConfiguration firstScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(firstRamlParsingResult.get()).build();
+        new ScaffoldingConfiguration.Builder().withApi(firstRamlParsingResult.get()).withShowConsole(true).build();
     ScaffoldingConfiguration secondScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).build();
+        new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).withShowConsole(true).build();
 
     ScaffoldingResult result = mainAppScaffolder.run(firstScaffoldingConfiguration);
     assertTrue(result.isSuccess());

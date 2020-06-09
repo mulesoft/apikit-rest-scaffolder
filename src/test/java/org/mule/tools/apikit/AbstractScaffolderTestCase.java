@@ -62,7 +62,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   }
 
   protected ScaffoldingResult scaffoldApiHiddenConsole(RuntimeEdition runtimeEdition, String ramlLocation) throws Exception {
-    return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), (MuleDomain) null,false);
+    return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), (MuleDomain) null, false);
   }
 
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
@@ -85,7 +85,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
                                           List<String> existingMuleConfigsLocations, MuleDomain muleDomain)
-          throws Exception {
+      throws Exception {
     return scaffoldApi(runtimeEdition, ramlLocation, existingMuleConfigsLocations, muleDomain, true);
   }
 
@@ -96,7 +96,8 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     List<MuleConfig> muleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    ScaffoldingConfiguration scaffoldingConfiguration = getScaffoldingConfiguration(ramlLocation, muleConfigs, muleDomain, showConsole);
+    ScaffoldingConfiguration scaffoldingConfiguration =
+        getScaffoldingConfiguration(ramlLocation, muleConfigs, muleDomain, showConsole);
 
 
     ScaffoldingResult scaffoldingResult = mainAppScaffolder.run(scaffoldingConfiguration);
@@ -109,7 +110,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return getScaffoldingConfiguration(apiPath, muleConfigs, muleDomain, true);
   }
 
-    protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
+  protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
                                                                  MuleDomain muleDomain, boolean showConsole) {
     ApiReference apiReference = ApiReference.create(Paths.get(apiPath).toString());
     ParseResult parseResult = new ParserService().parse(apiReference);
