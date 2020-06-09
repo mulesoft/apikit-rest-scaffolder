@@ -16,14 +16,16 @@ public class ScaffoldingConfiguration {
   private final ApiSpecification api;
   private final List<MuleConfig> configurations;
   private final MuleDomain domain;
+  private final boolean showConsole;
 
-  private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain) {
+  private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain, boolean showConsole) {
     this.api = api;
     this.configurations = configs;
     this.domain = domain;
+    this.showConsole = showConsole;
   }
 
-  public ApiSpecification getApi() {
+    public ApiSpecification getApi() {
     return api;
   }
 
@@ -35,6 +37,10 @@ public class ScaffoldingConfiguration {
     return domain;
   }
 
+  public boolean isShowConsole(){
+    return showConsole;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -44,6 +50,7 @@ public class ScaffoldingConfiguration {
     private ApiSpecification api;
     private List<MuleConfig> muleConfigurations;
     private MuleDomain domain;
+    private boolean showConsole;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
@@ -65,8 +72,13 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
+    public Builder withShowConsole(boolean showConsole) {
+      this.showConsole = showConsole;
+      return this;
+    }
+
     public ScaffoldingConfiguration build() {
-      return new ScaffoldingConfiguration(api, muleConfigurations, domain);
+      return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole);
     }
   }
 

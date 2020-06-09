@@ -35,6 +35,8 @@ import static org.mockito.Mockito.when;
 
 public class MuleConfigGeneratorTest {
 
+  public static final boolean SHOW_CONSOLE = true;
+  public static final boolean HIDE_CONSOLE1 = false;
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
@@ -117,7 +119,7 @@ public class MuleConfigGeneratorTest {
 
     MuleConfigGenerator muleConfigGenerator =
         new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
-                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build());
+                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), SHOW_CONSOLE);
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
 
@@ -143,4 +145,49 @@ public class MuleConfigGeneratorTest {
     assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
     assertEquals("console", consoleFlow.getChildren().get(1).getName());
   }
+
+  @Test
+  public void blankDocumentWithoutLCInDomainHideConsole() {
+    HttpListenerConfig listenerConfig =
+            new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
+    when(api.getPath()).thenReturn("/api/*");
+    when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
+    File raml = mock(File.class);
+    when(raml.getName()).thenReturn("hello.raml");
+    when(api.getApiFilePath()).thenReturn("hello.raml");
+    when(api.getId()).thenReturn("hello");
+    doCallRealMethod().when(api).setId(anyString());
+    doCallRealMethod().when(api).setApiFilePath(anyString());
+    doCallRealMethod().when(api).setDefaultAPIKitConfig();
+    doCallRealMethod().when(api).getConfig();
+
+    api.setId("hello");
+    api.setApiFilePath("hello.raml");
+    List<ApikitMainFlowContainer> apis = new ArrayList<>();
+    apis.add(api);
+
+    MuleConfigGenerator muleConfigGenerator =
+            new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
+                    ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), HIDE_CONSOLE1);
+
+    Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
+
+    Element rootElement = document.getRootElement();
+    assertEquals("mule", rootElement.getName());
+    Element xmlListenerConfig = rootElement.getChildren().get(0);
+    assertEquals("listener-config", xmlListenerConfig.getName());
+
+    Element apikitConfig = rootElement.getChildren().get(1);
+    assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
+
+    Element mainFlow = rootElement.getChildren().get(2);
+
+    assertEquals("flow", mainFlow.getName());
+    assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
+    assertEquals("httpListenerConfig", mainFlow.getChildren().get(0).getAttribute("config-ref").getValue());
+    assertEquals("/api/*", mainFlow.getChildren().get(0).getAttribute("path").getValue());
+
+  }
+
 }
