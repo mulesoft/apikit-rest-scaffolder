@@ -104,7 +104,7 @@ public class MainAppScaffolderOASTest {
     ParseResult parseResult = new ParserService().parse(apiReference);
     assertTrue(parseResult.success());
     ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withShowConsole(true).build();
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
     ScaffoldingResult scaffolderResult = mainAppScaffolder.run(configuration);
     assertEquals(1, scaffolderResult.getGeneratedConfigs().size());
     return scaffolderResult.getGeneratedConfigs().get(0);

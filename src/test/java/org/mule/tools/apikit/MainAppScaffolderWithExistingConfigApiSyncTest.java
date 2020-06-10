@@ -63,7 +63,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     assertTrue(parseResult.success());
 
     ScaffoldingConfiguration configuration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withShowConsole(true).build();
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
@@ -79,8 +79,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
     // In the second ScaffoldingConfiguration, we have to include the mule config generated previously
     ScaffoldingConfiguration secondScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs)
-            .withShowConsole(true).build();
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
     ScaffoldingResult secondScaffoldingResult = mainAppScaffolder.run(secondScaffoldingConfiguration);
 
     assertTrue(secondScaffoldingResult.isSuccess());
@@ -123,7 +122,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     assertTrue(parseResult.success());
 
     ScaffoldingConfiguration.Builder configurationBuilder =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withShowConsole(true);
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
     if (muleConfigs != null) {
       configurationBuilder.withMuleConfigurations(muleConfigs);
     }

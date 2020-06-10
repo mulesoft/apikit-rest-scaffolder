@@ -54,6 +54,7 @@ public class ScaffoldingConfiguration {
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
+      this.showConsole = true;
       domain = MuleDomain.builder().build();
     }
 

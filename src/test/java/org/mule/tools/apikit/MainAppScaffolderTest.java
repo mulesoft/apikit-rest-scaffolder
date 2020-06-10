@@ -973,9 +973,9 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertTrue(secondRamlParsingResult.success());
 
     ScaffoldingConfiguration firstScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(firstRamlParsingResult.get()).withShowConsole(true).build();
+        new ScaffoldingConfiguration.Builder().withApi(firstRamlParsingResult.get()).build();
     ScaffoldingConfiguration secondScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).withShowConsole(true).build();
+        new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).build();
 
     ScaffoldingResult result = mainAppScaffolder.run(firstScaffoldingConfiguration);
     assertTrue(result.isSuccess());
