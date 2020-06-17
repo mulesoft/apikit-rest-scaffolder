@@ -61,6 +61,10 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), (MuleDomain) null);
   }
 
+  protected ScaffoldingResult scaffoldApiHiddenConsole(RuntimeEdition runtimeEdition, String ramlLocation) throws Exception {
+    return scaffoldApi(runtimeEdition, ramlLocation, Collections.emptyList(), (MuleDomain) null, false);
+  }
+
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
                                           List<String> existingMuleConfigsLocation)
       throws Exception {
@@ -82,11 +86,18 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
                                           List<String> existingMuleConfigsLocations, MuleDomain muleDomain)
       throws Exception {
+    return scaffoldApi(runtimeEdition, ramlLocation, existingMuleConfigsLocations, muleDomain, true);
+  }
+
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
+                                          List<String> existingMuleConfigsLocations, MuleDomain muleDomain, boolean showConsole)
+      throws Exception {
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(runtimeEdition).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
     List<MuleConfig> muleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    ScaffoldingConfiguration scaffoldingConfiguration = getScaffoldingConfiguration(ramlLocation, muleConfigs, muleDomain);
+    ScaffoldingConfiguration scaffoldingConfiguration =
+        getScaffoldingConfiguration(ramlLocation, muleConfigs, muleDomain, showConsole);
 
 
     ScaffoldingResult scaffoldingResult = mainAppScaffolder.run(scaffoldingConfiguration);
@@ -96,6 +107,11 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
   protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
                                                                  MuleDomain muleDomain) {
+    return getScaffoldingConfiguration(apiPath, muleConfigs, muleDomain, true);
+  }
+
+  protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
+                                                                 MuleDomain muleDomain, boolean showConsole) {
     ApiReference apiReference = ApiReference.create(Paths.get(apiPath).toString());
     ParseResult parseResult = new ParserService().parse(apiReference);
     ScaffoldingConfiguration.Builder configuration = new ScaffoldingConfiguration.Builder();
@@ -107,6 +123,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     if (muleDomain != null) {
       configuration.withDomain(muleDomain);
     }
+    configuration.withShowConsole(showConsole);
     return configuration.build();
   }
 
