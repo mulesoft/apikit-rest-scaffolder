@@ -62,7 +62,8 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
         new ParserService().parse(ApiReference.create(ROOT_RAML_RESOURCE_URL + raml, testScaffolderResourceLoader));
     assertTrue(parseResult.success());
 
-    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
+    ScaffoldingConfiguration configuration =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
@@ -120,7 +121,8 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
         new ParserService().parse(ApiReference.create(rootRamlResourceUrl + raml, testScaffolderResourceLoader));
     assertTrue(parseResult.success());
 
-    ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
+    ScaffoldingConfiguration.Builder configurationBuilder =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
     if (muleConfigs != null) {
       configurationBuilder.withMuleConfigurations(muleConfigs);
     }

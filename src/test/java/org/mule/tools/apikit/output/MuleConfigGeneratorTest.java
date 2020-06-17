@@ -35,6 +35,8 @@ import static org.mockito.Mockito.when;
 
 public class MuleConfigGeneratorTest {
 
+  public static final boolean SHOW_CONSOLE = true;
+  public static final boolean HIDE_CONSOLE = false;
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
@@ -96,6 +98,42 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutLCInDomain() {
+    Document document = this.scaffoldBlankDocument(SHOW_CONSOLE);
+    Element rootElement = document.getRootElement();
+    assertCommonFlows(rootElement);
+    Element consoleFlow = rootElement.getChildren().get(3);
+    assertEquals("flow", consoleFlow.getName());
+    assertEquals("hello-console", consoleFlow.getAttribute("name").getValue());
+    assertEquals("httpListenerConfig", consoleFlow.getChildren().get(0).getAttribute("config-ref").getValue());
+    assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
+    assertEquals("console", consoleFlow.getChildren().get(1).getName());
+  }
+
+  @Test
+  public void blankDocumentWithoutLCInDomainHideConsole() {
+    Document document = scaffoldBlankDocument(HIDE_CONSOLE);
+    Element rootElement = document.getRootElement();
+    assertCommonFlows(rootElement);
+
+  }
+
+  private void assertCommonFlows(Element rootElement) {
+    assertEquals("mule", rootElement.getName());
+    Element xmlListenerConfig = rootElement.getChildren().get(0);
+    assertEquals("listener-config", xmlListenerConfig.getName());
+
+    Element apikitConfig = rootElement.getChildren().get(1);
+    assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
+
+    Element mainFlow = rootElement.getChildren().get(2);
+
+    assertEquals("flow", mainFlow.getName());
+    assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
+    assertEquals("httpListenerConfig", mainFlow.getChildren().get(0).getAttribute("config-ref").getValue());
+    assertEquals("/api/*", mainFlow.getChildren().get(0).getAttribute("path").getValue());
+  }
+
+  private Document scaffoldBlankDocument(boolean showConsole) {
     HttpListenerConfig listenerConfig =
         new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
     ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
@@ -117,30 +155,11 @@ public class MuleConfigGeneratorTest {
 
     MuleConfigGenerator muleConfigGenerator =
         new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
-                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build());
+                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), showConsole);
 
     Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
-
-    Element rootElement = document.getRootElement();
-    assertEquals("mule", rootElement.getName());
-    Element xmlListenerConfig = rootElement.getChildren().get(0);
-    assertEquals("listener-config", xmlListenerConfig.getName());
-
-    Element apikitConfig = rootElement.getChildren().get(1);
-    assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
-
-    Element mainFlow = rootElement.getChildren().get(2);
-
-    assertEquals("flow", mainFlow.getName());
-    assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
-    assertEquals("httpListenerConfig", mainFlow.getChildren().get(0).getAttribute("config-ref").getValue());
-    assertEquals("/api/*", mainFlow.getChildren().get(0).getAttribute("path").getValue());
-
-    Element consoleFlow = rootElement.getChildren().get(3);
-    assertEquals("flow", consoleFlow.getName());
-    assertEquals("hello-console", consoleFlow.getAttribute("name").getValue());
-    assertEquals("httpListenerConfig", consoleFlow.getChildren().get(0).getAttribute("config-ref").getValue());
-    assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
-    assertEquals("console", consoleFlow.getChildren().get(1).getName());
+    return document;
   }
+
+
 }

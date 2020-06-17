@@ -53,13 +53,15 @@ public class MuleConfigGenerator {
   private final List<ApikitMainFlowContainer> apis;
   private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
   private ScaffolderContext scaffolderContext;
+  private boolean showConsole;
 
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apis, List<GenerationModel> flowEntries,
-                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext) {
+                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext, boolean showConsole) {
     this.apis = apis;
     this.flowEntries = flowEntries;
     this.muleConfigsInApp.addAll(muleConfigsInApp);
     this.scaffolderContext = scaffolderContext;
+    this.showConsole = showConsole;
   }
 
   public List<MuleConfig> generate() {
@@ -143,7 +145,9 @@ public class MuleConfigGenerator {
 
     muleConfig.addConfig(api.getConfig());
     muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
-    muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
+    if (showConsole) {
+      muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
+    }
   }
 
   private boolean isMuleEE() {
