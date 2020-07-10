@@ -20,8 +20,6 @@ import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.*;
 import org.mule.tools.apikit.output.scopes.*;
 
-import javax.swing.text.html.Option;
-
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 public class MuleConfigGenerator {
