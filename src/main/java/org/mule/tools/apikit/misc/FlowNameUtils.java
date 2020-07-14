@@ -6,14 +6,14 @@
  */
 package org.mule.tools.apikit.misc;
 
-import com.google.common.collect.ImmutableMap;
-
+import com.google.common.collect.ImmutableBiMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.String.valueOf;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class FlowNameUtils {
@@ -21,7 +21,7 @@ public class FlowNameUtils {
   public static final String FLOW_NAME_SEPARATOR = ":";
   public static final String URL_RESOURCE_SEPARATOR = "/";
 
-  private static final ImmutableMap<String, String> specialCharacters = ImmutableMap.<String, String>builder()
+  private static final ImmutableBiMap<String, String> specialCharacters = new ImmutableBiMap.Builder<String, String>()
       .put(URL_RESOURCE_SEPARATOR, "\\")
       .put("{", "(")
       .put("}", ")")
@@ -42,20 +42,31 @@ public class FlowNameUtils {
     return flowNameMatcher;
   }
 
+  /**
+   * transform special chars keys -> value if found in parameter value
+   * @param value
+   * @return value with special chars transformed
+   */
   public static String encode(String value) {
-    for (Map.Entry<String, String> entry : specialCharacters.entrySet()) {
-      value = value.replace(entry.getKey(), entry.getValue());
-    }
-
-    return value;
+    return transform(value, specialCharacters);
   }
 
+  /**
+   * transform specials chars value -> key if found in parameter value
+   * @param value
+   * @return value with special chars transformed
+   */
   public static String decode(String value) {
-    for (Map.Entry<String, String> entry : specialCharacters.entrySet()) {
-      value = value.replace(entry.getValue(), entry.getKey());
-    }
+    return transform(value, specialCharacters.inverse());
+  }
 
-    return value;
+  private static String transform(String value, Map<String, String> mapping) {
+    StringBuilder stringBuilder = new StringBuilder(value.length());
+    value.chars().forEach(c -> {
+      String character = valueOf((char) c);
+      stringBuilder.append(mapping.getOrDefault(character, character));
+    });
+    return stringBuilder.toString();
   }
 
   public static String getAction(Matcher flowNameMatcher) {
