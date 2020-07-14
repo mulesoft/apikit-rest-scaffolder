@@ -12,7 +12,6 @@
     <properties>
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <mavenVersion>3.3.9</mavenVersion>
 
         <parser.service.version>2.0.9-SNAPSHOT</parser.service.version>
         <mule.service.weave.version>2.3.0</mule.service.weave.version>
@@ -22,10 +21,10 @@
         <project.reactor.version>3.2.0.M1</project.reactor.version>
         <rest.assured.version>3.2.0</rest.assured.version>
 
-        <jacoco.version>0.7.9</jacoco.version>
-        <allureJunitVersion>2.0-BETA17</allureJunitVersion>
+        <jacoco.version>0.8.5</jacoco.version>
+        <allureJunitVersion>2.13.5</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
-        <allure.maven.plugin.version>2.8</allure.maven.plugin.version>
+        <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
 
     </properties>
 
@@ -43,12 +42,12 @@
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
-            <version>1.1.4</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
-            <version>2.0.5</version>
+            <version>2.0.6</version>
         </dependency>
         <dependency>
             <groupId>org.mule.weave</groupId>
@@ -60,30 +59,13 @@
             <artifactId>core-modules</artifactId>
             <version>${mule.service.weave.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>${mavenVersion}</version>
-        </dependency>
-
-        <!--TODO: DELETE ME FER-->
-        <dependency>
-            <groupId>com.googlecode.slf4j-maven-plugin-log</groupId>
-            <artifactId>slf4j-maven-plugin-log</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
         <!-- Testing -->
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
-            <version>1.4</version>
+            <version>1.6</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>3.0.24</version>
         </dependency>
 
         <dependency>
@@ -95,7 +77,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,7 +95,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -156,7 +138,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -166,7 +148,7 @@
             <plugin>
                 <groupId>com.marvinformatics.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>1.9.0</version>
+                <version>1.9.2</version>
                 <configuration>
                     <compilerCompliance>1.8</compilerCompliance>
                     <compilerSource>1.8</compilerSource>
