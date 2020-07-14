@@ -43,18 +43,18 @@ public class APIKitFlow {
     return configRef;
   }
 
-  public static APIKitFlow buildFromName(String name, Collection<String> existingConfigs) {
-    final Matcher matcher = FlowNameUtils.getMatcher(name);
+  public static APIKitFlow buildFromName(String name, Collection<String> existingConfigs) throws IllegalArgumentException {
+    Matcher matcher = FlowNameUtils.getMatcher(name);
+    String action = FlowNameUtils.getAction(matcher);
 
-    final String action = FlowNameUtils.getAction(matcher);
     if (!RamlUtils.isValidAction(action)) {
       throw new IllegalArgumentException(action + " is not a valid action type");
     }
 
-    final String resource = FlowNameUtils.getResource(matcher);
+    String resource = FlowNameUtils.getResource(matcher);
 
-    final String mimeType = FlowNameUtils.getMimeType(matcher, existingConfigs).orElse(null);
-    final String config = FlowNameUtils.getConfig(matcher, existingConfigs).orElse(null);
+    String mimeType = FlowNameUtils.getMimeType(matcher, existingConfigs).orElse(null);
+    String config = FlowNameUtils.getConfig(matcher, existingConfigs).orElse(null);
 
     return new APIKitFlow(action, resource, mimeType, config);
   }

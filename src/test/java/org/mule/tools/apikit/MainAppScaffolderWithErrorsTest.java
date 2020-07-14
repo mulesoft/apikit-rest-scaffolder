@@ -52,7 +52,7 @@ public class MainAppScaffolderWithErrorsTest {
   @Test
   public void shouldFailDueToMissingApikitEntriesInMuleConfig() throws Exception {
     ScaffoldingResult result = scaffoldApi("config-without-apikit-entries");
-    String expectedErrorReason = "No APIKit entries found in Mule config";
+    String expectedErrorReason = "No APIKit configuration found for flow get:/dummy-flow";
     assertFalse(result.isSuccess());
     assertEquals(expectedErrorReason, result.getErrors().get(0).getReason());
   }
