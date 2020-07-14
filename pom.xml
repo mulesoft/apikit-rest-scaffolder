@@ -60,13 +60,6 @@
             <version>${mule.service.weave.version}</version>
         </dependency>
 
-        <!--TODO: DELETE ME FER-->
-        <dependency>
-            <groupId>com.googlecode.slf4j-maven-plugin-log</groupId>
-            <artifactId>slf4j-maven-plugin-log</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
         <!-- Testing -->
         <dependency>
             <groupId>xmlunit</groupId>
