@@ -12,7 +12,6 @@
     <properties>
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <mavenVersion>3.3.9</mavenVersion>
 
         <parser.service.version>3.0.0-SNAPSHOT</parser.service.version>
         <mule.service.weave.version>2.3.0</mule.service.weave.version>
@@ -60,11 +59,6 @@
             <artifactId>core-modules</artifactId>
             <version>${mule.service.weave.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>${mavenVersion}</version>
-        </dependency>
 
         <!--TODO: DELETE ME FER-->
         <dependency>
@@ -79,11 +73,6 @@
             <artifactId>xmlunit</artifactId>
             <version>1.4</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>3.0.24</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
