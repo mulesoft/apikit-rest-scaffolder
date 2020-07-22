@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import org.mule.apikit.loader.ResourceLoader;
-import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -31,8 +30,8 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -54,6 +53,13 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     folder.newFolder("rescaffolding-apisync-version", "v2");
   }
 
+  /**
+   *
+   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 0.0.1.
+   * Finally it re-scaffolds with same version
+   * Expected behaviour is that the new scaffolded API has version 0.0.1 in the main xml.
+   *
+   */
   @Test
   public void reScaffold() throws Exception {
     String raml = "api.raml";
@@ -70,48 +76,48 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ScaffoldingConfiguration configuration =
         new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).build();
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
-    assertTrue(result.isSuccess());
-    assertEquals(1, result.getGeneratedConfigs().size());
 
-    String expected = APIKitTools.readContents(getResourceAsStream("rescaffolding-apisync-version/v1/api.xml"));
-    String generated = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-
-    XMLUnit.setIgnoreWhitespace(true);
-    Diff diff = XMLUnit.compareXML(expected, generated);
-    assertTrue(diff.identical());
+    verifySuccessfulScaffolding(result, "rescaffolding-apisync-version/v1/api.xml");
 
     List<MuleConfig> muleConfigs = new ArrayList<>(result.getGeneratedConfigs());
 
-    // In the second ScaffoldingConfiguration, we have to include the mule config generated previously
     ScaffoldingConfiguration secondScaffoldingConfiguration =
         new ScaffoldingConfiguration.Builder().withApi(parseResult.get()).withMuleConfigurations(muleConfigs).build();
     ScaffoldingResult secondScaffoldingResult = mainAppScaffolder.run(secondScaffoldingConfiguration);
 
-    assertTrue(secondScaffoldingResult.isSuccess());
-    assertEquals(1, secondScaffoldingResult.getGeneratedConfigs().size());
-    assertEquals(result.getGeneratedConfigs().get(0), secondScaffoldingResult.getGeneratedConfigs().get(0));
+    verifySuccessfulScaffolding(secondScaffoldingResult, "rescaffolding-apisync-version/v1/api.xml");
   }
 
+  /**
+   *
+   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 0.0.1.
+   * Finally it re-scaffolds with version 0.0.2.
+   * Expected behaviour is that the new scaffolded API has version 0.0.2 in the main xml.
+   *
+   */
   @Test
-  public void reScaffoldDifferntVersions() throws Exception {
+  public void reScaffoldDifferentVersions() throws Exception {
     String raml = "api.raml";
     String ramlFolderV1 = "src/test/resources/rescaffolding-apisync-version/v1";
     String ramlFolderV2 = "src/test/resources/rescaffolding-apisync-version/v2";
-    XMLUnit.setIgnoreWhitespace(true);
-
     ScaffoldingResult result = scaffoldApiSync(raml, ramlFolderV1, ROOT_RAML_RESOURCE_URL, null);
-    String expected = APIKitTools.readContents(getResourceAsStream("rescaffolding-apisync-version/v1/api.xml"));
-    String generated = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-
-    Diff diff = XMLUnit.compareXML(expected, generated);
-    assertTrue(diff.identical());
-
+    verifySuccessfulScaffolding(result, "rescaffolding-apisync-version/v1/api.xml");
     List<MuleConfig> muleConfigs = new ArrayList<>(result.getGeneratedConfigs());
-    firstScaffolding(raml, ramlFolderV2, "rescaffolding-apisync-version/v2/api.xml", ROOT_RAML_RESOURCE_URL_V2, muleConfigs);
+    ScaffoldingResult rescaffoldResult = scaffoldApiSync(raml, ramlFolderV2, ROOT_RAML_RESOURCE_URL_V2, muleConfigs);
+    verifySuccessfulScaffolding(rescaffoldResult, "rescaffolding-apisync-version/v2/api.xml");
   }
 
+  /**
+   *
+   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 0.0.1.
+   * Then it simulates the manual changing of file from main xml --> globals xml.
+   * Finally it re-scaffolds with version 0.0.2.
+   * Expected behaviour is that the new scaffolded API has version 0.0.2 in globals.xml and for the main xml it doesn't
+   * add or remove anything.
+   *
+   */
   @Test
-  public void reScaffoldDifferntVersionsWithGlobal() throws Exception {
+  public void reScaffoldDifferentVersionsWithGlobal() throws Exception {
     String raml = "api.raml";
     String ramlFolderV1 = "src/test/resources/rescaffolding-apisync-version/v1";
     String ramlFolderV2 = "src/test/resources/rescaffolding-apisync-version/v2";
@@ -122,107 +128,24 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     String secondScaffoldingApiPathV2 = "scaffolder-from-two-apis/simple/src/main/resources/api/api2-with-global/v2/api.xml";
     String secondScaffoldingGlobalPathV2 =
         "scaffolder-from-two-apis/simple/src/main/resources/api/api2-with-global/v2/global.xml";
-    int expectedMuleConfigurationSize = 2;
-    XMLUnit.setIgnoreWhitespace(true);
 
-    firstScaffolding(raml, ramlFolderV1, firstScaffoldingPath, ROOT_RAML_RESOURCE_URL, null);
-
-    List<MuleConfig> muleConfigs =
-        generateSecondScaffoldingConfigurations(secondScaffoldingApiPathV1, secondScaffoldingGlobalPathV1);
-    ScaffoldingResult secondScaffoldingResult =
-        scaffoldApiSync(raml, ramlFolderV2, ROOT_RAML_RESOURCE_URL_V2, muleConfigs, expectedMuleConfigurationSize);
-    compareFiles(secondScaffoldingResult, secondScaffoldingApiPathV2);
-    compareFiles(secondScaffoldingResult, secondScaffoldingGlobalPathV2);
+    ScaffoldingResult result = scaffoldApiSync(raml, ramlFolderV1, ROOT_RAML_RESOURCE_URL, null);
+    verifySuccessfulScaffolding(result, firstScaffoldingPath);
+    List<MuleConfig> muleConfigs = changeGlobalsToSeparateFile(secondScaffoldingApiPathV1, secondScaffoldingGlobalPathV1);
+    ScaffoldingResult secondScaffoldingResult = scaffoldApiSync(raml, ramlFolderV2, ROOT_RAML_RESOURCE_URL_V2, muleConfigs);
+    verifySuccessfulScaffolding(secondScaffoldingResult,
+                                new String[] {secondScaffoldingApiPathV2, secondScaffoldingGlobalPathV2});
   }
 
-  private List<MuleConfig> generateSecondScaffoldingConfigurations(String secondScaffoldingApiPathV1,
-                                                                   String secondScaffoldingGlobalPathV1)
+  private static List<MuleConfig> changeGlobalsToSeparateFile(String secondScaffoldingApiPathV1,
+                                                              String secondScaffoldingGlobalPathV1)
       throws Exception {
-    List<MuleConfig> configurations = new ArrayList<MuleConfig>();
+    List<MuleConfig> configurations = new ArrayList<>();
     String[] existingMuleConfigPaths = {secondScaffoldingGlobalPathV1, secondScaffoldingApiPathV1};
-    for (String s : existingMuleConfigPaths) {
-      try (InputStream muleConfigIS = getResourceAsStream(s)) {
-        MuleConfig existingMuleConfig = MuleConfigBuilder.fromStream(muleConfigIS);
-        existingMuleConfig.setName(extractName(s));
-        configurations.add(existingMuleConfig);
-      }
+    for (String path : existingMuleConfigPaths) {
+      configurations.add(createConfig(path));
     }
     return configurations;
-  }
-
-  private void firstScaffolding(String raml, String ramlFolderV1, String firstScaffoldingPath, String rootRamlResourceUrl,
-                                List<MuleConfig> muleConfigs)
-      throws IOException, SAXException {
-    ScaffoldingResult result = scaffoldApiSync(raml, ramlFolderV1, rootRamlResourceUrl, muleConfigs);
-    String expected = APIKitTools.readContents(getResourceAsStream(firstScaffoldingPath));
-    String generated = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    Diff diff = XMLUnit.compareXML(expected, generated);
-    assertTrue(diff.identical());
-  }
-
-  private void compareFiles(ScaffoldingResult secondScaffoldingResult, String expectedPath) throws IOException, SAXException {
-    String secondScaffoldingExpectedFile = APIKitTools.readContents(getResourceAsStream(expectedPath));
-    String secondScaffoldingGeneratedFile =
-        createSecondScaffoldingGeneratedFile(secondScaffoldingResult, extractName(expectedPath));
-    Diff secondScaffoldingDiff = XMLUnit.compareXML(secondScaffoldingExpectedFile, secondScaffoldingGeneratedFile);
-    assertTrue(secondScaffoldingDiff.identical());
-  }
-
-  private String createSecondScaffoldingGeneratedFile(ScaffoldingResult secondScaffoldingResult, String fileName)
-      throws IOException {
-    InputStream api = secondScaffoldingResult.getGeneratedConfigs().stream().filter(config -> config.getName().contains(fileName))
-        .findFirst().get().getContent();
-    return APIKitTools.readContents(api);
-  }
-
-  private String extractName(String path) {
-    String name = "";
-    String[] pathParts = path.split("/");
-    name = pathParts[pathParts.length - 1];
-    return name;
-  }
-
-  private ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
-                                            List<MuleConfig> muleConfigs) {
-    return this.scaffoldApiSync(raml, ramlFolder, rootRamlResourceUrl, muleConfigs, 1);
-  }
-
-  private ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
-                                            List<MuleConfig> muleConfigs, int expectedMuleConfigurationSize) {
-    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build();
-    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-
-    ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
-    ParseResult parseResult =
-        new ParserService().parse(ApiReference.create(rootRamlResourceUrl + raml, testScaffolderResourceLoader));
-    assertTrue(parseResult.success());
-
-    ScaffoldingConfiguration.Builder configurationBuilder =
-        new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
-    if (muleConfigs != null) {
-      configurationBuilder.withMuleConfigurations(muleConfigs);
-    }
-
-    ScaffoldingResult result = mainAppScaffolder.run(configurationBuilder.build());
-    assertTrue(result.isSuccess());
-    assertEquals(expectedMuleConfigurationSize, result.getGeneratedConfigs().size());
-    return result;
-  }
-
-  @Test
-  public void testSimpleGenerateV10TwoFiles() throws Exception {
-    List<String> files = new ArrayList<>();
-    files.add("external-globals/api.xml");
-    files.add("external-globals/globals.xml");
-
-    ApiReference apiReference = ApiReference.create(Paths.get("scaffolder/simpleV10.raml").toString());
-    ParseResult parseResult = new ParserService().parse(apiReference);
-
-    List<MuleConfig> muleConfigsFromLocations = createMuleConfigsFromLocations(files);
-    ApiSpecification apiSpecification = parseResult.get();
-
-    System.out.println("a");
-    //    ScaffoldingConfiguration configuration = new ScaffoldingConfiguration();
   }
 
   @After

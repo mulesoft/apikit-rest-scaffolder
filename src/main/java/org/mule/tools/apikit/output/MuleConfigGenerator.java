@@ -6,7 +6,12 @@
  */
 package org.mule.tools.apikit.output;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,7 +66,6 @@ public class MuleConfigGenerator {
   }
 
   public List<MuleConfig> generate() {
-    List<MuleConfig> configs = new ArrayList<>();
     Set<MuleConfig> muleConfigs = new HashSet<>();
     if (flowEntries.isEmpty()) {
       apis.forEach(api -> {
@@ -80,11 +84,10 @@ public class MuleConfigGenerator {
         mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(newFlowPositionIndex, apikitFlowScope);
         mainMuleConfig.addFlow(new Flow(apikitFlowScope));
         muleConfigs.add(mainMuleConfig);
-        this.addApikitConfig(muleConfigs, apikitConfig);
+        addApikitConfig(muleConfigs, apikitConfig);
       }
     }
-    configs.addAll(muleConfigs);
-    return configs;
+    return new ArrayList<>(muleConfigs);
   }
 
   private void addApikitConfig(Set<MuleConfig> muleConfigs, Optional<MuleConfig> apikitConfigMuleConfig) {
@@ -101,17 +104,17 @@ public class MuleConfigGenerator {
       String configRef = apikitConfigMuleConfig.getMainFlows().stream().findFirst().get().getApikitRouter().getConfigRef();
       Stream<MuleConfig> apikitConfigurations = muleConfigsInApp.stream().filter(muleConfig -> muleConfig.getContentAsDocument()
           .getRootElement().getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace()) != null);
-      apikitConfigMuleConfigOptional = apikitConfigurations.filter(configuration -> {
-        Stream<APIKitConfig> apikitConfigurationStream = configuration.getApikitConfigs().stream();
-        List<APIKitConfig> filteredApikitConfigurations = apikitConfigurationStream
-            .filter(apikitConfig -> apikitConfig.getName().contains(configRef)).collect(Collectors.toList());
-        return filteredApikitConfigurations.size() > 0;
-      }).findFirst();
+      apikitConfigMuleConfigOptional =
+          apikitConfigurations.filter(configuration -> filterConfigurations(configRef, configuration)).findFirst();
     }
-    if (apikitConfigMuleConfigOptional.isPresent()) {
-      apikitConfigMuleConfig = apikitConfigMuleConfigOptional.get();
-    }
-    return apikitConfigMuleConfig;
+    return apikitConfigMuleConfigOptional.orElse(apikitConfigMuleConfig);
+  }
+
+  private boolean filterConfigurations(String configRef, MuleConfig configuration) {
+    Stream<APIKitConfig> apikitConfigurationStream = configuration.getApikitConfigs().stream();
+    List<APIKitConfig> filteredApikitConfigurations = apikitConfigurationStream
+        .filter(apikitConfig -> apikitConfig.getName().contains(configRef)).collect(Collectors.toList());
+    return filteredApikitConfigurations.size() > 0;
   }
 
   private void setDefaultApikitAndListenersConfigs(ApikitMainFlowContainer api, MuleConfig muleConfig) {
@@ -186,17 +189,20 @@ public class MuleConfigGenerator {
   // it checks both elements have the same attributes
   private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
     boolean shouldUpdate = apikitConfigFromMuleConfig == null;
-    for (Attribute attr : apikitConfigFromApi.getAttributes()) {
-      Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
-      shouldUpdate =
-          shouldUpdate || muleConfigAttr == null || this.attributeHasChanged(attr.getValue(), muleConfigAttr.getValue());
+    if (!shouldUpdate) {
+      for (Attribute attr : apikitConfigFromApi.getAttributes()) {
+        Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
+        if (muleConfigAttr == null || attributeHasChanged(attr.getValue(), muleConfigAttr.getValue())) {
+          return true;
+        }
+      }
     }
     return shouldUpdate;
   }
 
   private boolean attributeHasChanged(String currentAttribute, String incomingAttribute) {
-    Optional<String> normalizedCurrentAttribute = this.normalizePath(currentAttribute);
-    Optional<String> normalizedIncomingAttribute = this.normalizePath(incomingAttribute);
+    Optional<String> normalizedCurrentAttribute = normalizePath(currentAttribute);
+    Optional<String> normalizedIncomingAttribute = normalizePath(incomingAttribute);
     boolean hasChanged = false;
     boolean attributesExist = normalizedCurrentAttribute.isPresent() && normalizedIncomingAttribute.isPresent();
     if (attributesExist) {

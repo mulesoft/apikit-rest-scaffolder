@@ -7,23 +7,30 @@
 package org.mule.tools.apikit;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.After;
 import org.junit.Assert;
+import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
@@ -32,12 +39,70 @@ import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
+import org.xml.sax.SAXException;
 
 public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTestCase {
 
   @After
   public void after() {
     System.clearProperty(TestUtils.PARSER_V2_PROPERTY);
+  }
+
+  protected static void verifySuccessfulScaffolding(ScaffoldingResult result, String... expectedArrayPath)
+      throws IOException, SAXException {
+    List<String> expectedPaths = Arrays.asList(expectedArrayPath);
+    assertTrue(result.isSuccess());
+    assertEquals(expectedPaths.size(), result.getGeneratedConfigs().size());
+    for (String expectedPath : expectedArrayPath) {
+      String expected = APIKitTools.readContents(getResourceAsStream(expectedPath));
+      String configFileName = extractName(expectedPath);
+      String generated = retrieveGeneratedFile(result, configFileName);
+      XMLUnit.setIgnoreWhitespace(true);
+      Diff diff = XMLUnit.compareXML(expected, generated);
+      assertTrue(diff.identical());
+    }
+  }
+
+  protected static String retrieveGeneratedFile(ScaffoldingResult secondScaffoldingResult, String fileName)
+      throws IOException {
+    InputStream api = secondScaffoldingResult.getGeneratedConfigs().stream().filter(config -> config.getName().contains(fileName))
+        .findFirst().get().getContent();
+    return APIKitTools.readContents(api);
+  }
+
+  protected static MuleConfig createConfig(String path) throws Exception {
+    InputStream resourceAsStream = getResourceAsStream(path);
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(resourceAsStream);;
+    muleConfig.setName(extractName(path));
+    return muleConfig;
+  }
+
+  protected static String extractName(String path) {
+    String name = "";
+    String[] pathParts = path.split("/");
+    name = pathParts[pathParts.length - 1];
+    return name;
+  }
+
+  // Check if this method could be replaced with already existing scaffoldAPI().
+  protected static ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
+                                                     List<MuleConfig> muleConfigs) {
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build();
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
+
+    ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
+    ParseResult parseResult =
+        new ParserService().parse(ApiReference.create(rootRamlResourceUrl + raml, testScaffolderResourceLoader));
+    assertTrue(parseResult.success());
+
+    ScaffoldingConfiguration.Builder configurationBuilder =
+        new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
+    if (muleConfigs != null) {
+      configurationBuilder.withMuleConfigurations(muleConfigs);
+    }
+
+    ScaffoldingResult result = mainAppScaffolder.run(configurationBuilder.build());
+    return result;
   }
 
   protected List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
@@ -125,17 +190,6 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     }
     configuration.withShowConsole(showConsole);
     return configuration.build();
-  }
-
-  private static String resource(String path) {
-    URI result = null;
-    path = path.startsWith("/") ? path : "/" + path;
-    try {
-      result = AbstractScaffolderTestCase.class.getResource(path).toURI();
-    } catch (URISyntaxException e) {
-      Assert.fail(e.getMessage());
-    }
-    return result.toString();
   }
 
   protected static String fileNameWhithOutExtension(final String path) {
