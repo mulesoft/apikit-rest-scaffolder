@@ -7,7 +7,7 @@
 package org.mule.tools.apikit.output;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +22,16 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.mule.tools.apikit.misc.APIKitTools;
-import org.mule.tools.apikit.model.*;
-import org.mule.tools.apikit.output.scopes.*;
+import org.mule.tools.apikit.model.APIKitConfig;
+import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.Flow;
+import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
+import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
+import org.mule.tools.apikit.output.scopes.FlowScope;
+import org.mule.tools.apikit.output.scopes.MuleScope;
 
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
