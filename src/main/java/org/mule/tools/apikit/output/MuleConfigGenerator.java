@@ -77,15 +77,15 @@ public class MuleConfigGenerator {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     if (flowEntries.isEmpty()) {
       apis.forEach(api -> {
-        MuleConfig mainMuleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
-        Optional<MuleConfig> apikitConfigMuleConfig = updateApikitConfig(api, mainMuleConfig);
+        MuleConfig mainMuleConfig = retrieveMuleConfig(api);
+        MuleConfig apikitConfigMuleConfig = updateApikitConfig(api, mainMuleConfig);
         muleConfigs.add(mainMuleConfig);
         addApikitConfig(muleConfigs, apikitConfigMuleConfig);
       });
     } else {
       ApikitMainFlowContainer api = flowEntries.stream().findFirst().get().getApi();
-      MuleConfig mainMuleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
-      Optional<MuleConfig> apikitConfig = updateApikitConfig(api, mainMuleConfig);
+      MuleConfig mainMuleConfig = retrieveMuleConfig(api);
+      MuleConfig apikitConfig = updateApikitConfig(api, mainMuleConfig);
       for (GenerationModel flowEntry : flowEntries) {
         Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
         int newFlowPositionIndex = getLastFlowIndex(mainMuleConfig.getContentAsDocument()) + 1;
@@ -98,24 +98,25 @@ public class MuleConfigGenerator {
     return new ArrayList<>(muleConfigs);
   }
 
-  private void addApikitConfig(Set<MuleConfig> muleConfigs, Optional<MuleConfig> apikitConfigMuleConfig) {
-    if (apikitConfigMuleConfig.isPresent()) {
-      muleConfigs.add(apikitConfigMuleConfig.get());
+  private MuleConfig retrieveMuleConfig(ApikitMainFlowContainer api) {
+    return api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
+  }
+
+  private void addApikitConfig(Set<MuleConfig> muleConfigs, MuleConfig apikitConfig) {
+    if (apikitConfig != null) {
+      muleConfigs.add(apikitConfig);
     }
   }
 
   private MuleConfig retrieveApikitConfigMuleConfig(MuleConfig mainMuleConfig) {
-    MuleConfig apikitConfigMuleConfig = mainMuleConfig;
-    Optional<MuleConfig> apikitConfigMuleConfigOptional = Optional.empty();
-
     if (muleConfigsInApp.size() > 1) {
-      String configRef = apikitConfigMuleConfig.getMainFlows().stream().findFirst().get().getApikitRouter().getConfigRef();
+      String configRef = mainMuleConfig.getMainFlows().stream().findFirst().get().getApikitRouter().getConfigRef();
       Stream<MuleConfig> apikitConfigurations = muleConfigsInApp.stream().filter(muleConfig -> muleConfig.getContentAsDocument()
           .getRootElement().getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace()) != null);
-      apikitConfigMuleConfigOptional =
-          apikitConfigurations.filter(configuration -> filterConfigurations(configRef, configuration)).findFirst();
+      return apikitConfigurations.filter(configuration -> filterConfigurations(configRef, configuration)).findFirst()
+          .orElse(mainMuleConfig);
     }
-    return apikitConfigMuleConfigOptional.orElse(apikitConfigMuleConfig);
+    return mainMuleConfig;
   }
 
   private boolean filterConfigurations(String configRef, MuleConfig configuration) {
@@ -145,16 +146,16 @@ public class MuleConfigGenerator {
     return lastFlowIndex;
   }
 
-  private Optional<MuleConfig> updateApikitConfig(ApikitMainFlowContainer api, MuleConfig mainMuleConfig) {
+  private MuleConfig updateApikitConfig(ApikitMainFlowContainer api, MuleConfig mainMuleConfig) {
     MuleConfig apikitConfigMuleConfig = retrieveApikitConfigMuleConfig(mainMuleConfig);
     Element apikitConfiFromMuleConfig = lookForApikitConfig(apikitConfigMuleConfig);
     Element apikitConfigFromApi = api.getConfig().generate();
-    Optional<MuleConfig> apikitConfigResult = Optional.empty();
+    MuleConfig apikitConfigResult = null;
     if (shouldUpdateApikitConfig(apikitConfigFromApi, apikitConfiFromMuleConfig)) {
       int index = apikitConfigMuleConfig.getContentAsDocument().getRootElement().indexOf(apikitConfiFromMuleConfig);
       apikitConfigMuleConfig.getContentAsDocument().getRootElement().removeContent(index);
       apikitConfigMuleConfig.getContentAsDocument().getRootElement().addContent(index, apikitConfigFromApi);
-      apikitConfigResult = Optional.of(apikitConfigMuleConfig);
+      apikitConfigResult = apikitConfigMuleConfig;
     }
     return apikitConfigResult;
   }
@@ -196,33 +197,30 @@ public class MuleConfigGenerator {
 
   // it checks both elements have the same attributes
   private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
-    boolean shouldUpdate = apikitConfigFromMuleConfig == null;
-    if (!shouldUpdate) {
-      for (Attribute attr : apikitConfigFromApi.getAttributes()) {
-        Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
-        if (muleConfigAttr == null || attributeHasChanged(attr.getValue(), muleConfigAttr.getValue())) {
-          return true;
-        }
+    if (apikitConfigFromMuleConfig == null) {
+      return true;
+    }
+    for (Attribute attr : apikitConfigFromApi.getAttributes()) {
+      Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
+      if (muleConfigAttr == null || attributeHasChanged(attr.getValue(), muleConfigAttr.getValue())) {
+        return true;
       }
     }
-    return shouldUpdate;
+    return false;
   }
 
   private boolean attributeHasChanged(String currentAttribute, String incomingAttribute) {
-    Optional<String> normalizedCurrentAttribute = normalizePath(currentAttribute);
-    Optional<String> normalizedIncomingAttribute = normalizePath(incomingAttribute);
-    boolean hasChanged = false;
-    boolean attributesExist = normalizedCurrentAttribute.isPresent() && normalizedIncomingAttribute.isPresent();
-    if (attributesExist) {
-      hasChanged = !normalizedCurrentAttribute.get().contains(normalizedIncomingAttribute.get());
-    }
-    return hasChanged;
+    String normalizedCurrentAttribute = normalizePath(currentAttribute);
+    String normalizedIncomingAttribute = normalizePath(incomingAttribute);
+    boolean attributesExist =
+        StringUtils.isNotEmpty(normalizedCurrentAttribute) && StringUtils.isNotEmpty(normalizedIncomingAttribute);
+    return attributesExist && !normalizedCurrentAttribute.contains(normalizedIncomingAttribute);
   }
 
-  private Optional<String> normalizePath(String path) {
-    Optional<String> result = Optional.empty();
+  private String normalizePath(String path) {
+    String result = path;
     if (StringUtils.isNotEmpty(path)) {
-      result = Optional.of(path.replace("\\", "/"));
+      result = path.replace("\\", "/");
     }
     return result;
   }

@@ -63,10 +63,10 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     }
   }
 
-  protected static String retrieveGeneratedFile(ScaffoldingResult secondScaffoldingResult, String fileName)
+  protected static String retrieveGeneratedFile(ScaffoldingResult result, String fileName)
       throws IOException {
-    InputStream api = secondScaffoldingResult.getGeneratedConfigs().stream().filter(config -> config.getName().contains(fileName))
-        .findFirst().get().getContent();
+    InputStream api = result.getGeneratedConfigs().stream().filter(config -> config.getName().contains(fileName))
+        .findFirst().orElseThrow(() -> new RuntimeException(("unable to find generated file"))).getContent();
     return APIKitTools.readContents(api);
   }
 
@@ -78,13 +78,14 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   }
 
   protected static String extractName(String path) {
-    String name = "";
     String[] pathParts = path.split("/");
-    name = pathParts[pathParts.length - 1];
-    return name;
+    return pathParts[pathParts.length - 1];
   }
 
   // Check if this method could be replaced with already existing scaffoldAPI().
+  //If the scaffoldApi is refactored a bit, then it can build and pass the path from here
+  // ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, ROOT_RAML_RESOURCE_URL + ramlFolderV1 + raml);
+  // in MainAppScaffolderWithExistingConfigApiSyncTest
   protected static ScaffoldingResult scaffoldApiSync(String raml, String ramlFolder, String rootRamlResourceUrl,
                                                      List<MuleConfig> muleConfigs) {
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build();
