@@ -188,8 +188,6 @@ public class MuleConfigGenerator {
    */
   private int getLastFlowIndex(Document document) {
     int lastFlowIndex = 0;
-    //    Set<Integer> set = ContiguousSet.create(Range.closed(0, document.getRootElement().getContentSize()), DiscreteDomain.integers());
-    //    set.stream().filter(element -> )
     for (int i = 0; i < document.getRootElement().getContentSize(); i++) {
       Content content = document.getRootElement().getContent(i);
       if (content instanceof Element && "flow".equals(((Element) content).getName())) {
