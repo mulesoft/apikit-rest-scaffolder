@@ -11,13 +11,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.Attribute;
-import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -76,77 +74,46 @@ public class MuleConfigGenerator {
   /**
    * Generates a list of mule configurations, one way is the basic, when there aren't new resources in the API.
    * Other way is when there are new flow entries (resources in the API) and should be updated along with the basics.
-   * NOTE: newFlowPositionIndex is AtomicInteger because inside forEach values cannot be updated dynamically (int += 1)
-   * and must be final.
    *
    * @return List of mule configurations  (contains http listener, apikit router, console and flows). Typically one,
    * but could be many and have global configuration separatelly from main file.
    */
   public List<MuleConfig> generate() {
     Set<MuleConfig> muleConfigs = new HashSet<>();
-    if (flowEntries.isEmpty()) {
-      apis.forEach(api -> generateBasicMuleConfiguration(muleConfigs, api));
-    } else {
-      ApikitMainFlowContainer api = flowEntries.stream().findFirst().get().getApi();
-      MuleConfig mainMuleConfig = retrieveMuleConfig(api);
-      MuleConfig apikitConfig = updateApikitConfig(api, mainMuleConfig);
-      AtomicInteger newFlowPositionIndex = new AtomicInteger(getLastFlowIndex(mainMuleConfig.getContentAsDocument()));
-      flowEntries.stream().forEach(flowEntry -> generateForFlowEntries(muleConfigs, mainMuleConfig, apikitConfig,
-                                                                       newFlowPositionIndex, flowEntry));
+    apis.forEach(api -> muleConfigs.addAll(generateBasicMuleConfiguration(api)));
+    if (!flowEntries.isEmpty()) {
+      flowEntries.forEach(flowEntry -> generateForFlowEntries(flowEntry));
     }
     return new ArrayList<>(muleConfigs);
   }
 
   /**
-   * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
-   * needed.
-   * @param muleConfigs generated mule configurations
-   * @param mainMuleConfig main mule configuration file
-   * @param apikitConfig apikit configuration file
-   * @param newFlowPositionIndex index from where new flow should be created
-   * @param flowEntry new flow to be generated
-   */
-  private void generateForFlowEntries(Set<MuleConfig> muleConfigs, MuleConfig mainMuleConfig, MuleConfig apikitConfig,
-                                      AtomicInteger newFlowPositionIndex, GenerationModel flowEntry) {
-    Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
-    newFlowPositionIndex.addAndGet(1);
-    mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(newFlowPositionIndex.get(), apikitFlowScope);
-    mainMuleConfig.addFlow(new Flow(apikitFlowScope));
-    muleConfigs.add(mainMuleConfig);
-    addApikitConfig(muleConfigs, apikitConfig);
-  }
-
-  /**
    * Looks for main mule configuration file and updates apikit configuration in case needed. Adds both files to
-   * mule configurations if applies.
-   * @param muleConfigs generated mule configurations
+   * mule configurations list if applies.
    * @param api container of the main mule application file
+   * @return
    */
-  private void generateBasicMuleConfiguration(Set<MuleConfig> muleConfigs, ApikitMainFlowContainer api) {
-    MuleConfig mainMuleConfig = retrieveMuleConfig(api);
-    MuleConfig apikitConfigMuleConfig = updateApikitConfig(api, mainMuleConfig);
+  private List<MuleConfig> generateBasicMuleConfiguration(ApikitMainFlowContainer api) {
+    List<MuleConfig> muleConfigs = new ArrayList<>();
+    MuleConfig mainMuleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
+    MuleConfig apikitConfig = updateApikitConfig(api, mainMuleConfig);
     muleConfigs.add(mainMuleConfig);
-    addApikitConfig(muleConfigs, apikitConfigMuleConfig);
-  }
-
-  /**
-   * Determines whether to use existing mule configuration or create a new one.
-   * @param api container of the main mule application file
-   * @return new or existing mule configuration
-   */
-  private MuleConfig retrieveMuleConfig(ApikitMainFlowContainer api) {
-    return api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
-  }
-
-  /**
-   * Adds apikit configuration only if it exists
-   * @param muleConfigs set of mule configuration
-   * @param apikitConfig possibly new apikit configuration
-   */
-  private void addApikitConfig(Set<MuleConfig> muleConfigs, MuleConfig apikitConfig) {
     if (apikitConfig != null) {
       muleConfigs.add(apikitConfig);
     }
+    return muleConfigs;
+  }
+
+  /**
+   * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
+   * needed.
+   * @param flowEntry new flow to be generated
+   */
+  private void generateForFlowEntries(GenerationModel flowEntry) {
+    Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
+    MuleConfig mainMuleConfig = flowEntry.getApi().getMuleConfig();
+    mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(apikitFlowScope);
+    mainMuleConfig.addFlow(new Flow(apikitFlowScope));
   }
 
   /**
@@ -179,22 +146,6 @@ public class MuleConfigGenerator {
     List<APIKitConfig> filteredApikitConfigurations = apikitConfigurationStream
         .filter(apikitConfig -> apikitConfig.getName().contains(configRef)).collect(Collectors.toList());
     return filteredApikitConfigurations.size() > 0;
-  }
-
-  /**
-   * Given a document it looks for the last element from its content which is a flow
-   * @param document mule xml document file
-   * @return
-   */
-  private int getLastFlowIndex(Document document) {
-    int lastFlowIndex = 0;
-    for (int i = 0; i < document.getRootElement().getContentSize(); i++) {
-      Content content = document.getRootElement().getContent(i);
-      if (content instanceof Element && "flow".equals(((Element) content).getName())) {
-        lastFlowIndex = i;
-      }
-    }
-    return lastFlowIndex;
   }
 
   /**
