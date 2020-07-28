@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,41 +73,89 @@ public class MuleConfigGenerator {
     this.showConsole = showConsole;
   }
 
+  /**
+   * Generates a list of mule configurations, one way is the basic, when there aren't new resources in the API.
+   * Other way is when there are new flow entries (resources in the API) and should be updated along with the basics.
+   * NOTE: newFlowPositionIndex is AtomicInteger because inside forEach values cannot be updated dynamically (int += 1)
+   * and must be final.
+   *
+   * @return List of mule configurations  (contains http listener, apikit router, console and flows). Typically one,
+   * but could be many and have global configuration separatelly from main file.
+   */
   public List<MuleConfig> generate() {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     if (flowEntries.isEmpty()) {
-      apis.forEach(api -> {
-        MuleConfig mainMuleConfig = retrieveMuleConfig(api);
-        MuleConfig apikitConfigMuleConfig = updateApikitConfig(api, mainMuleConfig);
-        muleConfigs.add(mainMuleConfig);
-        addApikitConfig(muleConfigs, apikitConfigMuleConfig);
-      });
+      apis.forEach(api -> generateBasicMuleConfiguration(muleConfigs, api));
     } else {
       ApikitMainFlowContainer api = flowEntries.stream().findFirst().get().getApi();
       MuleConfig mainMuleConfig = retrieveMuleConfig(api);
       MuleConfig apikitConfig = updateApikitConfig(api, mainMuleConfig);
-      for (GenerationModel flowEntry : flowEntries) {
-        Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
-        int newFlowPositionIndex = getLastFlowIndex(mainMuleConfig.getContentAsDocument()) + 1;
-        mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(newFlowPositionIndex, apikitFlowScope);
-        mainMuleConfig.addFlow(new Flow(apikitFlowScope));
-        muleConfigs.add(mainMuleConfig);
-        addApikitConfig(muleConfigs, apikitConfig);
-      }
+      AtomicInteger newFlowPositionIndex = new AtomicInteger(getLastFlowIndex(mainMuleConfig.getContentAsDocument()));
+      flowEntries.stream().forEach(flowEntry -> generateForFlowEntries(muleConfigs, mainMuleConfig, apikitConfig,
+                                                                       newFlowPositionIndex, flowEntry));
     }
     return new ArrayList<>(muleConfigs);
   }
 
+  /**
+   * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
+   * needed.
+   * @param muleConfigs generated mule configurations
+   * @param mainMuleConfig main mule configuration file
+   * @param apikitConfig apikit configuration file
+   * @param newFlowPositionIndex index from where new flow should be created
+   * @param flowEntry new flow to be generated
+   */
+  private void generateForFlowEntries(Set<MuleConfig> muleConfigs, MuleConfig mainMuleConfig, MuleConfig apikitConfig,
+                                      AtomicInteger newFlowPositionIndex, GenerationModel flowEntry) {
+    Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
+    newFlowPositionIndex.addAndGet(1);
+    mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(newFlowPositionIndex.get(), apikitFlowScope);
+    mainMuleConfig.addFlow(new Flow(apikitFlowScope));
+    muleConfigs.add(mainMuleConfig);
+    addApikitConfig(muleConfigs, apikitConfig);
+  }
+
+  /**
+   * Looks for main mule configuration file and updates apikit configuration in case needed. Adds both files to
+   * mule configurations if applies.
+   * @param muleConfigs generated mule configurations
+   * @param api container of the main mule application file
+   */
+  private void generateBasicMuleConfiguration(Set<MuleConfig> muleConfigs, ApikitMainFlowContainer api) {
+    MuleConfig mainMuleConfig = retrieveMuleConfig(api);
+    MuleConfig apikitConfigMuleConfig = updateApikitConfig(api, mainMuleConfig);
+    muleConfigs.add(mainMuleConfig);
+    addApikitConfig(muleConfigs, apikitConfigMuleConfig);
+  }
+
+  /**
+   * Determines whether to use existing mule configuration or create a new one.
+   * @param api container of the main mule application file
+   * @return new or existing mule configuration
+   */
   private MuleConfig retrieveMuleConfig(ApikitMainFlowContainer api) {
     return api.getMuleConfig() != null ? api.getMuleConfig() : createMuleConfig(api);
   }
 
+  /**
+   * Adds apikit configuration only if it exists
+   * @param muleConfigs set of mule configuration
+   * @param apikitConfig possibly new apikit configuration
+   */
   private void addApikitConfig(Set<MuleConfig> muleConfigs, MuleConfig apikitConfig) {
     if (apikitConfig != null) {
       muleConfigs.add(apikitConfig);
     }
   }
 
+  /**
+   * It looks for the first (and only) apikit router configuration reference within the mainMuleConfig
+   * received by parameter. Then with that it looks inside all of the files of the app for the file which
+   * calls that reference.
+   * @param mainMuleConfig the configuration which contains the reference to the apikit configuration.
+   * @return the file on which apikit configuration is made
+   */
   private MuleConfig retrieveApikitConfigMuleConfig(MuleConfig mainMuleConfig) {
     if (muleConfigsInApp.size() > 1) {
       String configRef = mainMuleConfig.getMainFlows().stream().findFirst().get().getApikitRouter().getConfigRef();
@@ -119,6 +167,13 @@ public class MuleConfigGenerator {
     return mainMuleConfig;
   }
 
+  /**
+   * Given an apikit configuration reference and a configuration, it looks for the file which contains
+   * the apikit configuration.
+   * @param configRef apikit configuration reference
+   * @param configuration file from the app - could contain apikit configuration
+   * @return true/false depending on existence of any file matching the configuration.
+   */
   private boolean filterConfigurations(String configRef, MuleConfig configuration) {
     Stream<APIKitConfig> apikitConfigurationStream = configuration.getApikitConfigs().stream();
     List<APIKitConfig> filteredApikitConfigurations = apikitConfigurationStream
@@ -126,19 +181,17 @@ public class MuleConfigGenerator {
     return filteredApikitConfigurations.size() > 0;
   }
 
-  private void setDefaultApikitAndListenersConfigs(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-    if (api.getConfig() == null || api.getHttpListenerConfig() == null) {
-      if (api.getConfig() == null) {
-        api.setDefaultAPIKitConfig();
-      }
-      generateAPIKitAndListenerConfig(api, muleConfig);
-    }
-  }
-
-  private int getLastFlowIndex(Document doc) {
+  /**
+   * Given a document it looks for the last element from its content which is a flow
+   * @param document mule xml document file
+   * @return
+   */
+  private int getLastFlowIndex(Document document) {
     int lastFlowIndex = 0;
-    for (int i = 0; i < doc.getRootElement().getContentSize(); i++) {
-      Content content = doc.getRootElement().getContent(i);
+    //    Set<Integer> set = ContiguousSet.create(Range.closed(0, document.getRootElement().getContentSize()), DiscreteDomain.integers());
+    //    set.stream().filter(element -> )
+    for (int i = 0; i < document.getRootElement().getContentSize(); i++) {
+      Content content = document.getRootElement().getContent(i);
       if (content instanceof Element && "flow".equals(((Element) content).getName())) {
         lastFlowIndex = i;
       }
@@ -146,6 +199,14 @@ public class MuleConfigGenerator {
     return lastFlowIndex;
   }
 
+  /**
+   * Looks for an existing apikit configuration file, grabs the element from it, then the element from the incoming
+   * API. It checks if it should update (based on differences between existing and incoming configuration).
+   * Finally applies the change and returns existing configuration.
+   * @param api container of the main mule application file
+   * @param mainMuleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   * @return an existing configuration or null
+   */
   private MuleConfig updateApikitConfig(ApikitMainFlowContainer api, MuleConfig mainMuleConfig) {
     MuleConfig apikitConfigMuleConfig = retrieveApikitConfigMuleConfig(mainMuleConfig);
     Element apikitConfiFromMuleConfig = lookForApikitConfig(apikitConfigMuleConfig);
@@ -160,55 +221,131 @@ public class MuleConfigGenerator {
     return apikitConfigResult;
   }
 
+  /**
+   * Given a mule configuration, it looks for an element containing `config` for apikit
+    * @param config mule configuration file
+   * @return the element for the apikit configuration
+   */
   private Element lookForApikitConfig(MuleConfig config) {
     return config.getContentAsDocument().getRootElement().getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace());
   }
 
+  /**
+   * It creates a document for the new mule configuration, then builds it. Sets its name and adds it to the
+   * existing mule configurations of the application.
+   * @param api container of the main mule application file
+   * @return new mule configuration
+   */
   public MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
-    Document document = new Document();
-    document.setRootElement(new MuleScope(false, false).generate());
-    MuleConfig mConfig = MuleConfigBuilder.fromDoc(document);
-    mConfig.setName(api.getId() + ".xml");
-    setDefaultApikitAndListenersConfigs(api, mConfig);
-
-    MuleConfig config = MuleConfigBuilder.fromDoc(mConfig.buildContent());
-    config.setName(mConfig.getName());
+    Document muleConfigContent = createMuleConfigContent(api);
+    MuleConfig config = MuleConfigBuilder.fromDoc(muleConfigContent);
+    config.setName(createMuleConfigID(api.getId()));
     api.setMuleConfig(config);
     muleConfigsInApp.add(config);
     return config;
   }
 
-  private void generateAPIKitAndListenerConfig(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+  /**
+   * Creates a document containing a name, apikit configuration, http listener flow and console flow
+   * @param api container of the main mule application file
+   * @return a document to build a mule configuration
+   */
+  private Document createMuleConfigContent(ApikitMainFlowContainer api) {
+    Document document = new Document();
+    document.setRootElement(new MuleScope(false, false).generate());
+    MuleConfig muleConfig = MuleConfigBuilder.fromDoc(document);
+    muleConfig.setName(createMuleConfigID(api.getId()));
+    addApikitConfiguration(api, muleConfig);
+    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+    muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
+    addHttpListenerConfiguration(api, muleConfig);
+    addConsoleFlow(api, muleConfig);
+    return muleConfig.buildContent();
+  }
+
+  /**
+   * Concatenates an id with suffix to create a mule configuration id.
+   * @param id id of apikit main flow container
+   * @return new mule configuration id
+   */
+  private String createMuleConfigID(String id) {
+    return id + ".xml";
+  }
+
+  /**
+   * Creates a new apikit configuration and adds it to the mule configuration file.
+   * @param api container of the main mule application file
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   */
+  private void addApikitConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    if (api.getConfig() == null) {
+      APIKitConfig apikitConfig = new APIKitConfig();
+      apikitConfig.setApi(api.getApiFilePath());
+      apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
+      api.setConfig(apikitConfig);
+      muleConfig.addConfig(api.getConfig());
+    }
+  }
+
+  /**
+   * Adds http listener configuration if it doesn't already exist
+   * @param api container of the main mule application file
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   */
+  private void addHttpListenerConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
     if (!muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
       muleConfig.addHttpListener(api.getHttpListenerConfig());
     }
-    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+  }
 
-    muleConfig.addConfig(api.getConfig());
-    muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
+  /**
+   * Adds console flow only if it is toggled on.
+   * @param api container of the main mule application file
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   */
+  private void addConsoleFlow(ApikitMainFlowContainer api, MuleConfig muleConfig) {
     if (showConsole) {
       muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
     }
   }
 
+  /**
+   * Determines runtime edition
+   * @return true for EE / false for CE
+   */
   private boolean isMuleEE() {
     return scaffolderContext.getRuntimeEdition() == EE;
   }
 
-  // it checks both elements have the same attributes
+  /**
+   * Conditions for updating apikit configurations: apikit configuration from the file is null | any attribute
+   * is null or has changed.
+   * @param apikitConfigFromApi incoming new element for apikit configuration
+   * @param apikitConfigFromMuleConfig existing element for apikit configuration
+   * @return true for conditions explained above, false any other
+   */
   private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
-    if (apikitConfigFromMuleConfig == null) {
-      return true;
-    }
-    for (Attribute attr : apikitConfigFromApi.getAttributes()) {
-      Attribute muleConfigAttr = apikitConfigFromMuleConfig.getAttribute(attr.getName());
-      if (muleConfigAttr == null || attributeHasChanged(attr.getValue(), muleConfigAttr.getValue())) {
-        return true;
-      }
-    }
-    return false;
+    return apikitConfigFromMuleConfig == null || apikitConfigFromApi.getAttributes().stream()
+        .filter(attribute -> lookForDifferences(apikitConfigFromMuleConfig.getAttribute(attribute.getName()), attribute))
+        .findAny().isPresent();
   }
 
+  /**
+   * Conditions for attributes to be different: existing attribute not existing, or attribute has changed.
+   * @param existingAttribute existing attribute
+   * @param attribute new attribute potentially different
+   * @return true for conditions explained above, false any other
+   */
+  private boolean lookForDifferences(Attribute existingAttribute, Attribute attribute) {
+    return existingAttribute == null || attributeHasChanged(attribute.getValue(), existingAttribute.getValue());
+  }
+
+  /**
+   * Checks if existing attribute contains incoming. If it does, then it hasn't changed, otherwise attribute has changed.
+   * @param currentAttribute existing attribute
+   * @param incomingAttribute attribute that could be different than existing one
+   * @return true for conditions explained above, false any other
+   */
   private boolean attributeHasChanged(String currentAttribute, String incomingAttribute) {
     String normalizedCurrentAttribute = normalizePath(currentAttribute);
     String normalizedIncomingAttribute = normalizePath(incomingAttribute);
@@ -217,6 +354,11 @@ public class MuleConfigGenerator {
     return attributesExist && !normalizedCurrentAttribute.contains(normalizedIncomingAttribute);
   }
 
+  /**
+   * Normalize every path to single slash format
+   * @param path path to check
+   * @return normalized path
+   */
   private String normalizePath(String path) {
     String result = path;
     if (StringUtils.isNotEmpty(path)) {

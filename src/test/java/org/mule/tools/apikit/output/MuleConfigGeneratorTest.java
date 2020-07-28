@@ -14,8 +14,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mule.tools.apikit.Helper;
+import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
+import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
@@ -28,6 +30,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
@@ -145,7 +148,7 @@ public class MuleConfigGeneratorTest {
     when(api.getId()).thenReturn("hello");
     doCallRealMethod().when(api).setId(anyString());
     doCallRealMethod().when(api).setApiFilePath(anyString());
-    doCallRealMethod().when(api).setDefaultAPIKitConfig();
+    doCallRealMethod().when(api).setConfig(any(APIKitConfig.class));
     doCallRealMethod().when(api).getConfig();
 
     api.setId("hello");
