@@ -11,24 +11,22 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
-import org.mule.tools.apikit.model.RuntimeEdition;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderTestCase {
@@ -133,6 +131,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     verifySuccessfulScaffolding(secondScaffoldingResult, SCAFFOLDER_FROM_TWO_APIS_V2_API, SCAFFOLDER_FROM_TWO_APIS_V2_GLOBALS);
   }
 
+  @Override
   @After
   public void after() {
     System.clearProperty(TestUtils.PARSER_V2_PROPERTY);

@@ -10,12 +10,10 @@ package org.mule.tools.apikit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
-import static org.mule.tools.apikit.model.MuleConfigBuilder.*;
+import static org.mule.tools.apikit.model.MuleConfigBuilder.fromStream;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +24,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.After;
-import org.junit.Assert;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
@@ -95,7 +92,6 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(ramlFolder);
     ParseResult parseResult =
         new ParserService().parse(ApiReference.create(rootRamlResourceUrl + raml, testScaffolderResourceLoader));
-    assertTrue(parseResult.success());
 
     ScaffoldingConfiguration.Builder configurationBuilder =
         new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
