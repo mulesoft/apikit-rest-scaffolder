@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.StringUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -31,6 +30,7 @@ import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
 import org.mule.tools.apikit.output.scopes.FlowScope;
 import org.mule.tools.apikit.output.scopes.MuleScope;
 
+import static org.apache.commons.lang.StringUtils.*;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 public class MuleConfigGenerator {
@@ -72,17 +72,18 @@ public class MuleConfigGenerator {
   }
 
   /**
-   * Generates a list of mule configurations, one way is the basic, when there aren't new resources in the API.
-   * Other way is when there are new flow entries (resources in the API) and should be updated along with the basics.
+   * Generates a list of mule configurations, first it generates basic mule configurations (http listener, console
+   * and apikit configuration).
+   * Finally, if there are new/edited/deleted flow entries (resources in the API) they are updated below of the basics.
    *
    * @return List of mule configurations  (contains http listener, apikit router, console and flows). Typically one,
-   * but could be many and have global configuration separatelly from main file.
+   * but could be many and have global configuration separately from main file.
    */
   public List<MuleConfig> generate() {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     apis.forEach(api -> muleConfigs.addAll(generateBasicMuleConfiguration(api)));
     if (!flowEntries.isEmpty()) {
-      flowEntries.forEach(flowEntry -> generateForFlowEntries(flowEntry));
+      flowEntries.forEach(this::generateForFlowEntries);
     }
     return new ArrayList<>(muleConfigs);
   }
@@ -128,7 +129,7 @@ public class MuleConfigGenerator {
       String configRef = mainMuleConfig.getMainFlows().stream().findFirst().get().getApikitRouter().getConfigRef();
       Stream<MuleConfig> apikitConfigurations = muleConfigsInApp.stream().filter(muleConfig -> muleConfig.getContentAsDocument()
           .getRootElement().getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace()) != null);
-      return apikitConfigurations.filter(configuration -> filterConfigurations(configRef, configuration)).findFirst()
+      return apikitConfigurations.filter(configuration -> containsApikitConfiguration(configRef, configuration)).findFirst()
           .orElse(mainMuleConfig);
     }
     return mainMuleConfig;
@@ -141,7 +142,7 @@ public class MuleConfigGenerator {
    * @param configuration file from the app - could contain apikit configuration
    * @return true/false depending on existence of any file matching the configuration.
    */
-  private boolean filterConfigurations(String configRef, MuleConfig configuration) {
+  private boolean containsApikitConfiguration(String configRef, MuleConfig configuration) {
     Stream<APIKitConfig> apikitConfigurationStream = configuration.getApikitConfigs().stream();
     List<APIKitConfig> filteredApikitConfigurations = apikitConfigurationStream
         .filter(apikitConfig -> apikitConfig.getName().contains(configRef)).collect(Collectors.toList());
@@ -158,16 +159,16 @@ public class MuleConfigGenerator {
    */
   private MuleConfig updateApikitConfig(ApikitMainFlowContainer api, MuleConfig mainMuleConfig) {
     MuleConfig apikitConfigMuleConfig = retrieveApikitConfigMuleConfig(mainMuleConfig);
-    Element apikitConfiFromMuleConfig = lookForApikitConfig(apikitConfigMuleConfig);
+    Element apikitConfigFromMuleConfig = lookForChildApikitConfig(apikitConfigMuleConfig);
     Element apikitConfigFromApi = api.getConfig().generate();
     MuleConfig apikitConfigResult = null;
-    if (shouldUpdateApikitConfig(apikitConfigFromApi, apikitConfiFromMuleConfig)) {
-      int index = apikitConfigMuleConfig.getContentAsDocument().getRootElement().indexOf(apikitConfiFromMuleConfig);
+    if (shouldUpdateApikitConfig(apikitConfigFromApi, apikitConfigFromMuleConfig)) {
+      int index = apikitConfigMuleConfig.getContentAsDocument().getRootElement().indexOf(apikitConfigFromMuleConfig);
       apikitConfigMuleConfig.getContentAsDocument().getRootElement().removeContent(index);
       apikitConfigMuleConfig.getContentAsDocument().getRootElement().addContent(index, apikitConfigFromApi);
-      apikitConfigResult = apikitConfigMuleConfig;
+      return apikitConfigMuleConfig;
     }
-    return apikitConfigResult;
+    return null;
   }
 
   /**
@@ -175,7 +176,7 @@ public class MuleConfigGenerator {
     * @param config mule configuration file
    * @return the element for the apikit configuration
    */
-  private Element lookForApikitConfig(MuleConfig config) {
+  private Element lookForChildApikitConfig(MuleConfig config) {
     return config.getContentAsDocument().getRootElement().getChild("config", APIKitTools.API_KIT_NAMESPACE.getNamespace());
   }
 
@@ -275,8 +276,7 @@ public class MuleConfigGenerator {
    */
   private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
     return apikitConfigFromMuleConfig == null || apikitConfigFromApi.getAttributes().stream()
-        .filter(attribute -> lookForDifferences(apikitConfigFromMuleConfig.getAttribute(attribute.getName()), attribute))
-        .findAny().isPresent();
+        .anyMatch(attribute -> lookForDifferences(apikitConfigFromMuleConfig.getAttribute(attribute.getName()), attribute));
   }
 
   /**
@@ -299,7 +299,7 @@ public class MuleConfigGenerator {
     String normalizedCurrentAttribute = normalizePath(currentAttribute);
     String normalizedIncomingAttribute = normalizePath(incomingAttribute);
     boolean attributesExist =
-        StringUtils.isNotEmpty(normalizedCurrentAttribute) && StringUtils.isNotEmpty(normalizedIncomingAttribute);
+        isNotEmpty(normalizedCurrentAttribute) && isNotEmpty(normalizedIncomingAttribute);
     return attributesExist && !normalizedCurrentAttribute.contains(normalizedIncomingAttribute);
   }
 
@@ -309,11 +309,7 @@ public class MuleConfigGenerator {
    * @return normalized path
    */
   private String normalizePath(String path) {
-    String result = path;
-    if (StringUtils.isNotEmpty(path)) {
-      result = path.replace("\\", "/");
-    }
-    return result;
+    return isNotEmpty(path) ? path.replace("\\", "/") : path;
   }
 
 }

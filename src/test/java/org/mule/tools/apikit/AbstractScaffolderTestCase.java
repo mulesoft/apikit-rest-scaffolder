@@ -10,6 +10,7 @@ package org.mule.tools.apikit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
+import static org.mule.tools.apikit.model.MuleConfigBuilder.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +73,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
 
   protected static MuleConfig createConfig(String path) throws Exception {
     InputStream resourceAsStream = getResourceAsStream(path);
-    MuleConfig muleConfig = MuleConfigBuilder.fromStream(resourceAsStream);;
+    MuleConfig muleConfig = fromStream(resourceAsStream);;
     muleConfig.setName(extractName(path));
     return muleConfig;
   }
@@ -110,7 +111,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     List<MuleConfig> muleConfigs = new ArrayList<>();
     for (String location : ramlLocations) {
       InputStream muleConfigInputStream = getResourceAsStream(location);
-      muleConfigs.add(MuleConfigBuilder.fromStream(muleConfigInputStream));
+      muleConfigs.add(fromStream(muleConfigInputStream));
     }
     return muleConfigs;
   }
