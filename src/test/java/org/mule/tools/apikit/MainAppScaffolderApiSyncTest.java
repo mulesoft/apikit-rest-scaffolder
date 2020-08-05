@@ -6,7 +6,6 @@
  */
 package org.mule.tools.apikit;
 
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Rule;
@@ -17,14 +16,15 @@ import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffolderResourceLoader;
-import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,7 +70,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testRAMLWithoutResources() throws Exception {
-    MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/empty-api", "without-resources");
+    MuleConfig muleConfig = generateMuleConfigForApiSync("api-sync/empty-api", "without-resources");
 
     InputStream expectedInputStream = getResourceAsStream("api-sync/empty-api/expected-result.xml");
     InputStream generatedInputStream = muleConfig.getContent();
@@ -82,7 +82,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   @Test
   public void testRAMLWithCharset() throws Exception {
-    MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/api-raml-with-charset", "api");
+    MuleConfig muleConfig = generateMuleConfigForApiSync("api-sync/api-raml-with-charset", "api");
 
     InputStream expectedInputStream = getResourceAsStream("api-sync/api-raml-with-charset/expected-result.xml");
     InputStream generatedInputStream = muleConfig.getContent();
@@ -100,21 +100,29 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     MuleConfig muleConfig = generateMuleConfigForApiSync(ramlFolder, rootRaml);
     InputStream generatedInputStream = muleConfig.getContent();
     String s = APIKitTools.readContents(generatedInputStream);
-
     assertNotNull(s);
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
     assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
     assertEquals(2, countOccurences(s, "post:\\Queue:application\\json:" + rootRaml + "-config"));
     assertEquals(2, countOccurences(s, "post:\\Queue:text\\xml:" + rootRaml + "-config"));
-    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
 
@@ -163,33 +171,31 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
 
-    String resultAsString = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertSimple(resultAsString, rootRaml);
-  }
-
-  private void assertSimple(String s, String listenerConfigName) {
-    assertEquals(1, countOccurences(s, "http:listener-config name=\"" + listenerConfigName));
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(1, countOccurences(s, "http:listener-config name=\"" + rootRaml));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
-    assertEquals(2, countOccurences(s, "http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "#[vars.outboundHeaders default {}]"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
     assertEquals(2, countOccurences(s, "<ee:set-variable variableName=\"name\">attributes.uriParams.'name'</ee:set-variable>"));
     assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"owner\">attributes.uriParams.'owner'</ee:set-variable>"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(8, countOccurences(s, "http:headers"));
-    assertEquals(2, countOccurences(s, "get:\\:" + listenerConfigName + "-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:" + listenerConfigName + "-config"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
-    assertEquals(1, countOccurences(s, "apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
+    assertEquals(2, countOccurences(s, "get:\\:" + rootRaml + "-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet:" + rootRaml + "-config"));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
     assertEquals(0, countOccurences(s, "#[null]"));
     assertEquals(0,
@@ -198,15 +204,13 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
     assertEquals(0,
                  countOccurences(s,
                                  "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
-    assertEquals(0, countOccurences(s, "exception-strategy"));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
 
   @Test
   public void testRaml08Fallback() throws Exception {
     if (!isAmf()) {
-      MuleConfig muleConfig = generateMuleConfigForApiSync("src/test/resources/api-sync/fallback-raml-08", "api");
+      MuleConfig muleConfig = generateMuleConfigForApiSync("/api-sync/fallback-raml-08", "api");
       InputStream expectedInputStream = getResourceAsStream("api-sync/fallback-raml-08/expected.xml");
       String expectedString = APIKitTools.readContents(expectedInputStream);
       String generatedContentString = APIKitTools.readContents(muleConfig.getContent());

@@ -59,18 +59,17 @@
             <artifactId>core-modules</artifactId>
             <version>${mule.service.weave.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.2</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <version>1.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
