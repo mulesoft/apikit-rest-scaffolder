@@ -20,7 +20,7 @@ public class TestScaffolderResourceLoader implements ScaffolderResourceLoader {
   private String ramlFolder;
 
   public TestScaffolderResourceLoader(String ramlFolder) {
-    this.ramlFolder = ramlFolder;
+    this.ramlFolder = ramlFolder.startsWith("src/test/resources/") ? ramlFolder : "src/test/resources/" + ramlFolder;
   }
 
   @Override

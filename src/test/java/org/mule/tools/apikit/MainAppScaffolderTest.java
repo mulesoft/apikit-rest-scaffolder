@@ -6,31 +6,16 @@
  */
 package org.mule.tools.apikit;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
-import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.assertXmls;
-import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
-import static org.mule.tools.apikit.TestUtils.getResourceAsString;
-
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
-
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
+import org.mule.tools.apikit.XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
@@ -42,24 +27,39 @@ import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
+import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.assertXmls;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
+import static org.mule.tools.apikit.TestUtils.getResourceAsString;
 
 public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
 
   @Test
   public void testSimpleGenerateV08() throws Exception {
-    simpleGenerate("scaffolder/simple.raml");
+    simpleGenerate("scaffolder/simple.raml", false);
   }
 
   @Test
   public void testSimpleGenerateV10() throws Exception {
-    simpleGenerate("scaffolder/simpleV10.raml");
+    simpleGenerate("scaffolder/simpleV10.raml", false);
   }
 
   @Test
   public void testSimpleGenerateV10HideConsole() throws Exception {
-    simpleGenerateHideConsole("scaffolder/simpleV10.raml");
+    simpleGenerate("scaffolder/simpleV10.raml", true);
   }
 
   @Test
@@ -73,8 +73,31 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   }
 
   @Test
-  public void testSimpleGenerateWithExtensionWithOldParser() throws Exception {
-    simpleGenerateWithExtension();
+  public void testSimpleGenerateWithExtension() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
+
+    assertEquals(1, result.getGeneratedConfigs().size());
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withEESetPayloadTagCount(7)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
   }
 
   @Test
@@ -88,36 +111,56 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String content = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(content, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(content, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(content, "<on-error-propagate"));
-    assertEquals(7, countOccurences(content, "<ee:message>"));
-    assertEquals(7, countOccurences(content, "<ee:variables>"));
-    assertEquals(7, countOccurences(content, "<ee:set-variable"));
-    assertEquals(7, countOccurences(content, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(content, "http:body"));
-    assertEquals(2, countOccurences(content, "#[payload]"));
-    assertEquals(0, countOccurences(content, "interpretRequestErrors=\"true\""));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(content);
     assertEquals(2, countOccurences(content, "post:\\Queue:application\\json:api-config"));
     assertEquals(2, countOccurences(content, "post:\\Queue:text\\xml:api-config"));
     assertEquals(0, countOccurences(content, "#[NullPayload.getInstance()]"));
-    assertEquals(2, countOccurences(content, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testSimpleGenerateWithExtensionWithNewParser() throws Exception {
-    simpleGenerateWithExtension();
-  }
+  public void testSimpleGenerateWithExtensionInNull() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-  @Test
-  public void testSimpleGenerateWithExtensionInNullWithOldParser() throws Exception {
-    simpleGenerateWithExtensionInNull();
-  }
+    assertEquals(1, result.getGeneratedConfigs().size());
 
-  @Test
-  public void testSimpleGenerateWithExtensionInNullWithNewParser() throws Exception {
-
-    simpleGenerateWithExtensionInNull();
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
@@ -131,19 +174,26 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(2, countOccurences(s, "post:\\Queue:application\\json:api-config"));
     assertEquals(2, countOccurences(s, "post:\\Queue:text\\xml:api-config"));
-    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
@@ -157,91 +207,207 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   }
 
   @Test
-  public void testSimpleGenerateWithListenerAndExtensionWithOldParser() throws Exception {
-    simpleGenerateWithListenerAndExtension();
+  public void testSimpleGenerateWithListenerAndExtension() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
+
+    assertEquals(1, result.getGeneratedConfigs().size());
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
-  public void testSimpleGenerateWithListenerAndExtensionWithNewParser() throws Exception {
+  public void testSimpleGenerateWithCustomDomain() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    String muleDomainLocation = "custom-domain-4/mule-domain-config.xml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
 
-    simpleGenerateWithListenerAndExtension();
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
-  public void testSimpleGenerateWithCustomDomainWithOldParser() throws Exception {
-    simpleGenerateWithCustomDomain();
+  public void testSimpleGenerateWithCustomExternalDomain() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    URL fileUrl = Thread.currentThread().getContextClassLoader().getResource("custom-domain-4/external-domain.jar");
+    File artifact = new File(fileUrl.getFile());
+    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
-  public void testSimpleGenerateWithCustomDomainWithNewParser() throws Exception {
+  public void testSimpleGenerateWithCustomDomainAndExtension() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    String muleDomainLocation = "custom-domain-4/mule-domain-config.xml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
 
-    simpleGenerateWithCustomDomain();
+    assertEquals(1, result.getGeneratedConfigs().size());
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
-  public void testSimpleGenerateWithCustomExternalDomainWithOldParser() throws Exception {
-    simpleGenerateWithCustomExternalDomain();
+  public void testSimpleGenerateWithCustomDomainWithMultipleLC() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    String muleDomainLocation = "custom-domain-multiple-lc-4/mule-domain-config.xml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "config-ref=\"abcd\""));
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
-  public void testSimpleGenerateWithCustomExternalDomainWithNewParser() throws Exception {
+  public void testSimpleGenerateWithCustomExternalDomainWithMultipleConfigs() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    URL fileUrl = Thread.currentThread().getContextClassLoader()
+        .getResource("custom-external-domain-multiple-configs/external-domain-2-configs.jar");
+    File artifact = new File(fileUrl.getFile());
+    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
 
-    simpleGenerateWithCustomExternalDomain();
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
-  public void testSimpleGenerateWithCustomDomainAndExtensionWithOldParser() throws Exception {
-    simpleGenerateWithCustomDomainAndExtension();
-  }
+  public void testSimpleGenerateWithEmptyDomain() throws Exception {
+    String apiLocation = "scaffolder/simple.raml";
+    String muleDomainLocation = "empty-domain/mule-domain-config.xml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
 
-  @Test
-  public void testSimpleGenerateWithCustomDomainAndExtensionWithNewParser() throws Exception {
-
-    simpleGenerateWithCustomDomainAndExtension();
-  }
-
-  @Test
-  public void testSimpleGenerateWithCustomDomainWithMultipleLCWithOldParser() throws Exception {
-    simpleGenerateWithCustomDomainWithMultipleLC();
-  }
-
-  @Test
-  public void testSimpleGenerateWithCustomDomainWithMultipleLCWithNewParser() throws Exception {
-
-    simpleGenerateWithCustomDomainWithMultipleLC();
-  }
-
-  @Test
-  public void testSimpleGenerateWithCustomExternalDomainWithMultipleConfigsWithOldParser() throws Exception {
-    simpleGenerateWithCustomExternalDomainWithMultipleConfigs();
-  }
-
-  @Test
-  public void testSimpleGenerateWithCustomExternalDomainWithMultipleConfigsWithNewParser() throws Exception {
-
-    simpleGenerateWithCustomExternalDomainWithMultipleConfigs();
-  }
-
-  @Test
-  public void testSimpleGenerateWithEmptyDomainWithOldParser() throws Exception {
-    simpleGenerateWithEmptyDomain();
-  }
-
-  @Test
-  public void testSimpleGenerateWithEmptyDomainWithNewParser() throws Exception {
-
-    simpleGenerateWithEmptyDomain();
-  }
-
-  @Test
-  public void testTwoResourceGenerateWithOldParser() throws Exception {
-    testTwoResourceGenerate();
-  }
-
-  @Test
-  public void testTwoResourceGenerateWithNewParser() throws Exception {
-
-    testTwoResourceGenerate();
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertPetApiScaffoldedContent(s);
   }
 
   @Test
@@ -252,73 +418,151 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(4)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(2, countOccurences(s, "get:\\pet:two-config"));
     assertEquals(2, countOccurences(s, "post:\\pet:two-config"));
-
     assertEquals(2, countOccurences(s, "get:\\car:two-config"));
     assertEquals(2, countOccurences(s, "post:\\car:two-config"));
-
-    assertEquals(4, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testNestedGenerateWithOldParser() throws Exception {
-    nestedGenerate();
-  }
+  public void testNestedGenerate() throws Exception {
+    String apiLocation = "scaffolder/nested.raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-  @Test
-  public void testNestedGenerateWithNewParser() throws Exception {
-
-    nestedGenerate();
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "get:\\pet:nested-config"));
+    assertEquals(2, countOccurences(s, "post:\\pet:nested-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet\\owner:nested-config"));
+    assertEquals(2, countOccurences(s, "get:\\car:nested-config"));
+    assertEquals(2, countOccurences(s, "post:\\car:nested-config"));
   }
 
   @Test
   public void testSimpleGenerationWithRamlInsideAFolder() throws Exception {
     String apiLocation = "raml-inside-folder/folder/api.raml";
     List<String> muleConfigsLocation = Arrays.asList("raml-inside-folder/api.xml");
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleConfigsLocation);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleConfigsLocation, EMPTY);
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<error-handler name="));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(1)
+        .withHttpResponseStatusCode500Count(1)
+        .withHttpHeadersOutboundHeadersDefaultCount(2)
+        .withOnErrorPropagateCount(6)
+        .withHttpBodyCount(2)
+        .withHttpHeadersCount(4)
+        .withDWPayloadExpressionCount(1)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(1)
+        .withLoggerInfoCount(1)
+        .withErrorHandlerTagCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "<flow name=\"post:\\oneResource:api-config\">"));
-    assertEquals(1, countOccurences(s, "<http:listener-config name="));
   }
 
   @Test
-  public void testNoNameGenerateWithOldParser() throws Exception {
-    noNameGenerate();
+  public void testNoNameGenerate() throws Exception {
+    String apiLocation = "scaffolder/no-name.raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(1, countOccurences(s, "http:listener-config name=\"no-name-httpListenerConfig\">"));
+    assertEquals(1, countOccurences(s, "http:listener config-ref=\"no-name-httpListenerConfig\" path=\"/api/*\""));
   }
 
   @Test
-  public void testNoNameGenerateWithNewParser() throws Exception {
+  public void testExampleGenerate() throws Exception {
+    String apiLocation = "scaffolder/example.raml";
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
-    noNameGenerate();
-  }
-
-  @Test
-  public void testExampleGenerateWithOldParser() throws Exception {
-    exampleGenerate();
-  }
-
-  @Test
-  public void testExampleGenerateWithNewParser() throws Exception {
-
-    exampleGenerate();
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(9)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(9)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(8, countOccurences(s, "application/json"));
+    assertEquals(1, countOccurences(s,
+                                    "{\n" +
+                                        "  name: \"Bobby\",\n" +
+                                        "  food: \"Ice Cream\"\n" +
+                                        "}"));
+    assertEquals(1, countOccurences(s, "{\n" +
+        "  Person: {\n" +
+        "    name: \"Underwood\",\n" +
+        "    address: \"Juana Manso 999\",\n" +
+        "    country: \"Argentina\"\n" +
+        "  }\n" +
+        "}"));
   }
 
   @Test
@@ -376,14 +620,77 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   }
 
   @Test
-  public void doubleRootRamlWithOldParser() throws Exception {
-    doubleRootRaml();
-  }
+  public void doubleRootRaml() throws Exception {
+    // In the new Scaffolder API you can't scaffold more than one ApiSpecification at a time.
+    // If you want to scaffold more than one ApiSpec, you have to call the scaffolder N times.
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
 
-  @Test
-  public void doubleRootRamlWithNewParser() throws Exception {
+    ParserService parserService = new ParserService();
+    ParseResult firstRamlParsingResult = parserService.parse(ApiReference.create("double-root-raml/simple.raml"));
+    ParseResult secondRamlParsingResult = parserService.parse(ApiReference.create("double-root-raml/two.raml"));
 
-    doubleRootRaml();
+    assertTrue(firstRamlParsingResult.success());
+    assertTrue(secondRamlParsingResult.success());
+
+    ScaffoldingConfiguration firstScaffoldingConfiguration =
+        new ScaffoldingConfiguration.Builder().withApi(firstRamlParsingResult.get()).build();
+    ScaffoldingConfiguration secondScaffoldingConfiguration =
+        new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).build();
+
+    ScaffoldingResult result = mainAppScaffolder.run(firstScaffoldingConfiguration);
+    assertTrue(result.isSuccess());
+    assertTrue(result.getGeneratedConfigs().size() == 1);
+
+    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
+
+    result = mainAppScaffolder.run(secondScaffoldingConfiguration);
+    assertTrue(result.isSuccess());
+    assertTrue(result.getGeneratedConfigs().size() == 1);
+
+    String s2 = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(4)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s2);
+    assertEquals(2, countOccurences(s2, "get:\\pet:two-config"));
+    assertEquals(2, countOccurences(s2, "post:\\pet:two-config"));
+    assertEquals(2, countOccurences(s2, "get:\\car:two-config"));
+    assertEquals(2, countOccurences(s2, "post:\\car:two-config"));
   }
 
   @Test
@@ -392,11 +699,26 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(10)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(10)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "get:\\resource1:api-config"));
     assertEquals(1, countOccurences(s, "get:\\resource2:api-config"));
     assertEquals(1, countOccurences(s, "get:\\resource3:api-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
   }
 
   @Test
@@ -407,9 +729,25 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(2, countOccurences(s, "post:\\v4\\items:application\\json:api-with-resource-type-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
   }
 
   @Test
@@ -420,9 +758,25 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(2, countOccurences(s, "get:\\test:amf-only-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
   }
 
   @Test
@@ -433,9 +787,25 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(8)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withEESetPayloadTagCount(8)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(2, countOccurences(s, "get:\\test:raml-parser-only-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
   }
 
   @Test
@@ -506,14 +876,22 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     final String name = fileNameWhithOutExtension(apiPath);
     final String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"simple"));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
-    assertEquals(2, countOccurences(s, "http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "#[vars.outboundHeaders default {}]"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
     assertEquals(0, countOccurences(s, "<ee:"));
     assertEquals(7,
                  countOccurences(s,
@@ -523,15 +901,9 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
                  countOccurences(s, "<set-variable value=\"#[attributes.uriParams.'name']\" variableName=\"name\" />"));
     assertEquals(1,
                  countOccurences(s, "<set-variable value=\"#[attributes.uriParams.'owner']\" variableName=\"owner\""));
-    assertEquals(7, countOccurences(s, "<set-payload"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(8, countOccurences(s, "http:headers"));
     assertEquals(2, countOccurences(s, "get:\\:" + name + "-config"));
     assertEquals(2, countOccurences(s, "get:\\pet:" + name + "-config"));
     assertEquals(2, countOccurences(s, "get:\\pet\\v1:" + name + "-config"));
-    assertEquals(1, countOccurences(s, "apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
     assertEquals(0, countOccurences(s, "#[null]"));
     assertEquals(0,
@@ -540,38 +912,39 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(0,
                  countOccurences(s,
                                  "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
-    assertEquals(0, countOccurences(s, "exception-strategy"));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
-  private void simpleGenerateHideConsole(final String apiPath) throws Exception {
-    ScaffoldingResult result = scaffoldApiHiddenConsole(RuntimeEdition.EE, apiPath);
+  private void simpleGenerate(final String apiPath, boolean hideConsole) throws Exception {
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiPath, !hideConsole);
 
     assertEquals(1, result.getGeneratedConfigs().size());
 
     final String name = fileNameWhithOutExtension(apiPath);
     final String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(hideConsole ? 1 : 2)
+        .withHttpResponseStatusCode500Count(hideConsole ? 1 : 2)
+        .withHttpHeadersOutboundHeadersDefaultCount(hideConsole ? 2 : 4)
+        .withOnErrorPropagateCount(hideConsole ? 6 : 7)
+        .withEEMessageTagCount(hideConsole ? 6 : 7)
+        .withEEVariablesTagCount(hideConsole ? 8 : 9)
+        .withEESetVariableTagCount(hideConsole ? 9 : 10)
+        .withEESetPayloadTagCount(hideConsole ? 6 : 7)
+        .withHttpBodyCount(hideConsole ? 2 : 4)
+        .withHttpHeadersCount(hideConsole ? 4 : 8)
+        .withDWPayloadExpressionCount(hideConsole ? 1 : 2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(hideConsole ? 1 : 2)
+        .withApikitConsoleCount(hideConsole ? 0 : 1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"simple"));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
-    assertEquals(1, countOccurences(s, "http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(1, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(1, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(2, countOccurences(s, "#[vars.outboundHeaders default {}]"));
-    assertEquals(6, countOccurences(s, "<on-error-propagate"));
-    assertEquals(6, countOccurences(s, "<ee:message>"));
-    assertEquals(8, countOccurences(s, "<ee:variables>"));
-    assertEquals(9, countOccurences(s, "<ee:set-variable"));
     assertEquals(2, countOccurences(s, "<ee:set-variable variableName=\"name\">attributes.uriParams.'name'</ee:set-variable>"));
     assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"owner\">attributes.uriParams.'owner'</ee:set-variable>"));
-    assertEquals(6, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(2, countOccurences(s, "http:body"));
-    assertEquals(1, countOccurences(s, "#[payload]"));
-    assertEquals(4, countOccurences(s, "http:headers"));
     assertEquals(2, countOccurences(s, "get:\\:" + name + "-config"));
     assertEquals(2, countOccurences(s, "get:\\pet:" + name + "-config"));
-    assertEquals(0, countOccurences(s, "apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
     assertEquals(0, countOccurences(s, "#[null]"));
     assertEquals(0,
@@ -580,325 +953,6 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(0,
                  countOccurences(s,
                                  "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
-    assertEquals(0, countOccurences(s, "exception-strategy"));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerate(final String apiPath) throws Exception {
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiPath);
-
-    assertEquals(1, result.getGeneratedConfigs().size());
-
-    final String name = fileNameWhithOutExtension(apiPath);
-    final String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "http:listener-config name=\"simple"));
-    assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
-    assertEquals(2, countOccurences(s, "http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "#[vars.outboundHeaders default {}]"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(2, countOccurences(s, "<ee:set-variable variableName=\"name\">attributes.uriParams.'name'</ee:set-variable>"));
-    assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"owner\">attributes.uriParams.'owner'</ee:set-variable>"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(8, countOccurences(s, "http:headers"));
-    assertEquals(2, countOccurences(s, "get:\\:" + name + "-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:" + name + "-config"));
-    assertEquals(1, countOccurences(s, "apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
-    assertEquals(0, countOccurences(s, "#[null]"));
-    assertEquals(0,
-                 countOccurences(s,
-                                 "expression-component>mel:flowVars['variables.outboundHeaders default {}'].put('Content-Type', 'application/json')</expression-component>"));
-    assertEquals(0,
-                 countOccurences(s,
-                                 "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
-    assertEquals(0, countOccurences(s, "exception-strategy"));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithExtension() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
-    assertEquals(1, result.getGeneratedConfigs().size());
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithExtensionInNull() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
-    assertEquals(1, result.getGeneratedConfigs().size());
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithListenerAndExtension() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
-    assertEquals(1, result.getGeneratedConfigs().size());
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(0, countOccurences(s, "<http:inbound"));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithCustomDomain() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    String muleDomainLocation = "custom-domain-4/mule-domain-config.xml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(0, countOccurences(s, "<http:listener-config"));
-    assertEquals(2, countOccurences(s, "<http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "<http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithCustomExternalDomain() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    URL fileUrl = Thread.currentThread().getContextClassLoader().getResource("custom-domain-4/external-domain.jar");
-    File artifact = new File(fileUrl.getFile());
-    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(0, countOccurences(s, "<http:listener-config"));
-    assertEquals(2, countOccurences(s, "<http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "<http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithCustomDomainAndExtension() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    String muleDomainLocation = "custom-domain-4/mule-domain-config.xml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
-
-    assertEquals(1, result.getGeneratedConfigs().size());
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(0, countOccurences(s, "<http:listener-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithCustomDomainWithMultipleLC() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    String muleDomainLocation = "custom-domain-multiple-lc-4/mule-domain-config.xml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(0, countOccurences(s, "<http:listener-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "config-ref=\"abcd\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithCustomExternalDomainWithMultipleConfigs() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    URL fileUrl = Thread.currentThread().getContextClassLoader()
-        .getResource("custom-external-domain-multiple-configs/external-domain-2-configs.jar");
-    File artifact = new File(fileUrl.getFile());
-    MuleDomain muleDomain = MuleDomainFactory.fromDeployableArtifact(artifact);
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, Collections.emptyList(), muleDomain);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(0, countOccurences(s, "<http:listener-config"));
-    assertEquals(2, countOccurences(s, "<http:listener "));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "<http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(2, countOccurences(s, "config-ref=\"http-lc-0.0.0.0-8081\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-  private void simpleGenerateWithEmptyDomain() throws Exception {
-    String apiLocation = "scaffolder/simple.raml";
-    String muleDomainLocation = "empty-domain/mule-domain-config.xml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation, muleDomainLocation);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(9, countOccurences(s, "<ee:variables>"));
-    assertEquals(10, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\v1:simple-config"));
-    assertEquals(1, countOccurences(s, "<apikit:console"));
-    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
-  }
-
-
-  private void nestedGenerate() throws Exception {
-    String apiLocation = "scaffolder/nested.raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(4, countOccurences(s, "http:body"));
-    assertEquals(2, countOccurences(s, "#[payload]"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "get:\\pet:nested-config"));
-    assertEquals(2, countOccurences(s, "post:\\pet:nested-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet\\owner:nested-config"));
-    assertEquals(2, countOccurences(s, "get:\\car:nested-config"));
-    assertEquals(2, countOccurences(s, "post:\\car:nested-config"));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
@@ -910,114 +964,6 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(1,
                  countOccurences(s,
                                  "<ee:set-variable variableName=\"mediaTypeExtension\">attributes.uriParams.'mediaTypeExtension'</ee:set-variable>"));
-  }
-
-
-  private void noNameGenerate() throws Exception {
-    String apiLocation = "scaffolder/no-name.raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(1, countOccurences(s, "http:listener-config name=\"no-name-httpListenerConfig\">"));
-    assertEquals(1, countOccurences(s, "http:listener config-ref=\"no-name-httpListenerConfig\" path=\"/api/*\""));
-  }
-
-  private void exampleGenerate() throws Exception {
-    String apiLocation = "scaffolder/example.raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiLocation);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(9, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(9, countOccurences(s, "<ee:set-payload>"));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(8, countOccurences(s, "application/json"));
-    assertEquals(1, countOccurences(s,
-                                    "{\n" +
-                                        "  name: \"Bobby\",\n" +
-                                        "  food: \"Ice Cream\"\n" +
-                                        "}"));
-    assertEquals(1, countOccurences(s, "{\n" +
-        "  Person: {\n" +
-        "    name: \"Underwood\",\n" +
-        "    address: \"Juana Manso 999\",\n" +
-        "    country: \"Argentina\"\n" +
-        "  }\n" +
-        "}"));
-  }
-
-
-  private void doubleRootRaml() throws Exception {
-    // In the new Scaffolder API you can't scaffold more than one ApiSpecification at a time.
-    // If you want to scaffold more than one ApiSpec, you have to call the scaffolder N times.
-    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
-    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-
-    ParserService parserService = new ParserService();
-    ParseResult firstRamlParsingResult = parserService.parse(ApiReference.create("double-root-raml/simple.raml"));
-    ParseResult secondRamlParsingResult = parserService.parse(ApiReference.create("double-root-raml/two.raml"));
-
-    assertTrue(firstRamlParsingResult.success());
-    assertTrue(secondRamlParsingResult.success());
-
-    ScaffoldingConfiguration firstScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(firstRamlParsingResult.get()).build();
-    ScaffoldingConfiguration secondScaffoldingConfiguration =
-        new ScaffoldingConfiguration.Builder().withApi(secondRamlParsingResult.get()).build();
-
-    ScaffoldingResult result = mainAppScaffolder.run(firstScaffoldingConfiguration);
-    assertTrue(result.isSuccess());
-    assertTrue(result.getGeneratedConfigs().size() == 1);
-
-    String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
-    assertEquals(2, countOccurences(s, "get:\\:simple-config"));
-    assertEquals(2, countOccurences(s, "get:\\pet:simple-config"));
-    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
-    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
-    assertEquals(2, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s, "<ee:message>"));
-    assertEquals(7, countOccurences(s, "<ee:variables>"));
-    assertEquals(7, countOccurences(s, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s, "<ee:set-payload>"));
-
-    result = mainAppScaffolder.run(secondScaffoldingConfiguration);
-    assertTrue(result.isSuccess());
-    assertTrue(result.getGeneratedConfigs().size() == 1);
-
-    String s2 = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s2, "get:\\pet:two-config"));
-    assertEquals(2, countOccurences(s2, "post:\\pet:two-config"));
-    assertEquals(2, countOccurences(s2, "get:\\car:two-config"));
-    assertEquals(2, countOccurences(s2, "post:\\car:two-config"));
-    assertEquals(0, countOccurences(s2, "interpretRequestErrors=\"true\""));
-    assertEquals(4, countOccurences(s2, "<logger level=\"INFO\" message="));
-    assertEquals(2, countOccurences(s2, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
-    assertEquals(2, countOccurences(s2, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
-    assertEquals(4, countOccurences(s2, "<http:headers>#[vars.outboundHeaders default {}]</http:headers>"));
-    assertEquals(7, countOccurences(s2, "<on-error-propagate"));
-    assertEquals(7, countOccurences(s2, "<ee:message>"));
-    assertEquals(7, countOccurences(s2, "<ee:variables>"));
-    assertEquals(7, countOccurences(s2, "<ee:set-variable"));
-    assertEquals(7, countOccurences(s2, "<ee:set-payload>"));
-
   }
 
   @Test
@@ -1041,6 +987,12 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(APIKitTools.readContents(getResourceAsStream("scaffolder/body-with-mime-types-without-schema/output.xml"))
         .replaceAll("\\s+", ""), muleConfig.replaceAll("\\s+", ""));
-
   }
+
+  private void assertPetApiScaffoldedContent(String content) {
+    assertEquals(2, countOccurences(content, "get:\\:simple-config"));
+    assertEquals(2, countOccurences(content, "get:\\pet:simple-config"));
+    assertEquals(2, countOccurences(content, "get:\\pet\\v1:simple-config"));
+  }
+
 }
