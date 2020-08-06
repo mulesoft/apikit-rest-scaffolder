@@ -6,13 +6,6 @@
  */
 package org.mule.tools.apikit;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
@@ -22,9 +15,13 @@ import org.jdom2.input.sax.XMLReaders;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.xml.sax.SAXException;
 
-public class TestUtils {
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
-  public static final String PARSER_V2_PROPERTY = "apikit.raml.parser.v2";
+import static org.junit.Assert.assertTrue;
+
+public class TestUtils {
 
   public static final String ENABLE_FLOW_SOURCES_TEMPLATE = "<munit:enable-flow-source value=\"%s\" />";
   private static final SAXBuilder BUILDER = new SAXBuilder(XMLReaders.NONVALIDATING);

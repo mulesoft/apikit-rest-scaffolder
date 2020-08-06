@@ -6,15 +6,6 @@
  */
 package org.mule.tools.apikit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mule.tools.apikit.Helper.countOccurences;
-import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
@@ -28,6 +19,15 @@ import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mule.tools.apikit.Helper.countOccurences;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
+
 public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderTestCase {
 
   @Test
@@ -36,37 +36,41 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
         scaffoldApi("scaffolder-with-global-apikit-config/api/simple.raml", "scaffolder-with-global-apikit-config/simple.xml",
                     "scaffolder-with-global-apikit-config/global.xml");
     String s = APIKitTools.readContents(muleConfig.getContent());
-
-    assertEquals(2, countOccurences(s, "http:listener-config"));
-    assertEquals(7, countOccurences(s, "http:listener"));
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(9)
+        .withEESetVariableTagCount(10)
+        .withEESetPayloadTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(5)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(6, countOccurences(s, "get:\\pet"));
     assertEquals(2, countOccurences(s, "post:\\pet"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
-    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testAlreadyExistsOldGenerateWithOldParser() throws Exception {
-    testAlreadyExistsOldGenerate();
-  }
-
-  @Test
-  public void testAlreadyExistsOldGenerateWithNewParser() throws Exception {
-
-    testAlreadyExistsOldGenerate();
-  }
-
-  private void testAlreadyExistsOldGenerate() throws Exception {
+  public void testAlreadyExistsOldGenerate() throws Exception {
     MuleConfig muleConfig = scaffoldApi("scaffolder-existing-old/simple.raml", "scaffolder-existing-old/simple.xml");
     String s = APIKitTools.readContents(muleConfig.getContent());
-
-    assertEquals(0, countOccurences(s, "http:listener-config"));
-    assertEquals(0, countOccurences(s, "http:listener"));
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpInboundCount(1)
+        .withHttpInboundEndpointCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:inbound-endpoint port=\"${serverPort}\" host=\"localhost\" path=\"api\""));
     assertEquals(1, countOccurences(s, "get:\\pet"));
     assertEquals(2, countOccurences(s, "post:\\pet"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
-    assertEquals(1, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
@@ -96,7 +100,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
       assertTrue(s.contains("post:\\pet:application\\x-www-form-urlencoded:" + name + "-config"));
     }
     assertTrue(s.contains("post:\\pet:application\\xml:" + name + "-config"));
-    assertTrue(s.contains("post:\\vet:application\\xml:" + name + "-config"));;
+    assertTrue(s.contains("post:\\vet:application\\xml:" + name + "-config"));
     assertEquals(0, countOccurences(s, "extensionEnabled"));
   }
 
@@ -111,7 +115,7 @@ public class MainAppScaffolderWithExistingConfigTest extends AbstractScaffolderT
     ScaffoldingConfiguration.Builder configurationBuilder = new ScaffoldingConfiguration.Builder().withApi(parseResult.get());
 
     if (existingMuleConfigPaths != null) {
-      List<MuleConfig> configs = new ArrayList<MuleConfig>();
+      List<MuleConfig> configs = new ArrayList<>();
       for (String s : existingMuleConfigPaths) {
         try (InputStream muleConfigIS = getResourceAsStream(s)) {
           MuleConfig existingMuleConfig = MuleConfigBuilder.fromStream(muleConfigIS);

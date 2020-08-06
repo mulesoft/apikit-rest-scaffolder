@@ -6,11 +6,8 @@
  */
 package org.mule.tools.apikit;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import org.junit.Test;
-
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -23,6 +20,8 @@ import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffolderResult;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -54,9 +53,7 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "get:\\books"));
-    assertEquals(2, countOccurences(s, "put:\\shows"));
-    assertEquals(0, countOccurences(s, "patch:\\movies"));
+    assertBooksApiScaffoldedContent(s);
   }
 
   @Test
@@ -81,23 +78,11 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertEquals(1, result.getGeneratedConfigs().size());
 
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(2, countOccurences(s, "get:\\books"));
-    assertEquals(2, countOccurences(s, "put:\\shows"));
-    assertEquals(0, countOccurences(s, "patch:\\movies"));
+    assertBooksApiScaffoldedContent(s);
   }
 
   @Test
-  public void testAlreadyExistsWithExtensionNotPresentWithOldParser() throws Exception {
-    testAlreadyExistsWithExtensionNotPresent();
-  }
-
-  @Test
-  public void testAlreadyExistsWithExtensionNotPresentWithNewParser() throws Exception {
-
-    testAlreadyExistsWithExtensionNotPresent();
-  }
-
-  private void testAlreadyExistsWithExtensionNotPresent() throws Exception {
+  public void testAlreadyExistsWithExtensionNotPresent() throws Exception {
     String ramlFilePath = "scaffolder-existing-extension/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
@@ -114,29 +99,25 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withOnErrorPropagateCount(6)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(1)
+        .withErrorHandlerTagCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"${serverPort}\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
-    assertEquals(0, countOccurences(s, "http:inbound-endpoint"));
     assertEquals(1, countOccurences(s, "get:\\pet"));
     assertEquals(2, countOccurences(s, "post:\\pet"));
     assertEquals(1, countOccurences(s, "get:\\\""));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
     assertEquals(0, countOccurences(s, "#[mel:null]"));
-    assertEquals(1, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testAlreadyExistsGenerateWithOldParser() throws Exception {
-    testAlreadyExistsGenerate();
-  }
-
-  @Test
-  public void testAlreadyExistsGenerateWithNewParser() throws Exception {
-    testAlreadyExistsGenerate();
-  }
-
-  private void testAlreadyExistsGenerate() throws Exception {
+  public void testAlreadyExistsGenerate() throws Exception {
     String ramlFilePath = "scaffolder-existing-extension/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
@@ -153,29 +134,32 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(1)
+        .withHttpResponseStatusCode500Count(1)
+        .withHttpHeadersOutboundHeadersDefaultCount(2)
+        .withOnErrorPropagateCount(5)
+        .withEEMessageTagCount(5)
+        .withEEVariablesTagCount(5)
+        .withEESetVariableTagCount(5)
+        .withEESetPayloadTagCount(5)
+        .withHttpBodyCount(2)
+        .withHttpHeadersCount(4)
+        .withDWPayloadExpressionCount(1)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
-    assertEquals(0, countOccurences(s, "inbound-endpoint"));
     assertEquals(1, countOccurences(s, "get:\\pet"));
     assertEquals(2, countOccurences(s, "post:\\pet"));
     assertEquals(1, countOccurences(s, "get:\\\""));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
-    assertEquals(1, countOccurences(s, "#[payload]"));
-    assertEquals(2, countOccurences(s, "http:body"));
-    assertEquals(1, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testAlreadyExistsGenerateWithCustomDomainWithOldParser() throws Exception {
-    testAlreadyExistsGenerateWithCustomDomain();
-  }
-
-  @Test
-  public void testAlreadyExistsGenerateWithCustomDomainWithNewParser() throws Exception {
-    testAlreadyExistsGenerateWithCustomDomain();
-  }
-
-  private void testAlreadyExistsGenerateWithCustomDomain() throws Exception {
+  public void testAlreadyExistsGenerateWithCustomDomain() throws Exception {
     String ramlFilePath = "scaffolder-existing-custom-lc/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
@@ -192,30 +176,23 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(0, countOccurences(s, "<http:listener-config"));
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withOnErrorPropagateCount(6)
+        .withHttplListenerCount(1)
+        .withErrorHandlerTagCount(1)
+        .withLoggerInfoCount(1)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(0, countOccurences(s, "http:listener-connection"));
-
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"http-lc-0.0.0.0-8081\" path=\"/api/*\""));
-    assertEquals(0, countOccurences(s, "inbound-endpoint"));
     assertEquals(1, countOccurences(s, "get:\\pet"));
     assertEquals(1, countOccurences(s, "get:\\\""));
     assertEquals(2, countOccurences(s, "post:\\pet"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
-    assertEquals(1, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testAlreadyExistsGenerateWithCustomAndNormalLCWithOldParser() throws Exception {
-    testAlreadyExistsGenerateWithCustomAndNormalLC();
-  }
-
-  @Test
-  public void testAlreadyExistsGenerateWithCustomAndNormalLCWithNewParser() throws Exception {
-    testAlreadyExistsGenerateWithCustomAndNormalLC();
-  }
-
-  private void testAlreadyExistsGenerateWithCustomAndNormalLC() throws Exception {
+  public void testAlreadyExistsGenerateWithCustomAndNormalLC() throws Exception {
     String ramlFilePath = "scaffolder-existing-custom-and-normal-lc/leagues-custom-normal-lc.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
@@ -232,29 +209,26 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
-    assertEquals(1, countOccurences(s, "<http:listener-config"));
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withOnErrorPropagateCount(6)
+        .withEEVariablesTagCount(2)
+        .withEESetVariableTagCount(2)
+        .withErrorHandlerTagCount(1)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"http-lc-0.0.0.0-8081\" path=\"/api/*\""));
-    assertEquals(0, countOccurences(s, "inbound-endpoint"));
     assertEquals(2, countOccurences(s, "get:\\leagues\\(leagueId)"));
     assertEquals(2, countOccurences(s, "post:\\leagues\\(leagueId)"));
     assertEquals(1, countOccurences(s, "<http:listener config-ref=\"HTTP_Listener_Configuration\""));
     assertEquals(1, countOccurences(s, "<http:listener config-ref=\"http-lc-0.0.0.0-8081\""));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
-    assertEquals(2, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testAlreadyExistingMuleConfigWithApikitRouterWithOldParser() throws Exception {
-    testAlreadyExistingMuleConfigWithApikitRouter();
-  }
-
-  @Test
-  public void testAlreadyExistingMuleConfigWithApikitRouterWithNewParser() throws Exception {
-    testAlreadyExistingMuleConfigWithApikitRouter();
-  }
-
-  private void testAlreadyExistingMuleConfigWithApikitRouter() throws Exception {
+  public void testAlreadyExistingMuleConfigWithApikitRouter() throws Exception {
     String ramlFilePath = "scaffolder-existing/simple.raml";
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFilePath));
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
@@ -272,25 +246,29 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
     String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(1)
+        .withHttpResponseStatusCode500Count(1)
+        .withHttpHeadersOutboundHeadersDefaultCount(2)
+        .withHttpBodyCount(2)
+        .withHttpHeadersCount(4)
+        .withDWPayloadExpressionCount(1)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(1)
+        .withLoggerInfoCount(3)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
     assertEquals(1, countOccurences(s, "http:listener-config name=\"HTTP_Listener_Configuration\">"));
     assertEquals(1, countOccurences(s, "http:listener config-ref=\"HTTP_Listener_Configuration\" path=\"/api/*\""));
     assertEquals(1, countOccurences(s, "<apikit:router config-ref=\"apikit-config\" />"));
-    assertEquals(0, countOccurences(s, "inbound-endpoint"));
     assertEquals(2, countOccurences(s, "get:\\pet"));
     assertEquals(2, countOccurences(s, "post:\\pet"));
     assertEquals(2, countOccurences(s, "get:\\:"));
-    assertEquals(0, countOccurences(s, "extensionEnabled"));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
-    assertEquals(3, countOccurences(s, "<logger level=\"INFO\" message="));
   }
 
   @Test
-  public void testMultipleMimeTypesWithOldParser() throws Exception {
-    testMultipleMimeTypes("scaffolder/multipleMimeTypes.raml");
-  }
-
-  @Test
-  public void testMultipleMimeTypesWithNewParser() throws Exception {
+  public void testMultipleMimeTypes() throws Exception {
     testMultipleMimeTypes("scaffolder/multipleMimeTypes.raml");
   }
 
@@ -322,5 +300,29 @@ public class MainAppScaffolderWithExistingConfigMule4Test extends AbstractScaffo
     assertTrue(s.contains("post:\\pet:application\\xml:" + name + "-config"));
     assertTrue(s.contains("post:\\vet:application\\xml:" + name + "-config"));
     assertEquals(0, countOccurences(s, "extensionEnabled"));
+  }
+
+  private void assertBooksApiScaffoldedContent(String s) {
+    XmlOccurrencesAsserterBuilder.XmlOccurrencesAsserter xmlOccurrencesAsserter = new XmlOccurrencesAsserterBuilder()
+        .withHttpResponseStatusCode200Count(2)
+        .withHttpResponseStatusCode500Count(2)
+        .withHttpHeadersOutboundHeadersDefaultCount(4)
+        .withOnErrorPropagateCount(7)
+        .withEEMessageTagCount(7)
+        .withEEVariablesTagCount(7)
+        .withEESetVariableTagCount(7)
+        .withHttpBodyCount(4)
+        .withHttpHeadersCount(8)
+        .withEESetPayloadTagCount(7)
+        .withDWPayloadExpressionCount(2)
+        .withHttplListenerConfigCount(1)
+        .withHttplListenerCount(2)
+        .withApikitConsoleCount(1)
+        .withLoggerInfoCount(2)
+        .build();
+    xmlOccurrencesAsserter.assertOccurrences(s);
+    assertEquals(2, countOccurences(s, "get:\\books"));
+    assertEquals(2, countOccurences(s, "put:\\shows"));
+    assertEquals(0, countOccurences(s, "patch:\\movies"));
   }
 }
