@@ -58,6 +58,11 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   }
 
   @Test
+  public void testSimpleGenerateV10HideConsole() throws Exception {
+    simpleGenerateHideConsole("scaffolder/simpleV10.raml");
+  }
+
+  @Test
   public void testSimpleGenerateForCEV08() throws Exception {
     simpleGenerateForCE("scaffolder/simple.raml");
   }
@@ -526,6 +531,46 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
     assertEquals(2, countOccurences(s, "get:\\pet:" + name + "-config"));
     assertEquals(2, countOccurences(s, "get:\\pet\\v1:" + name + "-config"));
     assertEquals(1, countOccurences(s, "apikit:console"));
+    assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
+    assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
+    assertEquals(0, countOccurences(s, "#[null]"));
+    assertEquals(0,
+                 countOccurences(s,
+                                 "expression-component>mel:flowVars['variables.outboundHeaders default {}'].put('Content-Type', 'application/json')</expression-component>"));
+    assertEquals(0,
+                 countOccurences(s,
+                                 "set-variable variableName=\"variables.outboundHeaders default {}\" value=\"#[mel:new java.util.HashMap()]\" />"));
+    assertEquals(0, countOccurences(s, "exception-strategy"));
+    assertEquals(5, countOccurences(s, "<logger level=\"INFO\" message="));
+  }
+
+  private void simpleGenerateHideConsole(final String apiPath) throws Exception {
+    ScaffoldingResult result = scaffoldApiHiddenConsole(RuntimeEdition.EE, apiPath);
+
+    assertEquals(1, result.getGeneratedConfigs().size());
+
+    final String name = fileNameWhithOutExtension(apiPath);
+    final String s = APIKitTools.readContents(result.getGeneratedConfigs().get(0).getContent());
+    assertEquals(1, countOccurences(s, "http:listener-config name=\"simple"));
+    assertEquals(1, countOccurences(s, "http:listener-connection host=\"0.0.0.0\" port=\"8081\""));
+    assertEquals(1, countOccurences(s, "http:listener "));
+    assertEquals(0, countOccurences(s, "interpretRequestErrors=\"true\""));
+    assertEquals(1, countOccurences(s, "http:response statusCode=\"#[vars.httpStatus default 200]\""));
+    assertEquals(1, countOccurences(s, "http:error-response statusCode=\"#[vars.httpStatus default 500]\""));
+    assertEquals(2, countOccurences(s, "#[vars.outboundHeaders default {}]"));
+    assertEquals(6, countOccurences(s, "<on-error-propagate"));
+    assertEquals(6, countOccurences(s, "<ee:message>"));
+    assertEquals(8, countOccurences(s, "<ee:variables>"));
+    assertEquals(9, countOccurences(s, "<ee:set-variable"));
+    assertEquals(2, countOccurences(s, "<ee:set-variable variableName=\"name\">attributes.uriParams.'name'</ee:set-variable>"));
+    assertEquals(1, countOccurences(s, "<ee:set-variable variableName=\"owner\">attributes.uriParams.'owner'</ee:set-variable>"));
+    assertEquals(6, countOccurences(s, "<ee:set-payload>"));
+    assertEquals(2, countOccurences(s, "http:body"));
+    assertEquals(1, countOccurences(s, "#[payload]"));
+    assertEquals(4, countOccurences(s, "http:headers"));
+    assertEquals(2, countOccurences(s, "get:\\:" + name + "-config"));
+    assertEquals(2, countOccurences(s, "get:\\pet:" + name + "-config"));
+    assertEquals(0, countOccurences(s, "apikit:console"));
     assertEquals(0, countOccurences(s, "consoleEnabled=\"false\""));
     assertEquals(0, countOccurences(s, "#[NullPayload.getInstance()]"));
     assertEquals(0, countOccurences(s, "#[null]"));
