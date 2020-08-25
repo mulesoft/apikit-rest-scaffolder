@@ -69,7 +69,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return pathParts[pathParts.length - 1];
   }
 
-  protected List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
+  public static List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
     if (isEmpty(ramlLocations)) {
       return emptyList();
     }
@@ -83,7 +83,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return muleConfigs;
   }
 
-  protected MuleDomain createMuleDomainFromLocation(String location) throws Exception {
+  public static MuleDomain createMuleDomainFromLocation(String location) throws Exception {
     if (isBlank(location)) {
       return null;
     }
