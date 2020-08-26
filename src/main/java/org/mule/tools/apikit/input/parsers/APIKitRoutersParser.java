@@ -7,6 +7,13 @@
 package org.mule.tools.apikit.input.parsers;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.io.FilenameUtils;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.filter.Filters;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.mule.apikit.common.ApiSyncUtils;
 import org.mule.tools.apikit.input.APIKitFlow;
 import org.mule.tools.apikit.misc.APIKitTools;
@@ -21,14 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.io.FilenameUtils;
-import org.jdom2.Attribute;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.filter.Filters;
-import org.jdom2.xpath.XPathExpression;
-import org.jdom2.xpath.XPathFactory;
 
 public class APIKitRoutersParser implements MuleConfigFileParser {
 
@@ -66,7 +65,8 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
           FilenameUtils.separatorsToSystem(config.getApi() == null ? Paths.get(config.getRaml()).toString() : config.getApi());
       for (String apiPath : allApisPathsInApplication) {
         if (compareApisLocation(currentApiPath, apiPath)) {
-          Element source = findListenerOrInboundEndpoint(element.getParentElement().getChildren());
+          List<Element> flowElements = getParentFlowElements(element);
+          Element source = findListenerOrInboundEndpoint(flowElements);
           String configId = config.getName() != null ? config.getName() : APIKitFlow.UNNAMED_CONFIG_NAME;
 
           if ("listener".equals(source.getName())) {
@@ -81,6 +81,18 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
       }
     }
     return includedApis;
+  }
+
+  private List<Element> getParentFlowElements(Element element) {
+    if (element == null) {
+      throw new IllegalStateException("Router should be contained in a flow");
+    }
+
+    if (element.getName().equals("flow")) {
+      return element.getChildren();
+    }
+
+    return getParentFlowElements(element.getParentElement());
   }
 
   private boolean compareApisLocation(String configRaml, String currentRootRaml) {
@@ -128,6 +140,8 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
   }
 
   private Element findListenerOrInboundEndpoint(List<Element> elements) {
+
+
     for (Element element : elements) {
       if ("listener".equals(element.getName()) || "inbound-endpoint".equals(element.getName())) {
         return element;
