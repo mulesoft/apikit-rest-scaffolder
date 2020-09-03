@@ -3,7 +3,11 @@
   "info": {
     "title": "Uber API",
     "description": "Move your app forward with the Uber API",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
   },
   "host": "api.uber.com",
   "schemes": [
