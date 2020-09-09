@@ -20,6 +20,10 @@ public class FlowScope implements Scope {
   private final Element main;
 
   public FlowScope(ApikitMainFlowContainer api, boolean isMuleEE) {
+    this(api, isMuleEE, null);
+  }
+
+  public FlowScope(ApikitMainFlowContainer api, boolean isMuleEE, String apikitConfigRef) {
     main = new Element("flow", XMLNS_NAMESPACE.getNamespace());
     main.setAttribute("name", api.getId() + "-" + "main");
 
@@ -27,7 +31,7 @@ public class FlowScope implements Scope {
     main.addContent(MainFlowsUtils.generateListenerSource(httpListenerConfigRef, api.getPath()));
 
     Element restProcessor = new Element("router", APIKitTools.API_KIT_NAMESPACE.getNamespace());
-    String configRef = api.getConfig() != null ? api.getConfig().getName() : null;
+    String configRef = api.getConfig() != null ? api.getConfig().getName() : apikitConfigRef;
     if (!StringUtils.isEmpty(configRef)) {
       restProcessor.setAttribute("config-ref", configRef);
     }

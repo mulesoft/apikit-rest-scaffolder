@@ -7,16 +7,20 @@
 package org.mule.tools.apikit.output;
 
 
+import org.apache.commons.compress.utils.Lists;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.mule.tools.apikit.input.parsers.APIKitConfigParser;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.Flow;
 import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
@@ -29,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -36,6 +41,7 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
+import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDocWithoutFlows;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 public class MuleConfigGenerator {
@@ -68,6 +74,7 @@ public class MuleConfigGenerator {
   private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
   private ScaffolderContext scaffolderContext;
   private boolean showConsole;
+  private CustomConfiguration customConfiguration;
 
   /**
    * @param apiContainers     Information about APIs being scaffolded
@@ -77,12 +84,14 @@ public class MuleConfigGenerator {
    * @param includeConsole    Whether console should be included or not
    */
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apiContainers, List<GenerationModel> flowEntriesDiff,
-                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext, boolean includeConsole) {
+                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext, boolean includeConsole,
+                             CustomConfiguration customConfiguration) {
     this.apiContainers = apiContainers;
     this.flowEntriesDiff = flowEntriesDiff;
     this.muleConfigsInApp.addAll(muleConfigsInApp);
     this.scaffolderContext = scaffolderContext;
     this.showConsole = includeConsole;
+    this.customConfiguration = customConfiguration;
   }
 
   /**
@@ -231,7 +240,14 @@ public class MuleConfigGenerator {
   private Set<MuleConfig> getConfigsFromApiContainers() {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     for (ApikitMainFlowContainer api : apiContainers) {
-      muleConfigs.add(api.getMuleConfig() == null ? createMuleConfig(api) : api.getMuleConfig());
+      FlowScope flowScope = null;
+      if (customConfiguration.getExternalConfigurationFile().isPresent()) {
+        MuleConfig globals = createCommonPropertiesFile(api);
+        muleConfigs.add(globals);
+        flowScope = new FlowScope(api, isMuleEE(), globals.getApikitConfigs().stream().findFirst().orElse(null).getName());
+      }
+      MuleConfig muleConfig = api.getMuleConfig() == null ? createMuleConfig(api, flowScope) : api.getMuleConfig();
+      muleConfigs.add(muleConfig);
     }
     return muleConfigs;
   }
@@ -278,10 +294,11 @@ public class MuleConfigGenerator {
    * existing mule configurations of the application.
    *
    * @param api container of the main mule application file
+   * @param flowScope helps creating the flow of the application
    * @return new mule configuration
    */
-  public MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
-    Document muleConfigContent = createMuleConfigContent(api);
+  public MuleConfig createMuleConfig(ApikitMainFlowContainer api, FlowScope flowScope) {
+    Document muleConfigContent = createMuleConfigContent(api, flowScope);
     MuleConfig config = fromDoc(muleConfigContent);
     config.setName(createMuleConfigID(api.getId()));
     api.setMuleConfig(config);
@@ -289,21 +306,42 @@ public class MuleConfigGenerator {
   }
 
   /**
-   * Creates a document containing a name, apikit configuration, http listener flow and console flow
+   * Creates a document containing a name,  http/apikit configuration if applies, http listener flow and console flow
    * @param api container of the main mule application file
+   * @param flowScope helps creating the flow of the application
    * @return a document to build a mule configuration
    */
-  private Document createMuleConfigContent(ApikitMainFlowContainer api) {
+  private Document createMuleConfigContent(ApikitMainFlowContainer api, FlowScope flowScope) {
     Document document = new Document();
     document.setRootElement(new MuleScope(false, false).generate());
     MuleConfig muleConfig = fromDoc(document);
     muleConfig.setName(createMuleConfigID(api.getId()));
-    addApikitConfiguration(api, muleConfig);
-    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
-    muleConfig.addFlow(new Flow(new FlowScope(api, isMuleEE()).generate()));
-    addHttpListenerConfiguration(api, muleConfig);
+    if (!customConfiguration.getExternalConfigurationFile().isPresent()) {
+      addApikitConfiguration(api, muleConfig);
+      api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+      addHttpListenerConfiguration(api, muleConfig);
+    }
+    flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
+    muleConfig.addFlow(new Flow(flowScope.generate()));
     addConsoleFlow(api, muleConfig);
     return muleConfig.buildContent();
+  }
+
+  /**
+   * Creates a document containing all common configuration files
+   * @param api container of the main mule application file
+   * @return a document to build a common mule configuration
+   */
+  private MuleConfig createCommonPropertiesFile(ApikitMainFlowContainer api) {
+    Document document = new Document();
+    document.setRootElement(new MuleScope(false, false).generate());
+    MuleConfig global = fromDocWithoutFlows(document);
+    addHttpListenerConfiguration(api, global);
+    addApikitConfiguration(api, global);
+    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+    MuleConfig globals = fromDocWithoutFlows(global.buildContent());
+    globals.setName(customConfiguration.getExternalConfigurationFile().get());
+    return globals;
   }
 
   /**

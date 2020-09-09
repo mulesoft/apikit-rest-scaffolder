@@ -6,6 +6,7 @@
  */
 package org.mule.tools.apikit.model;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -35,6 +36,7 @@ public class MuleConfigBuilder {
 
     List<HttpListenerConfig> httpListenerConfigs = httpConfigParser.parse(muleConfigContent);
     List<APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
+
     List<Flow> flowsInConfig = new ArrayList<>();
 
     for (Content content : muleConfigContent.getRootElement().getContent()) {
@@ -52,9 +54,27 @@ public class MuleConfigBuilder {
         }
       }
     }
-
     return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, muleConfigContent);
   }
+
+
+  public static MuleConfig fromDocWithoutFlows(Document muleConfigContent) {
+    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser();
+    APIKitConfigParser apiKitConfigParser = new APIKitConfigParser();
+
+    List<HttpListenerConfig> httpListenerConfigs = httpConfigParser.parse(muleConfigContent);
+    List<APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
+    List<Flow> flowsInConfig = new ArrayList<>();
+
+    for (Content content : muleConfigContent.getRootElement().getContent()) {
+      if (content instanceof Element) {
+        Element contentElement = (Element) content;
+        flowsInConfig.add(new Flow(contentElement));
+      }
+    }
+    return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, muleConfigContent);
+  }
+
 
   public static MuleConfig fromStream(InputStream input) throws Exception {
     SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();

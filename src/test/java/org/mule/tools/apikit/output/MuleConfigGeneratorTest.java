@@ -10,14 +10,20 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mule.tools.apikit.Helper;
+import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
@@ -25,8 +31,10 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +43,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mule.tools.apikit.TestUtils.getDocumentFromStream;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
 public class MuleConfigGeneratorTest {
 
@@ -100,35 +110,60 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
+  public void blankDocumentWithExternalizedGlobals() {
+    Optional<String> externalConfigurationFile = Optional.of("globals.xml");
+    CustomConfiguration customConfiguration =
+        new CustomConfiguration(externalConfigurationFile, Optional.empty(), Optional.empty());
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
+    for (MuleConfig muleConfig : muleConfigs) {
+      Document document = muleConfig.getContentAsDocument();
+      Element rootElement = document.getRootElement();
+      if (muleConfig.getName() == externalConfigurationFile.get()) {
+        assertEquals("mule", rootElement.getName());
+        assertConfigurations(rootElement);
+      } else {
+        assertMainFlow(rootElement, 0);
+      }
+      System.out.println(document);
+    }
+
+  }
+
+  @Test
   public void blankDocumentWithoutLCInDomain() {
-    Document document = this.scaffoldBlankDocument(SHOW_CONSOLE);
-    Element rootElement = document.getRootElement();
-    assertCommonFlows(rootElement);
-    Element consoleFlow = rootElement.getChildren().get(3);
-    assertEquals("flow", consoleFlow.getName());
-    assertEquals("hello-console", consoleFlow.getAttribute("name").getValue());
-    assertEquals("httpListenerConfig", consoleFlow.getChildren().get(0).getAttribute("config-ref").getValue());
-    assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
-    assertEquals("console", consoleFlow.getChildren().get(1).getName());
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(SHOW_CONSOLE);
+    for (MuleConfig muleConfig : muleConfigs) {
+      Document document = muleConfig.getContentAsDocument();
+      Element rootElement = document.getRootElement();
+      assertCommonFlows(rootElement);
+      Element consoleFlow = rootElement.getChildren().get(3);
+      assertEquals("flow", consoleFlow.getName());
+      assertEquals("hello-console", consoleFlow.getAttribute("name").getValue());
+      assertEquals("httpListenerConfig", consoleFlow.getChildren().get(0).getAttribute("config-ref").getValue());
+      assertEquals("/console/*", consoleFlow.getChildren().get(0).getAttribute("path").getValue());
+      assertEquals("console", consoleFlow.getChildren().get(1).getName());
+    }
   }
 
   @Test
   public void blankDocumentWithoutLCInDomainHideConsole() {
-    Document document = scaffoldBlankDocument(HIDE_CONSOLE);
-    Element rootElement = document.getRootElement();
-    assertCommonFlows(rootElement);
-
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE);
+    for (MuleConfig muleConfig : muleConfigs) {
+      Document document = muleConfig.getContentAsDocument();
+      Element rootElement = document.getRootElement();
+      assertCommonFlows(rootElement);
+    }
   }
 
   private void assertCommonFlows(Element rootElement) {
     assertEquals("mule", rootElement.getName());
-    Element xmlListenerConfig = rootElement.getChildren().get(0);
-    assertEquals("listener-config", xmlListenerConfig.getName());
+    assertConfigurations(rootElement);
 
-    Element apikitConfig = rootElement.getChildren().get(1);
-    assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
+    assertMainFlow(rootElement, 2);
+  }
 
-    Element mainFlow = rootElement.getChildren().get(2);
+  private void assertMainFlow(Element rootElement, int index) {
+    Element mainFlow = rootElement.getChildren().get(index);
 
     assertEquals("flow", mainFlow.getName());
     assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
@@ -136,12 +171,27 @@ public class MuleConfigGeneratorTest {
     assertEquals("/api/*", mainFlow.getChildren().get(0).getAttribute("path").getValue());
   }
 
-  private Document scaffoldBlankDocument(boolean showConsole) {
+  private void assertConfigurations(Element rootElement) {
+    Element xmlListenerConfig = rootElement.getChildren().get(0);
+    assertEquals("listener-config", xmlListenerConfig.getName());
+
+    Element apikitConfig = rootElement.getChildren().get(1);
+    assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
+  }
+
+  private List<MuleConfig> scaffoldBlankDocument(boolean showConsole) {
+    return this.scaffoldBlankDocument(showConsole, new CustomConfiguration());
+  }
+
+  private List<MuleConfig> scaffoldBlankDocument(boolean showConsole, CustomConfiguration customConfiguration) {
     HttpListenerConfig listenerConfig =
         new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
+    InputStream apikitConfig = getResourceAsStream("scaffolder-only-apikit-config/api.xml");
+    MuleConfig muleConfig = buildAPIKitMuleConfig(apikitConfig);
     ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     when(api.getPath()).thenReturn("/api/*");
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
+    when(mock(MuleConfig.class).getApikitConfigs()).thenReturn(muleConfig.getApikitConfigs());
     File raml = mock(File.class);
     when(raml.getName()).thenReturn("hello.raml");
     when(api.getApiFilePath()).thenReturn("hello.raml");
@@ -158,11 +208,22 @@ public class MuleConfigGeneratorTest {
 
     MuleConfigGenerator muleConfigGenerator =
         new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
-                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), showConsole);
+                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), showConsole,
+                                customConfiguration);
 
-    Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
-    return document;
+    return muleConfigGenerator.generate();
+    //    Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
+    //    return document;
   }
 
+  private MuleConfig buildAPIKitMuleConfig(InputStream inputStream) {
+    Document apikitConfigDoc = null;
+    try {
+      apikitConfigDoc = getDocumentFromStream(inputStream);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return MuleConfigBuilder.fromDoc(apikitConfigDoc);
+  }
 
 }
