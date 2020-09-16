@@ -44,37 +44,18 @@ public class MuleConfigBuilder {
         Element contentElement = (Element) content;
         if ("flow".equals(contentElement.getName())) {
           Optional<ApikitRouter> apikitRouter = getRouter(contentElement);
+          Flow flow = new Flow(contentElement);
           if (apikitRouter.isPresent()) {
             MainFlow mainFlow = new MainFlow(contentElement);
             mainFlow.setApikitRouter(apikitRouter.get());
-            flowsInConfig.add(mainFlow);
-          } else {
-            flowsInConfig.add(new Flow(contentElement));
+            flow = mainFlow;
           }
+          flowsInConfig.add(flow);
         }
       }
     }
     return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, muleConfigContent);
   }
-
-
-  public static MuleConfig fromDocWithoutFlows(Document muleConfigContent) {
-    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser();
-    APIKitConfigParser apiKitConfigParser = new APIKitConfigParser();
-
-    List<HttpListenerConfig> httpListenerConfigs = httpConfigParser.parse(muleConfigContent);
-    List<APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
-    List<Flow> flowsInConfig = new ArrayList<>();
-
-    for (Content content : muleConfigContent.getRootElement().getContent()) {
-      if (content instanceof Element) {
-        Element contentElement = (Element) content;
-        flowsInConfig.add(new Flow(contentElement));
-      }
-    }
-    return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, muleConfigContent);
-  }
-
 
   public static MuleConfig fromStream(InputStream input) throws Exception {
     SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();

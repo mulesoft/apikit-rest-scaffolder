@@ -39,7 +39,6 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
-import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDocWithoutFlows;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 public class MuleConfigGenerator {
@@ -356,11 +355,11 @@ public class MuleConfigGenerator {
   private MuleConfig createCommonPropertiesFile(ApikitMainFlowContainer api) {
     Document document = new Document();
     document.setRootElement(new MuleScope(false, false).generate());
-    MuleConfig global = fromDocWithoutFlows(document);
+    MuleConfig global = fromDoc(document);
     addHttpListenerConfiguration(api, global);
     global.addConfig(retrieveApikitConfiguration(api));
     api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
-    MuleConfig globals = fromDocWithoutFlows(global.buildContent());
+    MuleConfig globals = fromDoc(global.buildContent());
     globals.setName(customConfiguration.getExternalConfigurationFile().get());
     return globals;
   }
