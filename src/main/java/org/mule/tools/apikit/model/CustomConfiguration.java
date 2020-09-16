@@ -21,43 +21,34 @@ public class CustomConfiguration {
     this.apiAutodiscoveryID = Optional.empty();
   }
 
-  public CustomConfiguration(Optional<String> externalConfigurationFile, Optional<List<String>> environments,
-                             Optional<String> apiAutodiscoveryID) {
-    this.externalConfigurationFile = externalConfigurationFile;
-    this.environments = environments;
-    this.apiAutodiscoveryID = apiAutodiscoveryID;
+  public CustomConfiguration(String externalConfigurationFile, List<String> environments,
+                             String apiAutodiscoveryID) {
+    this.externalConfigurationFile = Optional.ofNullable(externalConfigurationFile);
+    this.environments = Optional.ofNullable(environments);
+    this.apiAutodiscoveryID = Optional.ofNullable(apiAutodiscoveryID);
   }
 
   public Optional<String> getExternalConfigurationFile() {
     return externalConfigurationFile;
   }
 
-  public void setExternalConfigurationFile(Optional<String> externalConfigurationFile) {
-    this.externalConfigurationFile = externalConfigurationFile;
+  public void setExternalConfigurationFile(String externalConfigurationFile) {
+    this.externalConfigurationFile = Optional.ofNullable(externalConfigurationFile);
   }
 
   public Optional<List<String>> getEnvironments() {
     return environments;
   }
 
-  public void setEnvironments(Optional<List<String>> environments) {
-    this.environments = environments;
+  public void setEnvironments(List<String> environments) {
+    this.environments = Optional.ofNullable(environments);
   }
 
   public Optional<String> getApiAutodiscoveryID() {
     return apiAutodiscoveryID;
   }
 
-  public void setApiAutodiscoveryID(Optional<String> apiAutodiscoveryID) {
-    this.apiAutodiscoveryID = apiAutodiscoveryID;
-  }
-
-  @Override
-  public String toString() {
-    return "CustomConfiguration{" +
-        "externalConfigurationFile=" + externalConfigurationFile +
-        ", environments=" + environments +
-        ", apiAutodiscoveryID=" + apiAutodiscoveryID +
-        '}';
+  public void setApiAutodiscoveryID(String apiAutodiscoveryID) {
+    this.apiAutodiscoveryID = Optional.ofNullable(apiAutodiscoveryID);
   }
 }

@@ -111,9 +111,9 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithExternalizedGlobals() {
-    Optional<String> externalConfigurationFile = Optional.of("globals.xml");
+    String externalConfigurationFile = "globals.xml";
     CustomConfiguration customConfiguration =
-        new CustomConfiguration(externalConfigurationFile, Optional.empty(), Optional.empty());
+        new CustomConfiguration(externalConfigurationFile, null, null);
     InputStream globals = getResourceAsStream("scaffold-externized-globals/globals.xml");
     InputStream api = getResourceAsStream("scaffold-externized-globals/api.xml");
     MuleConfig globalsConfig = buildAPIKitMuleConfig(globals);
@@ -125,7 +125,7 @@ public class MuleConfigGeneratorTest {
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
-      if (muleConfig.getName() == externalConfigurationFile.get()) {
+      if (muleConfig.getName() == externalConfigurationFile) {
         assertEquals("mule", rootElement.getName());
         assertConfigurations(rootElement);
       } else {
