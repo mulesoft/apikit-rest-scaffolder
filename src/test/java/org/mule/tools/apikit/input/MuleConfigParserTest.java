@@ -73,13 +73,17 @@ public class MuleConfigParserTest {
     MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory(emptyList()), "", emptyList());
 
     MuleConfig muleConfigWithFlows = fromDoc(documentWithFlows);
-    muleConfigParser.parseConfig(muleConfigWithFlows);
-    muleConfigParser.parseApis(muleConfigWithFlows, "leagues.raml");
+    List<MuleConfig> muleConfigsWithFlows = new ArrayList<>();
+    muleConfigsWithFlows.add(muleConfigWithFlows);
+    muleConfigParser.parseConfig(muleConfigsWithFlows);
+    muleConfigParser.parseApis(muleConfigsWithFlows, "leagues.raml");
     muleConfigParser.parseFlows(singletonList(muleConfigWithFlows));
 
     MuleConfig muleConfigWithoutFlows = fromDoc(documentWithoutFlows);
-    muleConfigParser.parseConfig(muleConfigWithoutFlows);
-    muleConfigParser.parseApis(muleConfigWithoutFlows, "api.raml");
+    List<MuleConfig> muleConfigsWithoutFlows = new ArrayList<>();
+    muleConfigsWithoutFlows.add(muleConfigWithoutFlows);
+    muleConfigParser.parseConfig(muleConfigsWithoutFlows);
+    muleConfigParser.parseApis(muleConfigsWithoutFlows, "api.raml");
     muleConfigParser.parseFlows(singletonList(muleConfigWithoutFlows));
 
     assertEquals(6, muleConfigParser.getEntries().size());

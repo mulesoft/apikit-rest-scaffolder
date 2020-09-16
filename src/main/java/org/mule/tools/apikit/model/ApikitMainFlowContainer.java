@@ -6,6 +6,8 @@
  */
 package org.mule.tools.apikit.model;
 
+import java.util.List;
+
 public class ApikitMainFlowContainer {
 
   public static final String DEFAULT_HOST = "0.0.0.0";
@@ -22,7 +24,7 @@ public class ApikitMainFlowContainer {
   private String baseUri;
   private String apiFilePath;
   private String id;
-  private MuleConfig muleConfig;
+  private List<MuleConfig> muleConfig;
 
   public ApikitMainFlowContainer(String id, String apiFilePath, String baseUri, String path) {
     this.path = path;
@@ -33,7 +35,7 @@ public class ApikitMainFlowContainer {
 
 
   public ApikitMainFlowContainer(String id, String apiFileName, String baseUri, String path, APIKitConfig config,
-                                 MuleConfig muleConfig) {
+                                 List<MuleConfig> muleConfig) {
     this(id, apiFileName, baseUri, path);
     this.config = config;
     this.muleConfig = muleConfig;
@@ -81,12 +83,16 @@ public class ApikitMainFlowContainer {
     this.baseUri = baseUri;
   }
 
-  public MuleConfig getMuleConfig() {
+  public List<MuleConfig> getMuleConfig() {
     return muleConfig;
   }
 
-  public void setMuleConfig(MuleConfig muleConfig) {
+  public void setMuleConfig(List<MuleConfig> muleConfig) {
     this.muleConfig = muleConfig;
+  }
+
+  public void addMuleconfig(MuleConfig muleConfig) {
+    this.muleConfig.add(muleConfig);
   }
 
   @Override

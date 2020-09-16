@@ -7,8 +7,10 @@
 package org.mule.tools.apikit.output;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -64,7 +66,8 @@ public class MunitTestSuiteGenerator {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     for (GenerationModel flowEntry : flowEntries) {
       ApikitMainFlowContainer api = flowEntry.getApi();
-      MuleConfig muleConfig = api.getMuleConfig() != null ? api.getMuleConfig() : createMunitMuleConfig(api);
+      MuleConfig muleConfig =
+          api.getMuleConfig() != null ? api.getMuleConfig().stream().findFirst().get() : createMunitMuleConfig(api);
       if (api.getConfig() == null) {
         api.setDefaultAPIKitConfig();
         addMunitConfig(muleConfig);
@@ -82,7 +85,9 @@ public class MunitTestSuiteGenerator {
     document.setRootElement(new MuleScope(false, true).generate());
     MuleConfig muleConfig = MuleConfigBuilder.fromDoc(document);
     muleConfig.setName(scaffolderContext.getMunitSuiteName());
-    apikitMainFlow.setMuleConfig(muleConfig);
+    List<MuleConfig> muleConfigs = new ArrayList<>();
+    muleConfigs.add(muleConfig);
+    apikitMainFlow.setMuleConfig(muleConfigs);
     return muleConfig;
   }
 

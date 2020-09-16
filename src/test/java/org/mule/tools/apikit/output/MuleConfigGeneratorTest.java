@@ -114,7 +114,14 @@ public class MuleConfigGeneratorTest {
     Optional<String> externalConfigurationFile = Optional.of("globals.xml");
     CustomConfiguration customConfiguration =
         new CustomConfiguration(externalConfigurationFile, Optional.empty(), Optional.empty());
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
+    InputStream globals = getResourceAsStream("scaffold-externized-globals/globals.xml");
+    InputStream api = getResourceAsStream("scaffold-externized-globals/api.xml");
+    MuleConfig globalsConfig = buildAPIKitMuleConfig(globals);
+    MuleConfig apiConfig = buildAPIKitMuleConfig(api);
+    List<MuleConfig> muleConfigsSource = new ArrayList<>();
+    muleConfigsSource.add(apiConfig);
+    muleConfigsSource.add(globalsConfig);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration, muleConfigsSource);
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
@@ -180,10 +187,11 @@ public class MuleConfigGeneratorTest {
   }
 
   private List<MuleConfig> scaffoldBlankDocument(boolean showConsole) {
-    return this.scaffoldBlankDocument(showConsole, new CustomConfiguration());
+    return this.scaffoldBlankDocument(showConsole, new CustomConfiguration(), null);
   }
 
-  private List<MuleConfig> scaffoldBlankDocument(boolean showConsole, CustomConfiguration customConfiguration) {
+  private List<MuleConfig> scaffoldBlankDocument(boolean showConsole, CustomConfiguration customConfiguration,
+                                                 List<MuleConfig> muleConfigs) {
     HttpListenerConfig listenerConfig =
         new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
     InputStream apikitConfig = getResourceAsStream("scaffolder-only-apikit-config/api.xml");
@@ -191,7 +199,7 @@ public class MuleConfigGeneratorTest {
     ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
     when(api.getPath()).thenReturn("/api/*");
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
-    when(mock(MuleConfig.class).getApikitConfigs()).thenReturn(muleConfig.getApikitConfigs());
+    when(api.getMuleConfig()).thenReturn(muleConfigs);
     File raml = mock(File.class);
     when(raml.getName()).thenReturn("hello.raml");
     when(api.getApiFilePath()).thenReturn("hello.raml");
@@ -212,8 +220,6 @@ public class MuleConfigGeneratorTest {
                                 customConfiguration);
 
     return muleConfigGenerator.generate();
-    //    Document document = muleConfigGenerator.createMuleConfig(api).getContentAsDocument();
-    //    return document;
   }
 
   private MuleConfig buildAPIKitMuleConfig(InputStream inputStream) {
