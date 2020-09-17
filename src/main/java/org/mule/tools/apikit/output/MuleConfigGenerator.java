@@ -238,17 +238,32 @@ public class MuleConfigGenerator {
    */
   private Set<MuleConfig> getConfigsFromApiContainers() {
     Set<MuleConfig> muleConfigs = new HashSet<>();
+    MuleConfig global = createCommonPropertiesFile();
     for (ApikitMainFlowContainer api : apiContainers) {
       FlowScope flowScope = null;
       if (customConfiguration.getExternalConfigurationFile().isPresent()) {
-        MuleConfig globals = createCommonPropertiesFile(api);
-        muleConfigs.add(globals);
-        flowScope = new FlowScope(api, isMuleEE(), globals.getApikitConfigs().stream().findFirst().orElse(null).getName());
+        addHttpListenerConfiguration(api, global);
+        addApikitConfiguration(api, global);
+        api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+        flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
       }
       MuleConfig muleConfig = api.getMuleConfig() == null ? createMuleConfig(api, flowScope) : api.getMuleConfig();
       muleConfigs.add(muleConfig);
     }
+    addGlobal(muleConfigs, global);
     return muleConfigs;
+  }
+
+  /**
+   * If needed it will add the global file to the mule configurations, previously setting its name.
+   *
+   */
+  public void addGlobal(Set<MuleConfig> muleConfigs, MuleConfig global) {
+    if (customConfiguration.getExternalConfigurationFile().isPresent()) {
+      global = fromDoc(global.buildContent());
+      global.setName(customConfiguration.getExternalConfigurationFile().get());
+      muleConfigs.add(global);
+    }
   }
 
   /**
@@ -328,19 +343,16 @@ public class MuleConfigGenerator {
 
   /**
    * Creates a document containing all common configuration files
-   * @param api container of the main mule application file
    * @return a document to build a common mule configuration
    */
-  private MuleConfig createCommonPropertiesFile(ApikitMainFlowContainer api) {
-    Document document = new Document();
-    document.setRootElement(new MuleScope(false, false).generate());
-    MuleConfig global = fromDoc(document);
-    addHttpListenerConfiguration(api, global);
-    addApikitConfiguration(api, global);
-    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
-    MuleConfig globals = fromDoc(global.buildContent());
-    globals.setName(customConfiguration.getExternalConfigurationFile().get());
-    return globals;
+  private MuleConfig createCommonPropertiesFile() {
+    if (customConfiguration.getExternalConfigurationFile().isPresent()) {
+      Document document = new Document();
+      document.setRootElement(new MuleScope(false, false).generate());
+      MuleConfig global = fromDoc(document);
+      return global;
+    }
+    return null;
   }
 
   /**
