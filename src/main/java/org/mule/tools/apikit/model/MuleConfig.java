@@ -27,19 +27,31 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   private Document originalContent;
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
+  private APIAutodiscoveryConfig apiAutodiscoveryConfig;
   private List<Flow> flows;
   private static final String INDENTATION = "    ";
 
-  protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows) {
+  protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows,
+                       APIAutodiscoveryConfig apiAutodiscoveryConfig) {
     this.configurations = configurations;
     this.apikitConfigs = apikitConfigs;
+    this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
     this.flows = flows;
   }
 
   protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows,
+                       APIAutodiscoveryConfig apiAutodiscoveryConfig,
                        Document content) {
-    this(httpConfigs, apikitConfigs, flows);
+    this(httpConfigs, apikitConfigs, flows, apiAutodiscoveryConfig);
     this.originalContent = content;
+  }
+
+  public APIAutodiscoveryConfig getApiAutodiscoveryConfig() {
+    return apiAutodiscoveryConfig;
+  }
+
+  public void setApiAutodiscoveryConfig(APIAutodiscoveryConfig apiAutodiscoveryConfig) {
+    this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
   }
 
   public String getName() {
@@ -104,6 +116,9 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     for (HttpListenerConfig config : configurations) {
       if (!config.isPersisted())
         addContent(document, config.generate());
+    }
+    if (apiAutodiscoveryConfig != null) {
+      addContent(document, apiAutodiscoveryConfig.generate());
     }
     apikitConfigs.forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
     flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));

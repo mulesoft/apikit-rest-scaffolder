@@ -110,6 +110,33 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
+  public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
+    String externalConfigurationFile = "globals.xml";
+    String apiAutodiscovery = "1234";
+    CustomConfiguration customConfiguration =
+        new CustomConfiguration(externalConfigurationFile, null, apiAutodiscovery);
+    InputStream globals = getResourceAsStream("scaffold-externized-globals/globals.xml");
+    InputStream api = getResourceAsStream("scaffold-externized-globals/api.xml");
+    MuleConfig globalsConfig = buildAPIKitMuleConfig(globals);
+    MuleConfig apiConfig = buildAPIKitMuleConfig(api);
+    List<MuleConfig> muleConfigsSource = new ArrayList<>();
+    muleConfigsSource.add(apiConfig);
+    muleConfigsSource.add(globalsConfig);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration, muleConfigsSource);
+    for (MuleConfig muleConfig : muleConfigs) {
+      Document document = muleConfig.getContentAsDocument();
+      Element rootElement = document.getRootElement();
+      if (muleConfig.getName() == externalConfigurationFile) {
+        assertEquals("mule", rootElement.getName());
+        assertConfigurations(rootElement);
+      } else {
+        assertMainFlow(rootElement, 0);
+      }
+      System.out.println(document);
+    }
+  }
+
+  @Test
   public void blankDocumentWithExternalizedGlobals() {
     String externalConfigurationFile = "globals.xml";
     CustomConfiguration customConfiguration =
@@ -133,7 +160,6 @@ public class MuleConfigGeneratorTest {
       }
       System.out.println(document);
     }
-
   }
 
   @Test
