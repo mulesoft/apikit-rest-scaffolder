@@ -117,11 +117,11 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
       if (!config.isPersisted())
         addContent(document, config.generate());
     }
+    apikitConfigs.forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
+    flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
     if (apiAutodiscoveryConfig != null) {
       addContent(document, apiAutodiscoveryConfig.generate());
     }
-    apikitConfigs.forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
-    flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
 
     return document;
   }

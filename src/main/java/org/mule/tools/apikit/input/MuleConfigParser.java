@@ -31,27 +31,27 @@ public class MuleConfigParser {
 
   public MuleConfigParser(APIFactory apiFactory, String apiLocation, List<MuleConfig> muleConfigs) {
     this.apiFactory = apiFactory;
-    parseConfig(muleConfigs);
-    parseApis(muleConfigs, apiLocation);
+    for (MuleConfig config : muleConfigs) {
+      parseConfig(config);
+    }
+    for (MuleConfig config : muleConfigs) {
+      parseApis(config, apiLocation);
+    }
     parseFlows(muleConfigs);
   }
 
-  void parseConfig(List<MuleConfig> configs) {
-    for (MuleConfig config : configs) {
-      apikitConfigs.addAll(config.getApikitConfigs());
-      config.getHttpListenerConfigs().forEach(httpConfig -> {
-        if (!apiFactory.getHttpListenerConfigs().contains(httpConfig)) {
-          apiFactory.getHttpListenerConfigs().add(httpConfig);
-        }
-      });
-    }
+  void parseConfig(MuleConfig config) {
+    apikitConfigs.addAll(config.getApikitConfigs());
+    config.getHttpListenerConfigs().forEach(httpConfig -> {
+      if (!apiFactory.getHttpListenerConfigs().contains(httpConfig)) {
+        apiFactory.getHttpListenerConfigs().add(httpConfig);
+      }
+    });
   }
 
-  void parseApis(List<MuleConfig> muleConfigs, String apiFilePath) {
-    for (MuleConfig config : muleConfigs) {
-      includedApis.putAll(new APIKitRoutersParser(apikitConfigs, apiFactory, apiFilePath, muleConfigs)
-          .parse(config.getContentAsDocument()));
-    }
+  void parseApis(MuleConfig muleConfig, String apiFilePath) {
+    includedApis.putAll(new APIKitRoutersParser(apikitConfigs, apiFactory, apiFilePath, muleConfig)
+        .parse(muleConfig.getContentAsDocument()));
   }
 
   void parseFlows(List<MuleConfig> configs) {

@@ -40,7 +40,7 @@ public class APIFactory {
   }
 
   public ApikitMainFlowContainer createAPIBinding(String apiFilePath, String baseUri, String path, APIKitConfig config,
-                                                  HttpListenerConfig httpListenerConfig, List<MuleConfig> muleConfig) {
+                                                  HttpListenerConfig httpListenerConfig, MuleConfig muleConfig) {
 
     Validate.notNull(apiFilePath);
     final String relativePath = getRelativePath(apiFilePath);
