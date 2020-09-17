@@ -7,11 +7,12 @@
 package org.mule.tools.apikit.output;
 
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.compress.utils.Lists;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.mule.tools.apikit.input.parsers.APIKitConfigParser;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
@@ -19,6 +20,7 @@ import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.Flow;
 import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
@@ -31,8 +33,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -172,13 +174,10 @@ public class MuleConfigGenerator {
    */
   private Map<String, Element> createIndexOfRouterReferences() {
     Map<String, Element> refsToApikitConfig = new HashMap<>();
-    List<MainFlow> mainFlows = new ArrayList<>();
+    List<MainFlow> mainFlows;
     String referenceName;
     for (ApikitMainFlowContainer api : apiContainers) {
-      MuleConfig mainMuleConfig = getMainMuleConfig(api);
-      if (mainMuleConfig != null) {
-        mainFlows = mainMuleConfig.getMainFlows().stream().filter(flow -> flow.getApikitRouter() != null).collect(toList());
-      }
+      mainFlows = api.getMuleConfig().getMainFlows().stream().filter(flow -> flow.getApikitRouter() != null).collect(toList());
       if (isNotEmpty(mainFlows)) {
         for (MainFlow mainFlow : mainFlows) {
           referenceName = mainFlow.getApikitRouter().getContent().getAttributeValue("config-ref");
@@ -190,13 +189,6 @@ public class MuleConfigGenerator {
       }
     }
     return refsToApikitConfig;
-  }
-
-  private MuleConfig getMainMuleConfig(ApikitMainFlowContainer api) {
-    List<MuleConfig> muleConfigs = api.getMuleConfig();
-    MuleConfig existingMuleConfig = muleConfigs.stream().findFirst().get();
-    return muleConfigs.stream().filter(muleConfig -> CollectionUtils.isNotEmpty(muleConfig.getMainFlows())).findFirst()
-        .orElse(existingMuleConfig);
   }
 
   /**
@@ -251,22 +243,12 @@ public class MuleConfigGenerator {
       if (customConfiguration.getExternalConfigurationFile().isPresent()) {
         MuleConfig globals = createCommonPropertiesFile(api);
         muleConfigs.add(globals);
-        APIKitConfig apiKitConfig = lookForAPIKitConfig(globals, api);
-        flowScope = new FlowScope(api, isMuleEE(), apiKitConfig.getName());
+        flowScope = new FlowScope(api, isMuleEE(), globals.getApikitConfigs().stream().findFirst().orElse(null).getName());
       }
-      MuleConfig muleConfig = api.getMuleConfig() == null ? createMuleConfig(api, flowScope) : getMainMuleConfig(api);
+      MuleConfig muleConfig = api.getMuleConfig() == null ? createMuleConfig(api, flowScope) : api.getMuleConfig();
       muleConfigs.add(muleConfig);
     }
     return muleConfigs;
-  }
-
-  private APIKitConfig lookForAPIKitConfig(MuleConfig globals, ApikitMainFlowContainer api) {
-    if (api.getMuleConfig() != null) {
-      return api.getMuleConfig().stream()
-          .filter(muleConfig -> CollectionUtils.isNotEmpty(muleConfig.getApikitConfigs())).findAny().orElse(globals)
-          .getApikitConfigs().stream().findAny().get();
-    }
-    return globals.getApikitConfigs().stream().findAny().get();
   }
 
   /**
@@ -277,7 +259,7 @@ public class MuleConfigGenerator {
    */
   private void generateFlowEntryInMuleConfig(GenerationModel flowEntry) {
     Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
-    MuleConfig mainMuleConfig = getMainMuleConfig(flowEntry.getApi());
+    MuleConfig mainMuleConfig = flowEntry.getApi().getMuleConfig();
     mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(apikitFlowScope);
     mainMuleConfig.addFlow(new Flow(apikitFlowScope));
   }
@@ -318,9 +300,7 @@ public class MuleConfigGenerator {
     Document muleConfigContent = createMuleConfigContent(api, flowScope);
     MuleConfig config = fromDoc(muleConfigContent);
     config.setName(createMuleConfigID(api.getId()));
-    List<MuleConfig> muleConfigs = new ArrayList<>();
-    muleConfigs.add(config);
-    api.setMuleConfig(muleConfigs);
+    api.setMuleConfig(config);
     return config;
   }
 
@@ -336,8 +316,7 @@ public class MuleConfigGenerator {
     MuleConfig muleConfig = fromDoc(document);
     muleConfig.setName(createMuleConfigID(api.getId()));
     if (!customConfiguration.getExternalConfigurationFile().isPresent()) {
-      muleConfig.addConfig(retrieveApikitConfiguration(api));
-
+      addApikitConfiguration(api, muleConfig);
       api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
       addHttpListenerConfiguration(api, muleConfig);
     }
@@ -357,7 +336,7 @@ public class MuleConfigGenerator {
     document.setRootElement(new MuleScope(false, false).generate());
     MuleConfig global = fromDoc(document);
     addHttpListenerConfiguration(api, global);
-    global.addConfig(retrieveApikitConfiguration(api));
+    addApikitConfiguration(api, global);
     api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
     MuleConfig globals = fromDoc(global.buildContent());
     globals.setName(customConfiguration.getExternalConfigurationFile().get());
@@ -376,17 +355,16 @@ public class MuleConfigGenerator {
   /**
    * Creates a new apikit configuration and adds it to the mule configuration file.
    * @param api container of the main mule application file
-   * @return an object containing the apikit configuration
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
-  private APIKitConfig retrieveApikitConfiguration(ApikitMainFlowContainer api) {
+  private void addApikitConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
     if (api.getConfig() == null) {
       APIKitConfig apikitConfig = new APIKitConfig();
       apikitConfig.setApi(api.getApiFilePath());
       apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
       api.setConfig(apikitConfig);
-      return apikitConfig;
+      muleConfig.addConfig(api.getConfig());
     }
-    return api.getConfig();
   }
 
   /**

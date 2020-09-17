@@ -42,10 +42,9 @@ public class APIKitRoutersParser implements MuleConfigFileParser {
   private final List<HttpListenerConfig> httpListenerConfigs;
   private final String apiFilePath;
   private final APIFactory apiFactory;
-  private List<MuleConfig> muleConfig;
+  private MuleConfig muleConfig;
 
-  public APIKitRoutersParser(List<APIKitConfig> apikitConfigs, APIFactory apiFactory, String apiFilePath,
-                             List<MuleConfig> config) {
+  public APIKitRoutersParser(List<APIKitConfig> apikitConfigs, APIFactory apiFactory, String apiFilePath, MuleConfig config) {
     this.apikitConfigs = apikitConfigs;
     this.httpListenerConfigs = apiFactory.getHttpListenerConfigs();
     this.apiFilePath = apiFilePath;
