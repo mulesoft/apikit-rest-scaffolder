@@ -110,6 +110,20 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
+  public void blankDocumentWithoutExternalizedGlobalsAndAPIAutodiscovery() {
+    String apiAutodiscovery = "1234";
+    CustomConfiguration customConfiguration =
+        new CustomConfiguration(null, null, apiAutodiscovery);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
+    for (MuleConfig muleConfig : muleConfigs) {
+      Document document = muleConfig.getContentAsDocument();
+      Element rootElement = document.getRootElement();
+      assertEquals("mule", rootElement.getName());
+      assertConfigurations(rootElement);
+    }
+  }
+
+  @Test
   public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
     String externalConfigurationFile = "globals.xml";
     String apiAutodiscovery = "1234";

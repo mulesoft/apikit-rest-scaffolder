@@ -22,8 +22,14 @@ import java.util.Optional;
 
 public class MuleConfigBuilder {
 
+  public static final boolean DEFAULT_HTTP_LISTENER_CONFIG_PERSISTED = true;
+
   public static MuleConfig fromDoc(Document muleConfigContent) {
-    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser();
+    return fromDoc(muleConfigContent, DEFAULT_HTTP_LISTENER_CONFIG_PERSISTED);
+  }
+
+  public static MuleConfig fromDoc(Document muleConfigContent, boolean httpListenerConfigPersisted) {
+    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser(httpListenerConfigPersisted);
     APIKitConfigParser apiKitConfigParser = new APIKitConfigParser();
     APIAutodiscoveryConfigParser apiAutodiscoveryConfigParser = new APIAutodiscoveryConfigParser();
 
@@ -52,10 +58,14 @@ public class MuleConfigBuilder {
   }
 
   public static MuleConfig fromStream(InputStream input) throws Exception {
+    return fromStream(input, DEFAULT_HTTP_LISTENER_CONFIG_PERSISTED);
+  }
+
+  public static MuleConfig fromStream(InputStream input, boolean httpListenerConfigPersisted) throws Exception {
     SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();
     Document inputAsDocument = builder.build(input);
     input.close();
-    return fromDoc(inputAsDocument);
+    return fromDoc(inputAsDocument, httpListenerConfigPersisted);
   }
 
   public static Optional<ApikitRouter> getRouter(Element flow) {
