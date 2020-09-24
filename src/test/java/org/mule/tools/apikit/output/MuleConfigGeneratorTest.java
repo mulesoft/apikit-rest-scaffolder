@@ -113,7 +113,7 @@ public class MuleConfigGeneratorTest {
   public void blankDocumentWithoutExternalizedGlobalsAndAPIAutodiscovery() {
     String apiAutodiscovery = "1234";
     CustomConfiguration customConfiguration =
-        new CustomConfiguration(null, null, apiAutodiscovery);
+        new CustomConfiguration(null, apiAutodiscovery, null);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
@@ -128,7 +128,7 @@ public class MuleConfigGeneratorTest {
     String externalConfigurationFile = "globals.xml";
     String apiAutodiscovery = "1234";
     CustomConfiguration customConfiguration =
-        new CustomConfiguration(externalConfigurationFile, null, apiAutodiscovery);
+        new CustomConfiguration(externalConfigurationFile, apiAutodiscovery, null);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();

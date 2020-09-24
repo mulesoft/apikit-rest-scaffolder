@@ -6,26 +6,26 @@
  */
 package org.mule.tools.apikit.model;
 
-import java.util.List;
+
 import java.util.Optional;
 
 public class CustomConfiguration {
 
   private Optional<String> externalConfigurationFile;
-  private Optional<List<String>> environments;
   private Optional<String> apiAutodiscoveryID;
+  private Optional<ConfigurationGroup> configurationGroup;
 
   public CustomConfiguration() {
     this.externalConfigurationFile = Optional.empty();
-    this.environments = Optional.empty();
     this.apiAutodiscoveryID = Optional.empty();
+    this.configurationGroup = Optional.empty();
   }
 
-  public CustomConfiguration(String externalConfigurationFile, List<String> environments,
-                             String apiAutodiscoveryID) {
+  public CustomConfiguration(String externalConfigurationFile,
+                             String apiAutodiscoveryID, ConfigurationGroup configurationGroup) {
     this.externalConfigurationFile = Optional.ofNullable(externalConfigurationFile);
-    this.environments = Optional.ofNullable(environments);
     this.apiAutodiscoveryID = Optional.ofNullable(apiAutodiscoveryID);
+    this.configurationGroup = Optional.ofNullable(configurationGroup);
   }
 
   public Optional<String> getExternalConfigurationFile() {
@@ -36,19 +36,19 @@ public class CustomConfiguration {
     this.externalConfigurationFile = Optional.ofNullable(externalConfigurationFile);
   }
 
-  public Optional<List<String>> getEnvironments() {
-    return environments;
-  }
-
-  public void setEnvironments(List<String> environments) {
-    this.environments = Optional.ofNullable(environments);
-  }
-
   public Optional<String> getApiAutodiscoveryID() {
     return apiAutodiscoveryID;
   }
 
   public void setApiAutodiscoveryID(String apiAutodiscoveryID) {
     this.apiAutodiscoveryID = Optional.ofNullable(apiAutodiscoveryID);
+  }
+
+  public Optional<ConfigurationGroup> getConfigurationGroup() {
+    return configurationGroup;
+  }
+
+  public void setConfigurationGroup(ConfigurationGroup configurationGroup) {
+    this.configurationGroup = Optional.ofNullable(configurationGroup);
   }
 }

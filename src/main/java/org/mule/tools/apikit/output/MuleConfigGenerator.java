@@ -66,6 +66,7 @@ public class MuleConfigGenerator {
 
   private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
   public static final String MAIN_FLOW_SUFFIX = "-main";
+  public static final String API_ID_REFERENCE = "${api.id}";
 
   private final List<GenerationModel> flowEntriesDiff;
   private final List<ApikitMainFlowContainer> apiContainers;
@@ -298,7 +299,9 @@ public class MuleConfigGenerator {
     if (customConfiguration.getApiAutodiscoveryID().isPresent()) {
       APIAutodiscoveryConfig apiAutodiscoveryConfig = new APIAutodiscoveryConfig();
       apiAutodiscoveryConfig.setFlowRef(mainFlowRef);
-      apiAutodiscoveryConfig.setApiId(customConfiguration.getApiAutodiscoveryID().get());
+      apiAutodiscoveryConfig
+          .setApiId(customConfiguration.getConfigurationGroup().isPresent() ? API_ID_REFERENCE
+              : customConfiguration.getApiAutodiscoveryID().get());
       apiAutodiscoveryConfig.setIgnoreBasePath(Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT));
       return apiAutodiscoveryConfig;
     }

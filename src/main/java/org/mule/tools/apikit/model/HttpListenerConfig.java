@@ -28,16 +28,6 @@ public class HttpListenerConfig implements Scope {
   private HttpListenerConnection connection;
   private boolean isPersisted = false;
 
-  public HttpListenerConfig(final String name,
-                            final String baseUri) {
-    this.name = name;
-    String host = APIKitTools.getHostFromUri(baseUri);
-    String port = APIKitTools.getPortFromUri(baseUri);
-    String protocol = APIKitTools.getProtocolFromUri(baseUri);
-    this.basePath = APIKitTools.getPathFromUri(baseUri, false);
-    this.connection = new HttpListenerConnection.Builder(host, port, protocol).build();
-  }
-
   public HttpListenerConfig(final String name) {
     this(name, DEFAULT_BASE_PATH,
          new HttpListenerConnection.Builder(DEFAULT_HOST, String.valueOf(DEFAULT_PORT), DEFAULT_PROTOCOL).build());
@@ -73,6 +63,10 @@ public class HttpListenerConfig implements Scope {
 
   public String getPort() {
     return connection.getPort();
+  }
+
+  public String getProtocol() {
+    return connection.getProtocol();
   }
 
   public String getBasePath() {
