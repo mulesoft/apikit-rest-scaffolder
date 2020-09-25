@@ -28,22 +28,33 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
   private APIAutodiscoveryConfig apiAutodiscoveryConfig;
+  private ConfigurationPropertiesConfig configurationPropertiesConfig;
   private List<Flow> flows;
   private static final String INDENTATION = "    ";
 
   protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows,
-                       APIAutodiscoveryConfig apiAutodiscoveryConfig) {
+                       APIAutodiscoveryConfig apiAutodiscoveryConfig,
+                       ConfigurationPropertiesConfig configurationPropertiesConfig) {
     this.configurations = configurations;
     this.apikitConfigs = apikitConfigs;
     this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
+    this.configurationPropertiesConfig = configurationPropertiesConfig;
     this.flows = flows;
   }
 
   protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows,
-                       APIAutodiscoveryConfig apiAutodiscoveryConfig,
+                       APIAutodiscoveryConfig apiAutodiscoveryConfig, ConfigurationPropertiesConfig configurationPropertiesConfig,
                        Document content) {
-    this(httpConfigs, apikitConfigs, flows, apiAutodiscoveryConfig);
+    this(httpConfigs, apikitConfigs, flows, apiAutodiscoveryConfig, configurationPropertiesConfig);
     this.originalContent = content;
+  }
+
+  public ConfigurationPropertiesConfig getConfigurationPropertiesConfig() {
+    return configurationPropertiesConfig;
+  }
+
+  public void setConfigurationPropertiesConfig(ConfigurationPropertiesConfig configurationPropertiesConfig) {
+    this.configurationPropertiesConfig = configurationPropertiesConfig;
   }
 
   public APIAutodiscoveryConfig getApiAutodiscoveryConfig() {
@@ -121,6 +132,9 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
     if (apiAutodiscoveryConfig != null) {
       addContent(document, apiAutodiscoveryConfig.generate());
+    }
+    if (configurationPropertiesConfig != null) {
+      addContent(document, configurationPropertiesConfig.generate());
     }
 
     return document;

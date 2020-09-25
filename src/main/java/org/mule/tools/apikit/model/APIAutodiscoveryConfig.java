@@ -31,12 +31,6 @@ public class APIAutodiscoveryConfig implements Scope {
   private Boolean ignoreBasePath;
   private String flowRef;
 
-  public APIAutodiscoveryConfig(String apiId, Boolean ignoreBasePath, String flowRef) {
-    this.apiId = apiId;
-    this.ignoreBasePath = ignoreBasePath;
-    this.flowRef = flowRef;
-  }
-
   public APIAutodiscoveryConfig() {
 
   }
@@ -67,7 +61,7 @@ public class APIAutodiscoveryConfig implements Scope {
 
   @Override
   public Element generate() {
-    APIAutodiscoveryScope apiKitConfigScope = new APIAutodiscoveryScope(this);
-    return apiKitConfigScope.generate();
+    APIAutodiscoveryScope apiAutodiscoveryScope = new APIAutodiscoveryScope(this);
+    return apiAutodiscoveryScope.generate();
   }
 }

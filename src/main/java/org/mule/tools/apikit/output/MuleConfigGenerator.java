@@ -15,6 +15,7 @@ import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.ConfigurationPropertiesConfig;
 import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.Flow;
 import org.mule.tools.apikit.model.MainFlow;
@@ -243,13 +244,16 @@ public class MuleConfigGenerator {
       FlowScope flowScope = null;
       String muleConfigID = createMuleConfigID(api.getId());
       APIAutodiscoveryConfig apiAutodiscoveryConfig = createAPIAutodiscoveryConfig(muleConfigID.concat(MAIN_FLOW_SUFFIX));
+      ConfigurationPropertiesConfig configurationPropertiesConfig = createConfigurationProperties();
       MuleConfig muleConfig = createMuleConfig(api);
       if (global != null) {
         commonConfigurations(api, global);
         global.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+        global.setConfigurationPropertiesConfig(configurationPropertiesConfig);
         flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
       } else {
         muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+        muleConfig.setConfigurationPropertiesConfig(configurationPropertiesConfig);
       }
       if (api.getMuleConfig() == null) {
         flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
@@ -266,6 +270,16 @@ public class MuleConfigGenerator {
       addMuleConfig(muleConfigs, fromDoc(global.buildContent()), customConfiguration.getExternalConfigurationFile().get());
     }
     return muleConfigs;
+  }
+
+  private ConfigurationPropertiesConfig createConfigurationProperties() {
+    if (customConfiguration.getConfigurationGroup().isPresent()) {
+      ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
+      configurationPropertiesConfig
+          .setFile("${env}-configuration.".concat(customConfiguration.getConfigurationGroup().get().getExtension()));
+      return configurationPropertiesConfig;
+    }
+    return null;
   }
 
   private MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
