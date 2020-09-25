@@ -7,6 +7,7 @@
 package org.mule.tools.apikit.output;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -241,7 +242,8 @@ public class MuleConfigGenerator {
     for (ApikitMainFlowContainer api : apiContainers) {
       FlowScope flowScope = null;
       String muleConfigID = createMuleConfigID(api.getId());
-      APIAutodiscoveryConfig apiAutodiscoveryConfig = createAPIAutodiscoveryConfig(muleConfigID.concat(MAIN_FLOW_SUFFIX));
+      APIAutodiscoveryConfig apiAutodiscoveryConfig =
+          createAPIAutodiscoveryConfig(FilenameUtils.removeExtension(muleConfigID).concat(MAIN_FLOW_SUFFIX));
       MuleConfig muleConfig = createMuleConfig(api);
       if (global != null) {
         commonConfigurations(api, global);
