@@ -4,9 +4,10 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.tools.apikit.output;
+package org.mule.tools.apikit.output.resources;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.Configuration;
 import org.mule.tools.apikit.model.ConfigurationGroup;
@@ -17,22 +18,10 @@ import org.mule.tools.apikit.model.ScaffolderResource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class ResourcesGenerator {
 
-  public static final String YAML = "yaml";
-  public static final String PROPERTIES = "properties";
-  public static final String YAML_SEPARATOR = ": ";
-  public static final String PROPERTIES_SEPARATOR = "=";
   public static final String FILE_NAME_SEPARATOR = "-configuration.";
-  public static final String LINE_BREAK = "\n";
-  public static final String QUOTES = "\"";
-  public static final String API_ID_KEY = "api.id";
-  public static final String HTTP_PORT_KEY = "http.port";
-  public static final String HTTP_HOST_KEY = "http.host";
-  public static final String HTTP_HOST_VALUE = "0.0.0.0";
-  public static final String HTTP_PORT_VALUE = "8081";
   public static final String SLASH = "/";
   public static final String HTTP_HOST_REFERENCE = "${http.host}";
   public static final String HTTP_PORT_REFERENCE = "${http.port}";
@@ -43,15 +32,22 @@ public class ResourcesGenerator {
       List<ScaffolderResource> resources = new ArrayList<>();
       String extension = configurationGroup.getExtension();
       for (Configuration configuration : configurationGroup.getConfigurations()) {
-        String separator = getSeparator(extension);
         String fileName = configuration.getEnvironment().concat(FILE_NAME_SEPARATOR).concat(extension);
-        String payload = fillCommonProperties(customConfiguration, extension, separator);
-        payload = fillCustomProperties(extension, configuration.getProperties(), separator, payload);
+        String payload =
+            CommonPropertiesGenerator.fill(configuration, customConfiguration.getApiAutodiscoveryID().orElse(null), extension);
+        payload = safeConcat(payload, CustomPropertiesGenerator.fill(extension, configuration.getProperties()));
         resources.add(new ScaffolderResource(SLASH, fileName, IOUtils.toInputStream(payload)));
       }
       return resources;
     }
     return null;
+  }
+
+  private static String safeConcat(String payload, String customValues) {
+    if (StringUtils.isNotEmpty(payload) && StringUtils.isNotEmpty(customValues)) {
+      return payload.concat(customValues);
+    }
+    return payload;
   }
 
   public static void replaceReferencesToProperties(CustomConfiguration config, List<ApikitMainFlowContainer> includedApis) {
@@ -68,40 +64,5 @@ public class ResourcesGenerator {
     }
   }
 
-  private static String getSeparator(String extension) {
-    switch (extension.toLowerCase()) {
-      case YAML:
-        return YAML_SEPARATOR;
-      case PROPERTIES:
-        return PROPERTIES_SEPARATOR;
-      default:
-        throw new RuntimeException("Invalid extension, please provide yaml or properties");
-    }
-  }
 
-  private static String fillCommonProperties(CustomConfiguration customConfiguration, String extension, String separator) {
-    String payload = HTTP_HOST_KEY.concat(separator).concat(createValue(HTTP_HOST_VALUE, extension)).concat(LINE_BREAK);
-    payload = payload.concat(HTTP_PORT_KEY).concat(separator).concat(createValue(HTTP_PORT_VALUE, extension)).concat(LINE_BREAK);
-    if (customConfiguration.getApiAutodiscoveryID().isPresent()) {
-      payload = payload.concat(API_ID_KEY).concat(separator)
-          .concat(createValue(customConfiguration.getApiAutodiscoveryID().get(), extension)).concat(LINE_BREAK);
-    }
-    return payload;
-  }
-
-  private static String fillCustomProperties(String extension, Map<String, String> properties, String separator, String payload) {
-    for (String key : properties.keySet()) {
-      payload =
-          payload.concat(key).concat(separator).concat(createValue(properties.get(key), extension))
-              .concat(LINE_BREAK);
-    }
-    return payload;
-  }
-
-  private static String createValue(String value, String extension) {
-    if (extension.equalsIgnoreCase(YAML)) {
-      value = QUOTES + value + QUOTES;
-    }
-    return value;
-  }
 }

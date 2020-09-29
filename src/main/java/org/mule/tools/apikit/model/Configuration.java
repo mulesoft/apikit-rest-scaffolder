@@ -11,13 +11,23 @@ import java.util.Map;
 public class Configuration {
 
   private String environment;
+  private CommonProperties commonProperties;
   private Map<String, String> properties;
 
   public Configuration() {}
 
-  public Configuration(String environment, Map<String, String> properties) {
+  public Configuration(String environment, CommonProperties commonProperties, Map<String, String> properties) {
     this.environment = environment;
+    this.commonProperties = commonProperties;
     this.properties = properties;
+  }
+
+  public CommonProperties getCommonProperties() {
+    return commonProperties;
+  }
+
+  public void setCommonProperties(CommonProperties commonProperties) {
+    this.commonProperties = commonProperties;
   }
 
   public String getEnvironment() {
