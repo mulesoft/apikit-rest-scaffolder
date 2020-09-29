@@ -10,6 +10,7 @@ import org.mule.apikit.model.ApiSpecification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ScaffoldingConfiguration {
 
@@ -17,15 +18,18 @@ public class ScaffoldingConfiguration {
   private final List<MuleConfig> configurations;
   private final MuleDomain domain;
   private final boolean showConsole;
-  private final CustomConfiguration customConfiguration;
+  private Optional<String> externalConfigurationFile;
+  private Optional<String> apiAutodiscoveryID;
 
   private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain, boolean showConsole,
-                                   CustomConfiguration customConfiguration) {
+                                   String externalConfigurationFile,
+                                   String apiAutodiscoveryID) {
     this.api = api;
     this.configurations = configs;
     this.domain = domain;
     this.showConsole = showConsole;
-    this.customConfiguration = customConfiguration;
+    this.externalConfigurationFile = Optional.ofNullable(externalConfigurationFile);
+    this.apiAutodiscoveryID = Optional.ofNullable(apiAutodiscoveryID);
   }
 
   public ApiSpecification getApi() {
@@ -44,8 +48,12 @@ public class ScaffoldingConfiguration {
     return showConsole;
   }
 
-  public CustomConfiguration getCustomConfiguration() {
-    return this.customConfiguration;
+  public Optional<String> getExternalConfigurationFile() {
+    return externalConfigurationFile;
+  }
+
+  public Optional<String> getApiAutodiscoveryID() {
+    return apiAutodiscoveryID;
   }
 
   public static Builder builder() {
@@ -58,12 +66,14 @@ public class ScaffoldingConfiguration {
     private List<MuleConfig> muleConfigurations;
     private MuleDomain domain;
     private boolean showConsole;
-    private CustomConfiguration customConfiguration;
+    private Optional<String> externalConfigurationFile;
+    private Optional<String> apiAutodiscoveryID;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
       this.showConsole = true;
-      this.customConfiguration = new CustomConfiguration();
+      this.externalConfigurationFile = Optional.empty();
+      this.apiAutodiscoveryID = Optional.empty();
       domain = MuleDomain.builder().build();
     }
 
@@ -87,13 +97,19 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
-    public Builder withCustomConfiguration(CustomConfiguration customConfiguration) {
-      this.customConfiguration = customConfiguration;
+    public Builder withExternalConfigurationFile(String externalConfigurationFile) {
+      this.externalConfigurationFile = Optional.ofNullable(externalConfigurationFile);
+      return this;
+    }
+
+    public Builder withApiAutodiscoveryId(String apiAutodiscoveryID) {
+      this.apiAutodiscoveryID = Optional.ofNullable(apiAutodiscoveryID);
       return this;
     }
 
     public ScaffoldingConfiguration build() {
-      return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole, customConfiguration);
+      return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole, externalConfigurationFile.orElse(null),
+                                          apiAutodiscoveryID.orElse(null));
     }
   }
 

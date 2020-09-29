@@ -16,11 +16,11 @@ import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.Flow;
 import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.mule.tools.apikit.output.scopes.ConsoleFlowScope;
 import org.mule.tools.apikit.output.scopes.FlowScope;
@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -72,25 +71,23 @@ public class MuleConfigGenerator {
   private final List<ApikitMainFlowContainer> apiContainers;
   private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
   private ScaffolderContext scaffolderContext;
-  private boolean showConsole;
-  private CustomConfiguration customConfiguration;
+  private ScaffoldingConfiguration configuration;
 
   /**
    * @param apiContainers     Information about APIs being scaffolded
    * @param flowEntriesDiff   New flows that needs to be added
    * @param muleConfigsInApp  Pre-existing Mule configurations
    * @param scaffolderContext Scaffolder context information
-   * @param includeConsole    Whether console should be included or not
+   * @param configuration     Scaffolding custom configurations
    */
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apiContainers, List<GenerationModel> flowEntriesDiff,
-                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext, boolean includeConsole,
-                             CustomConfiguration customConfiguration) {
+                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext,
+                             ScaffoldingConfiguration configuration) {
     this.apiContainers = apiContainers;
     this.flowEntriesDiff = flowEntriesDiff;
     this.muleConfigsInApp.addAll(muleConfigsInApp);
     this.scaffolderContext = scaffolderContext;
-    this.showConsole = includeConsole;
-    this.customConfiguration = customConfiguration;
+    this.configuration = configuration;
   }
 
   /**
@@ -264,7 +261,7 @@ public class MuleConfigGenerator {
       addMuleConfig(muleConfigs, muleConfig, muleConfigID);
     }
     if (global != null) {
-      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), customConfiguration.getExternalConfigurationFile().get());
+      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile().get());
     }
     return muleConfigs;
   }
@@ -274,7 +271,7 @@ public class MuleConfigGenerator {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false).generate());
       MuleConfig muleConfig = fromDoc(document);
-      if (!customConfiguration.getExternalConfigurationFile().isPresent()) {
+      if (!configuration.getExternalConfigurationFile().isPresent()) {
         commonConfigurations(api, muleConfig);
       }
       return muleConfig;
@@ -291,20 +288,29 @@ public class MuleConfigGenerator {
   /**
    * If needed it will add the muleConfig file to the mule configurations, previously setting its name.
    */
+
   public void addMuleConfig(Set<MuleConfig> muleConfigs, MuleConfig muleConfig, String name) {
     muleConfig.setName(name);
     muleConfigs.add(muleConfig);
   }
 
   private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
-    if (customConfiguration.getApiAutodiscoveryID().isPresent()) {
+    if (configuration.getApiAutodiscoveryID().isPresent()) {
       APIAutodiscoveryConfig apiAutodiscoveryConfig = new APIAutodiscoveryConfig();
       apiAutodiscoveryConfig.setFlowRef(mainFlowRef);
-      apiAutodiscoveryConfig.setApiId(customConfiguration.getApiAutodiscoveryID().get());
+      apiAutodiscoveryConfig.setApiId(configuration.getApiAutodiscoveryID().get());
       apiAutodiscoveryConfig.setIgnoreBasePath(Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT));
       return apiAutodiscoveryConfig;
     }
     return null;
+  }
+
+  public void addGlobal(Set<MuleConfig> muleConfigs, MuleConfig global) {
+    if (configuration.getExternalConfigurationFile().isPresent()) {
+      global = fromDoc(global.buildContent());
+      global.setName(configuration.getExternalConfigurationFile().get());
+      muleConfigs.add(global);
+    }
   }
 
   /**
@@ -350,7 +356,7 @@ public class MuleConfigGenerator {
    * @return a document to build a common mule configuration
    */
   private MuleConfig createCommonPropertiesFile() {
-    if (customConfiguration.getExternalConfigurationFile().isPresent()) {
+    if (configuration.getExternalConfigurationFile().isPresent()) {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false).generate());
       MuleConfig global = fromDoc(document);
@@ -405,7 +411,7 @@ public class MuleConfigGenerator {
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
   private void addConsoleFlow(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-    if (showConsole) {
+    if (configuration.isShowConsole()) {
       muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
     }
   }
