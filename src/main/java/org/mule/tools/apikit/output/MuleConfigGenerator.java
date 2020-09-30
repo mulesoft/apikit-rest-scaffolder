@@ -261,7 +261,7 @@ public class MuleConfigGenerator {
       addMuleConfig(muleConfigs, muleConfig, muleConfigID);
     }
     if (global != null) {
-      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile().get());
+      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
     }
     return muleConfigs;
   }
@@ -271,7 +271,7 @@ public class MuleConfigGenerator {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false).generate());
       MuleConfig muleConfig = fromDoc(document);
-      if (!configuration.getExternalConfigurationFile().isPresent()) {
+      if (configuration.getExternalConfigurationFile() == null) {
         commonConfigurations(api, muleConfig);
       }
       return muleConfig;
@@ -295,10 +295,10 @@ public class MuleConfigGenerator {
   }
 
   private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
-    if (configuration.getApiAutodiscoveryID().isPresent()) {
+    if (configuration.getApiAutodiscoveryID() != null) {
       APIAutodiscoveryConfig apiAutodiscoveryConfig = new APIAutodiscoveryConfig();
       apiAutodiscoveryConfig.setFlowRef(mainFlowRef);
-      apiAutodiscoveryConfig.setApiId(configuration.getApiAutodiscoveryID().get());
+      apiAutodiscoveryConfig.setApiId(configuration.getApiAutodiscoveryID());
       apiAutodiscoveryConfig.setIgnoreBasePath(Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT));
       return apiAutodiscoveryConfig;
     }
@@ -306,9 +306,9 @@ public class MuleConfigGenerator {
   }
 
   public void addGlobal(Set<MuleConfig> muleConfigs, MuleConfig global) {
-    if (configuration.getExternalConfigurationFile().isPresent()) {
+    if (configuration.getExternalConfigurationFile() != null) {
       global = fromDoc(global.buildContent());
-      global.setName(configuration.getExternalConfigurationFile().get());
+      global.setName(configuration.getExternalConfigurationFile());
       muleConfigs.add(global);
     }
   }
@@ -356,7 +356,7 @@ public class MuleConfigGenerator {
    * @return a document to build a common mule configuration
    */
   private MuleConfig createCommonPropertiesFile() {
-    if (configuration.getExternalConfigurationFile().isPresent()) {
+    if (configuration.getExternalConfigurationFile() != null) {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false).generate());
       MuleConfig global = fromDoc(document);
