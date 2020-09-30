@@ -120,6 +120,11 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
+    public Builder withConfigurationGroup(ConfigurationGroup configurationGroup) {
+      this.configurationGroup = configurationGroup;
+      return this;
+    }
+
     public ScaffoldingConfiguration build() {
       return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole, externalConfigurationFile,
                                           apiAutodiscoveryID, configurationGroup);
