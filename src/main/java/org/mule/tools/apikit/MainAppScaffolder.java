@@ -45,7 +45,7 @@ public final class MainAppScaffolder implements Scaffolder {
       RAMLFilesParser ramlFilesParser = new RAMLFilesParser(apiFactory, config.getApi());
 
       List<ApikitMainFlowContainer> includedApis = ramlFilesParser.getApisAsList();
-      ResourcesGenerator.replaceReferencesToProperties(config.getCustomConfiguration(), includedApis);
+      ResourcesGenerator.replaceReferencesToProperties(config, includedApis);
       List<GenerationModel> generationModels = GENERATOR.generate(ramlFilesParser.getEntries(),
                                                                   muleConfigParser.getIncludedApis(),
                                                                   muleConfigParser.getEntries());
@@ -53,13 +53,12 @@ public final class MainAppScaffolder implements Scaffolder {
       MuleConfigGenerator muleConfigGenerator = new MuleConfigGenerator(includedApis,
                                                                         generationModels,
                                                                         muleConfigs,
-                                                                        scaffolderContext, config.isShowConsole(),
-                                                                        config.getCustomConfiguration());
+                                                                        scaffolderContext, config);
 
       List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
       scaffolderResultBuilder.withGeneratedConfigs(generatedConfigs);
 
-      scaffolderResultBuilder.withGeneratedResources(ResourcesGenerator.generate(config.getCustomConfiguration()));
+      scaffolderResultBuilder.withGeneratedResources(ResourcesGenerator.generate(config));
 
     } catch (Exception e) {
       List<ScaffoldingError> errors = Arrays.asList(new ScaffoldingError(e.getMessage()));

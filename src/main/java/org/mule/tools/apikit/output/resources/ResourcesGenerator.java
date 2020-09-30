@@ -15,6 +15,7 @@ import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.ScaffolderResource;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +27,15 @@ public class ResourcesGenerator {
   public static final String HTTP_HOST_REFERENCE = "${http.host}";
   public static final String HTTP_PORT_REFERENCE = "${http.port}";
 
-  public static List<ScaffolderResource> generate(CustomConfiguration customConfiguration) {
-    if (customConfiguration != null && customConfiguration.getConfigurationGroup().isPresent()) {
-      ConfigurationGroup configurationGroup = customConfiguration.getConfigurationGroup().get();
+  public static List<ScaffolderResource> generate(ScaffoldingConfiguration scaffoldingConfiguration) {
+    if (scaffoldingConfiguration != null && scaffoldingConfiguration.getConfigurationGroup() != null) {
+      ConfigurationGroup configurationGroup = scaffoldingConfiguration.getConfigurationGroup();
       List<ScaffolderResource> resources = new ArrayList<>();
       String extension = configurationGroup.getExtension();
       for (Configuration configuration : configurationGroup.getConfigurations()) {
         String fileName = configuration.getEnvironment().concat(FILE_NAME_SEPARATOR).concat(extension);
         String payload =
-            CommonPropertiesGenerator.fill(configuration, customConfiguration.getApiAutodiscoveryID().orElse(null), extension);
+            CommonPropertiesGenerator.fill(configuration, scaffoldingConfiguration.getApiAutodiscoveryID());
         payload = safeConcat(payload, CustomPropertiesGenerator.fill(extension, configuration.getProperties()));
         resources.add(new ScaffolderResource(SLASH, fileName, IOUtils.toInputStream(payload)));
       }
@@ -50,8 +51,8 @@ public class ResourcesGenerator {
     return payload;
   }
 
-  public static void replaceReferencesToProperties(CustomConfiguration config, List<ApikitMainFlowContainer> includedApis) {
-    if (config != null && config.getConfigurationGroup().isPresent()) {
+  public static void replaceReferencesToProperties(ScaffoldingConfiguration config, List<ApikitMainFlowContainer> includedApis) {
+    if (config != null && config.getConfigurationGroup() != null) {
       for (ApikitMainFlowContainer api : includedApis) {
         HttpListenerConfig existingHttpConfig = api.getHttpListenerConfig();
         HttpListenerConnection httpListenerConnection =

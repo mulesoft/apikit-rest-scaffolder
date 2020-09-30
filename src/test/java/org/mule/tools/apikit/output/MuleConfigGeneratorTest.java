@@ -10,22 +10,18 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mule.tools.apikit.Helper;
-import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.xml.sax.SAXException;
 
@@ -34,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -112,9 +107,9 @@ public class MuleConfigGeneratorTest {
   @Test
   public void blankDocumentWithoutExternalizedGlobalsAndAPIAutodiscovery() {
     String apiAutodiscovery = "1234";
-    CustomConfiguration customConfiguration =
-        new CustomConfiguration(null, apiAutodiscovery, null);
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiAutodiscoveryId(apiAutodiscovery);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
@@ -127,9 +122,10 @@ public class MuleConfigGeneratorTest {
   public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
     String externalConfigurationFile = "globals.xml";
     String apiAutodiscovery = "1234";
-    CustomConfiguration customConfiguration =
-        new CustomConfiguration(externalConfigurationFile, apiAutodiscovery, null);
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile)
+            .withApiAutodiscoveryId(apiAutodiscovery);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
@@ -146,9 +142,9 @@ public class MuleConfigGeneratorTest {
   @Test
   public void blankDocumentWithExternalizedGlobals() {
     String externalConfigurationFile = "globals.xml";
-    CustomConfiguration customConfiguration =
-        new CustomConfiguration(externalConfigurationFile, null, null);
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE, customConfiguration);
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
@@ -158,13 +154,26 @@ public class MuleConfigGeneratorTest {
       } else {
         assertMainFlow(rootElement, 0);
       }
-      System.out.println(document);
+    }
+  }
+
+  @Test
+  public void blankDocumentWithoutExternalizedGlobals() {
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(null);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
+    for (MuleConfig muleConfig : muleConfigs) {
+      Document document = muleConfig.getContentAsDocument();
+      Element rootElement = document.getRootElement();
+      assertEquals("mule", rootElement.getName());
+      assertConfigurations(rootElement);
     }
   }
 
   @Test
   public void blankDocumentWithoutLCInDomain() {
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(SHOW_CONSOLE);
+    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withShowConsole(SHOW_CONSOLE);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
@@ -180,7 +189,8 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutLCInDomainHideConsole() {
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(HIDE_CONSOLE);
+    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withShowConsole(SHOW_CONSOLE);
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
       Element rootElement = document.getRootElement();
@@ -212,11 +222,7 @@ public class MuleConfigGeneratorTest {
     assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
   }
 
-  private List<MuleConfig> scaffoldBlankDocument(boolean showConsole) {
-    return this.scaffoldBlankDocument(showConsole, new CustomConfiguration());
-  }
-
-  private List<MuleConfig> scaffoldBlankDocument(boolean showConsole, CustomConfiguration customConfiguration) {
+  private List<MuleConfig> scaffoldBlankDocument(ScaffoldingConfiguration configuration) {
     HttpListenerConfig listenerConfig =
         new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
     InputStream apikitConfig = getResourceAsStream("scaffolder-only-apikit-config/api.xml");
@@ -241,8 +247,7 @@ public class MuleConfigGeneratorTest {
 
     MuleConfigGenerator muleConfigGenerator =
         new MuleConfigGenerator(apis, new ArrayList<>(), new ArrayList<>(),
-                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), showConsole,
-                                customConfiguration);
+                                ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.CE).build(), configuration);
 
     return muleConfigGenerator.generate();
   }

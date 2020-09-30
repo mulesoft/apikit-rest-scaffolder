@@ -30,7 +30,7 @@ public class CommonPropertiesGenerator extends PropertiesGenerator {
     }
   };
 
-  public static String fill(Configuration configuration, String apiId, String extension) {
+  public static String fill(Configuration configuration, String apiId) {
     String payload = createHTTPProperties(configuration);
     if (apiId != null) {
       Map<String, String> subMapAPIAutodiscovery = new HashMap<>();
