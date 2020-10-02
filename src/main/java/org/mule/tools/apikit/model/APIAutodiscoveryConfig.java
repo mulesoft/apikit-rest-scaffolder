@@ -13,57 +13,83 @@ import org.mule.tools.apikit.output.scopes.APIAutodiscoveryScope;
 
 import org.mule.tools.apikit.output.scopes.Scope;
 
+import java.util.Objects;
+
 public class APIAutodiscoveryConfig implements Scope {
 
-    public static final NamespaceWithLocation API_AUTODISCOVERY_NAMESPACE = new NamespaceWithLocation(
-            Namespace
-                    .getNamespace("api-gateway",
-                            "http://www.mulesoft.org/schema/mule/api-gateway"),
-            "http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd");
+  public static final NamespaceWithLocation API_AUTODISCOVERY_NAMESPACE = new NamespaceWithLocation(
+                                                                                                    Namespace
+                                                                                                        .getNamespace("api-gateway",
+                                                                                                                      "http://www.mulesoft.org/schema/mule/api-gateway"),
+                                                                                                    "http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd");
 
-    public static final String ELEMENT_NAME = "autodiscovery";
-    public static final String API_ID_ATTRIBUTE = "apiId";
-    public static final String IGNORE_BASE_PATH_ATTRIBUTE = "ignoreBasePath";
-    public static final String IGNORE_BASE_PATH_DEFAULT = "true";
-    public static final String FLOW_REF_ATTRIBUTE = "flowRef";
+  public static final String ELEMENT_NAME = "autodiscovery";
+  public static final String API_ID_ATTRIBUTE = "apiId";
+  public static final String IGNORE_BASE_PATH_ATTRIBUTE = "ignoreBasePath";
+  public static final String IGNORE_BASE_PATH_DEFAULT = "true";
+  public static final String FLOW_REF_ATTRIBUTE = "flowRef";
 
-    private String apiId;
-    private Boolean ignoreBasePath;
-    private String flowRef;
+  private String apiId;
+  private Boolean ignoreBasePath;
+  private String flowRef;
 
-    public APIAutodiscoveryConfig(String apiId, Boolean ignoreBasePath, String flowRef) {
-        this.apiId = apiId;
-        this.ignoreBasePath = ignoreBasePath;
-        this.flowRef = flowRef;
-    }
+  public APIAutodiscoveryConfig(String apiId, Boolean ignoreBasePath, String flowRef) {
+    this.apiId = apiId;
+    this.ignoreBasePath = ignoreBasePath;
+    this.flowRef = flowRef;
+  }
 
-    public String getApiId() {
-        return apiId;
-    }
+  public APIAutodiscoveryConfig() {
+    this.apiId = null;
+    this.ignoreBasePath = true;
+    this.flowRef = null;
+  }
 
-    public void setApiId(String apiId) {
-        this.apiId = apiId;
-    }
+  public String getApiId() {
+    return apiId;
+  }
 
-    public Boolean getIgnoreBasePath() {
-        return ignoreBasePath;
-    }
+  public void setApiId(String apiId) {
+    this.apiId = apiId;
+  }
 
-    public void setIgnoreBasePath(Boolean ignoreBasePath) {
-        this.ignoreBasePath = ignoreBasePath;
-    }
+  public Boolean getIgnoreBasePath() {
+    return ignoreBasePath;
+  }
 
-    public String getFlowRef() {
-        return flowRef;
-    }
+  public void setIgnoreBasePath(Boolean ignoreBasePath) {
+    this.ignoreBasePath = ignoreBasePath;
+  }
 
-    public void setFlowRef(String flowRef) {
-        this.flowRef = flowRef;
-    }
+  public String getFlowRef() {
+    return flowRef;
+  }
 
-    @Override
-    public Element generate() {
-        APIAutodiscoveryScope apiAutodiscoveryScope = new APIAutodiscoveryScope(this);
-        return apiAutodiscoveryScope.generate();
-    }
+  public void setFlowRef(String flowRef) {
+    this.flowRef = flowRef;
+  }
+
+  @Override
+  public Element generate() {
+    APIAutodiscoveryScope apiAutodiscoveryScope = new APIAutodiscoveryScope(this);
+    return apiAutodiscoveryScope.generate();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    APIAutodiscoveryConfig that = (APIAutodiscoveryConfig) o;
+    return Objects.equals(apiId, that.apiId) &&
+        Objects.equals(ignoreBasePath, that.ignoreBasePath) &&
+        Objects.equals(flowRef, that.flowRef);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(apiId, ignoreBasePath, flowRef);
+  }
+
 }

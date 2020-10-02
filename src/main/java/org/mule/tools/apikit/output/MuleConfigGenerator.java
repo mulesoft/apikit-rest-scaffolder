@@ -45,468 +45,468 @@ import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 public class MuleConfigGenerator {
 
-    public static final NamespaceWithLocation XMLNS_NAMESPACE = new NamespaceWithLocation(
-            Namespace
-                    .getNamespace("http://www.mulesoft.org/schema/mule/core"),
-            "http://www.mulesoft.org/schema/mule/core/current/mule.xsd");
-    public static final NamespaceWithLocation XSI_NAMESPACE = new NamespaceWithLocation(
-            Namespace
-                    .getNamespace("xsi",
-                            "http://www.w3.org/2001/XMLSchema-instance"),
-            null);
-    public static final NamespaceWithLocation HTTP_NAMESPACE = new NamespaceWithLocation(
-            Namespace
-                    .getNamespace("http",
-                            "http://www.mulesoft.org/schema/mule/http"),
-            "http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd");
+  public static final NamespaceWithLocation XMLNS_NAMESPACE = new NamespaceWithLocation(
+                                                                                        Namespace
+                                                                                            .getNamespace("http://www.mulesoft.org/schema/mule/core"),
+                                                                                        "http://www.mulesoft.org/schema/mule/core/current/mule.xsd");
+  public static final NamespaceWithLocation XSI_NAMESPACE = new NamespaceWithLocation(
+                                                                                      Namespace
+                                                                                          .getNamespace("xsi",
+                                                                                                        "http://www.w3.org/2001/XMLSchema-instance"),
+                                                                                      null);
+  public static final NamespaceWithLocation HTTP_NAMESPACE = new NamespaceWithLocation(
+                                                                                       Namespace
+                                                                                           .getNamespace("http",
+                                                                                                         "http://www.mulesoft.org/schema/mule/http"),
+                                                                                       "http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd");
 
-    public static final NamespaceWithLocation EE_NAMESPACE = new NamespaceWithLocation(
-            Namespace
-                    .getNamespace("ee",
-                            "http://www.mulesoft.org/schema/mule/ee/core"),
-            "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
+  public static final NamespaceWithLocation EE_NAMESPACE = new NamespaceWithLocation(
+                                                                                     Namespace
+                                                                                         .getNamespace("ee",
+                                                                                                       "http://www.mulesoft.org/schema/mule/ee/core"),
+                                                                                     "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
 
-    private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
-    public static final String MAIN_FLOW_SUFFIX = "-main";
-    public static final String API_ID_REFERENCE = "${api.id}";
+  private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
+  public static final String MAIN_FLOW_SUFFIX = "-main";
+  public static final String API_ID_REFERENCE = "${api.id}";
 
-    private final List<GenerationModel> flowEntriesDiff;
-    private final List<ApikitMainFlowContainer> apiContainers;
-    private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
-    private ScaffolderContext scaffolderContext;
-    private ScaffoldingConfiguration configuration;
+  private final List<GenerationModel> flowEntriesDiff;
+  private final List<ApikitMainFlowContainer> apiContainers;
+  private List<MuleConfig> muleConfigsInApp = new ArrayList<>();
+  private ScaffolderContext scaffolderContext;
+  private ScaffoldingConfiguration configuration;
 
-    /**
-     * @param apiContainers     Information about APIs being scaffolded
-     * @param flowEntriesDiff   New flows that needs to be added
-     * @param muleConfigsInApp  Pre-existing Mule configurations
-     * @param scaffolderContext Scaffolder context information
-     * @param configuration     Scaffolding custom configurations
-     */
-    public MuleConfigGenerator(List<ApikitMainFlowContainer> apiContainers, List<GenerationModel> flowEntriesDiff,
-                               List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext,
-                               ScaffoldingConfiguration configuration) {
-        this.apiContainers = apiContainers;
-        this.flowEntriesDiff = flowEntriesDiff;
-        this.muleConfigsInApp.addAll(muleConfigsInApp);
-        this.scaffolderContext = scaffolderContext;
-        this.configuration = configuration;
+  /**
+   * @param apiContainers     Information about APIs being scaffolded
+   * @param flowEntriesDiff   New flows that needs to be added
+   * @param muleConfigsInApp  Pre-existing Mule configurations
+   * @param scaffolderContext Scaffolder context information
+   * @param configuration     Scaffolding custom configurations
+   */
+  public MuleConfigGenerator(List<ApikitMainFlowContainer> apiContainers, List<GenerationModel> flowEntriesDiff,
+                             List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext,
+                             ScaffoldingConfiguration configuration) {
+    this.apiContainers = apiContainers;
+    this.flowEntriesDiff = flowEntriesDiff;
+    this.muleConfigsInApp.addAll(muleConfigsInApp);
+    this.scaffolderContext = scaffolderContext;
+    this.configuration = configuration;
+  }
+
+  /**
+   * Generates or updates Mule configurations
+   *
+   * @return list of new or updated Mule configurations
+   */
+  public List<MuleConfig> generate() {
+    Set<MuleConfig> updatedMuleConfigs = getConfigsFromApiContainers();
+    generateMissingFlowEntriesInMuleConfigs();
+    Map<String, MuleConfig> indexByApikitConfigName = createIndexOfConfigurationsWithApikitConfig();
+    if (isEmpty(indexByApikitConfigName.entrySet())) {
+      // No existing config that needs to be checked for an update
+      return new ArrayList<>(updatedMuleConfigs);
     }
+    Map<String, Element> indexOfApikitRouterConfigByRefName = createIndexOfRouterReferences();
+    if (isEmpty(indexOfApikitRouterConfigByRefName.entrySet())) {
+      // No existing references to apikit configs that needs to be checked for an update
+      return new ArrayList<>(updatedMuleConfigs);
+    }
+    if (!isThereConfigsInIntersection(indexByApikitConfigName, indexOfApikitRouterConfigByRefName)) {
+      // No cross references found for configs
+      return new ArrayList<>(updatedMuleConfigs);
+    }
+    updatedMuleConfigs.addAll(getCrossReferencedConfigsUpdated(indexByApikitConfigName, indexOfApikitRouterConfigByRefName));
+    return new ArrayList<>(updatedMuleConfigs);
+  }
 
-    /**
-     * Generates or updates Mule configurations
-     *
-     * @return list of new or updated Mule configurations
-     */
-    public List<MuleConfig> generate() {
-        Set<MuleConfig> updatedMuleConfigs = getConfigsFromApiContainers();
-        generateMissingFlowEntriesInMuleConfigs();
-        Map<String, MuleConfig> indexByApikitConfigName = createIndexOfConfigurationsWithApikitConfig();
-        if (isEmpty(indexByApikitConfigName.entrySet())) {
-            // No existing config that needs to be checked for an update
-            return new ArrayList<>(updatedMuleConfigs);
+  /**
+   * Whether there is a config to update in an existing configuration.
+   *
+   * @param muleConfigsContainingApikitConfig
+   * @param muleConfigsReferencingApikitConfig
+   * @return true is api references to an existing configuration.
+   */
+  private boolean isThereConfigsInIntersection(Map<String, MuleConfig> muleConfigsContainingApikitConfig,
+                                               Map<String, Element> muleConfigsReferencingApikitConfig) {
+    Set<String> muleConfigsCandidateToUpdate = muleConfigsContainingApikitConfig.keySet();
+    muleConfigsCandidateToUpdate.retainAll(muleConfigsReferencingApikitConfig.keySet());
+    return isNotEmpty(muleConfigsCandidateToUpdate);
+  }
+
+  /**
+   * Generates the new flow entries for the existing or new APIs
+   */
+  private void generateMissingFlowEntriesInMuleConfigs() {
+    if (!flowEntriesDiff.isEmpty()) {
+      flowEntriesDiff.forEach(this::generateFlowEntryInMuleConfig);
+    }
+  }
+
+  /**
+   * Get existing Apikit configuration names mapped to the Mule configuration that contains it.
+   *
+   * @return Map of Apikit configuration names and Mule configurations
+   */
+  private Map<String, MuleConfig> createIndexOfConfigurationsWithApikitConfig() {
+    Map<String, MuleConfig> configsWithApikitConfig = new HashMap<>();
+    List<Element> apikitConfigElements;
+    String apikitConfigName;
+    for (MuleConfig muleConfig : muleConfigsInApp) {
+      apikitConfigElements = getApikitConfigDocumentElement(muleConfig);
+      if (isEmpty(apikitConfigElements)) {
+        continue;
+      }
+      for (Element configElement : apikitConfigElements) {
+        apikitConfigName = configElement.getAttributeValue("name");
+        if (apikitConfigName == null) {
+          apikitConfigName = DEFAULT_APIKIT_CONFIG_NAME;
         }
-        Map<String, Element> indexOfApikitRouterConfigByRefName = createIndexOfRouterReferences();
-        if (isEmpty(indexOfApikitRouterConfigByRefName.entrySet())) {
-            // No existing references to apikit configs that needs to be checked for an update
-            return new ArrayList<>(updatedMuleConfigs);
+        configsWithApikitConfig.put(apikitConfigName, muleConfig);
+      }
+    }
+    return configsWithApikitConfig;
+  }
+
+  /**
+   * Get the reference names of Apikit configurations that are being scaffolded mapped to the document element that contains it.
+   *
+   * @return Map of Apikit config references and document element
+   */
+  private Map<String, Element> createIndexOfRouterReferences() {
+    Map<String, Element> refsToApikitConfig = new HashMap<>();
+    List<MainFlow> mainFlows;
+    String referenceName;
+    for (ApikitMainFlowContainer api : apiContainers) {
+      mainFlows = api.getMuleConfig().getMainFlows().stream().filter(flow -> flow.getApikitRouter() != null).collect(toList());
+      if (isNotEmpty(mainFlows)) {
+        for (MainFlow mainFlow : mainFlows) {
+          referenceName = mainFlow.getApikitRouter().getContent().getAttributeValue("config-ref");
+          if (referenceName == null) {
+            referenceName = DEFAULT_APIKIT_CONFIG_NAME;
+          }
+          refsToApikitConfig.put(referenceName, api.getConfig().generate());
         }
-        if (!isThereConfigsInIntersection(indexByApikitConfigName, indexOfApikitRouterConfigByRefName)) {
-            // No cross references found for configs
-            return new ArrayList<>(updatedMuleConfigs);
-        }
-        updatedMuleConfigs.addAll(getCrossReferencedConfigsUpdated(indexByApikitConfigName, indexOfApikitRouterConfigByRefName));
-        return new ArrayList<>(updatedMuleConfigs);
+      }
     }
+    return refsToApikitConfig;
+  }
 
-    /**
-     * Whether there is a config to update in an existing configuration.
-     *
-     * @param muleConfigsContainingApikitConfig
-     * @param muleConfigsReferencingApikitConfig
-     * @return true is api references to an existing configuration.
-     */
-    private boolean isThereConfigsInIntersection(Map<String, MuleConfig> muleConfigsContainingApikitConfig,
-                                                 Map<String, Element> muleConfigsReferencingApikitConfig) {
-        Set<String> muleConfigsCandidateToUpdate = muleConfigsContainingApikitConfig.keySet();
-        muleConfigsCandidateToUpdate.retainAll(muleConfigsReferencingApikitConfig.keySet());
-        return isNotEmpty(muleConfigsCandidateToUpdate);
+  /**
+   * Returns the set of Mule configurations that were updated.
+   *
+   * @param configsContainingApikitConfig
+   * @param apikitConfigsCandidateToUpdate
+   * @return Update Mule configurations or none.
+   */
+  private Set<MuleConfig> getCrossReferencedConfigsUpdated(Map<String, MuleConfig> configsContainingApikitConfig,
+                                                           Map<String, Element> apikitConfigsCandidateToUpdate) {
+    Set<MuleConfig> updatedMuleConfigs = new HashSet<>();
+    MuleConfig updatedMuleConfig;
+    for (Entry<String, MuleConfig> muleConfigRef : configsContainingApikitConfig.entrySet()) {
+      updatedMuleConfig = getUpdatedMuleConfig(muleConfigRef.getValue(),
+                                               apikitConfigsCandidateToUpdate.get(muleConfigRef.getKey()));
+      if (updatedMuleConfig != null) {
+        updatedMuleConfigs.add(updatedMuleConfig);
+      }
     }
+    return updatedMuleConfigs;
+  }
 
-    /**
-     * Generates the new flow entries for the existing or new APIs
-     */
-    private void generateMissingFlowEntriesInMuleConfigs() {
-        if (!flowEntriesDiff.isEmpty()) {
-            flowEntriesDiff.forEach(this::generateFlowEntryInMuleConfig);
-        }
+  /**
+   * Returns the updated Mule Config or null if no changes were done in the config.
+   *
+   * @param muleConfig
+   * @param newApikitConfigFromApi
+   * @return updated Mule config or null
+   */
+  private MuleConfig getUpdatedMuleConfig(MuleConfig muleConfig, Element newApikitConfigFromApi) {
+    MuleConfig updatedMuleConfig = null;
+    List<Element> preExistingApikitConfigs = getApikitConfigDocumentElement(muleConfig);
+    for (Element preExistingApikitConfig : preExistingApikitConfigs) {
+      if (shouldUpdateApikitConfig(newApikitConfigFromApi, preExistingApikitConfig)) {
+        replaceExistingConfigWithNew(newApikitConfigFromApi, preExistingApikitConfig, muleConfig);
+        updatedMuleConfig = muleConfig;
+      }
     }
+    return updatedMuleConfig;
+  }
 
-    /**
-     * Get existing Apikit configuration names mapped to the Mule configuration that contains it.
-     *
-     * @return Map of Apikit configuration names and Mule configurations
-     */
-    private Map<String, MuleConfig> createIndexOfConfigurationsWithApikitConfig() {
-        Map<String, MuleConfig> configsWithApikitConfig = new HashMap<>();
-        List<Element> apikitConfigElements;
-        String apikitConfigName;
-        for (MuleConfig muleConfig : muleConfigsInApp) {
-            apikitConfigElements = getApikitConfigDocumentElement(muleConfig);
-            if (isEmpty(apikitConfigElements)) {
-                continue;
-            }
-            for (Element configElement : apikitConfigElements) {
-                apikitConfigName = configElement.getAttributeValue("name");
-                if (apikitConfigName == null) {
-                    apikitConfigName = DEFAULT_APIKIT_CONFIG_NAME;
-                }
-                configsWithApikitConfig.put(apikitConfigName, muleConfig);
-            }
-        }
-        return configsWithApikitConfig;
+  /**
+   * Returns the set of Mule configurations for the APIs being scaffolded. In configurations does not exist, it generates one.
+   *
+   * @return Mule configurations for APIs
+   */
+  private Set<MuleConfig> getConfigsFromApiContainers() {
+    Set<MuleConfig> muleConfigs = new HashSet<>();
+    MuleConfig global = createCommonPropertiesFile();
+    for (ApikitMainFlowContainer api : apiContainers) {
+      FlowScope flowScope = null;
+      String muleConfigID = createMuleConfigID(api.getId());
+      ConfigurationPropertiesConfig configurationPropertiesConfig = createConfigurationProperties();
+      APIAutodiscoveryConfig apiAutodiscoveryConfig =
+          createAPIAutodiscoveryConfig(FilenameUtils.removeExtension(muleConfigID).concat(MAIN_FLOW_SUFFIX));
+      MuleConfig muleConfig = createMuleConfig(api);
+      if (global != null) {
+        commonConfigurations(api, global);
+        global = setAPIAutodiscoveryId(global, apiAutodiscoveryConfig);
+        global.setConfigurationPropertiesConfig(configurationPropertiesConfig);
+        flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
+      } else {
+        muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+        muleConfig.setConfigurationPropertiesConfig(configurationPropertiesConfig);
+        muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
+      }
+      if (api.getMuleConfig() == null) {
+        flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
+        muleConfig.addFlow(new Flow(flowScope.generate()));
+        addConsoleFlow(api, muleConfig);
+        muleConfig = fromDoc(muleConfig.buildContent());
+        api.setMuleConfig(muleConfig);
+      } else {
+        muleConfigID = api.getMuleConfig().getName();
+      }
+      addMuleConfig(muleConfigs, muleConfig, muleConfigID);
     }
-
-    /**
-     * Get the reference names of Apikit configurations that are being scaffolded mapped to the document element that contains it.
-     *
-     * @return Map of Apikit config references and document element
-     */
-    private Map<String, Element> createIndexOfRouterReferences() {
-        Map<String, Element> refsToApikitConfig = new HashMap<>();
-        List<MainFlow> mainFlows;
-        String referenceName;
-        for (ApikitMainFlowContainer api : apiContainers) {
-            mainFlows = api.getMuleConfig().getMainFlows().stream().filter(flow -> flow.getApikitRouter() != null).collect(toList());
-            if (isNotEmpty(mainFlows)) {
-                for (MainFlow mainFlow : mainFlows) {
-                    referenceName = mainFlow.getApikitRouter().getContent().getAttributeValue("config-ref");
-                    if (referenceName == null) {
-                        referenceName = DEFAULT_APIKIT_CONFIG_NAME;
-                    }
-                    refsToApikitConfig.put(referenceName, api.getConfig().generate());
-                }
-            }
-        }
-        return refsToApikitConfig;
+    if (global != null) {
+      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
     }
+    return muleConfigs;
+  }
 
-    /**
-     * Returns the set of Mule configurations that were updated.
-     *
-     * @param configsContainingApikitConfig
-     * @param apikitConfigsCandidateToUpdate
-     * @return Update Mule configurations or none.
-     */
-    private Set<MuleConfig> getCrossReferencedConfigsUpdated(Map<String, MuleConfig> configsContainingApikitConfig,
-                                                             Map<String, Element> apikitConfigsCandidateToUpdate) {
-        Set<MuleConfig> updatedMuleConfigs = new HashSet<>();
-        MuleConfig updatedMuleConfig;
-        for (Entry<String, MuleConfig> muleConfigRef : configsContainingApikitConfig.entrySet()) {
-            updatedMuleConfig = getUpdatedMuleConfig(muleConfigRef.getValue(),
-                    apikitConfigsCandidateToUpdate.get(muleConfigRef.getKey()));
-            if (updatedMuleConfig != null) {
-                updatedMuleConfigs.add(updatedMuleConfig);
-            }
-        }
-        return updatedMuleConfigs;
+  private ConfigurationPropertiesConfig createConfigurationProperties() {
+    if (configuration.getConfigurationGroup() != null) {
+      ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
+      configurationPropertiesConfig
+          .setFile("${env}-configuration.".concat(configuration.getConfigurationGroup().getExtension()));
+      return configurationPropertiesConfig;
     }
+    return null;
+  }
 
-    /**
-     * Returns the updated Mule Config or null if no changes were done in the config.
-     *
-     * @param muleConfig
-     * @param newApikitConfigFromApi
-     * @return updated Mule config or null
-     */
-    private MuleConfig getUpdatedMuleConfig(MuleConfig muleConfig, Element newApikitConfigFromApi) {
-        MuleConfig updatedMuleConfig = null;
-        List<Element> preExistingApikitConfigs = getApikitConfigDocumentElement(muleConfig);
-        for (Element preExistingApikitConfig : preExistingApikitConfigs) {
-            if (shouldUpdateApikitConfig(newApikitConfigFromApi, preExistingApikitConfig)) {
-                replaceExistingConfigWithNew(newApikitConfigFromApi, preExistingApikitConfig, muleConfig);
-                updatedMuleConfig = muleConfig;
-            }
-        }
-        return updatedMuleConfig;
+  private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
+    Optional<MuleConfig> preExistingMuleConfigOptional =
+        muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
+            && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
+    if (configuration.getApiAutodiscoveryID() != null
+        && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
+      muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+      //update originalContent
+      return fromDoc(muleConfig.buildContent(), false);
     }
+    return muleConfig;
+  }
 
-    /**
-     * Returns the set of Mule configurations for the APIs being scaffolded. In configurations does not exist, it generates one.
-     *
-     * @return Mule configurations for APIs
-     */
-    private Set<MuleConfig> getConfigsFromApiContainers() {
-        Set<MuleConfig> muleConfigs = new HashSet<>();
-        MuleConfig global = createCommonPropertiesFile();
-        for (ApikitMainFlowContainer api : apiContainers) {
-            FlowScope flowScope = null;
-            String muleConfigID = createMuleConfigID(api.getId());
-            ConfigurationPropertiesConfig configurationPropertiesConfig = createConfigurationProperties();
-            APIAutodiscoveryConfig apiAutodiscoveryConfig =
-                    createAPIAutodiscoveryConfig(FilenameUtils.removeExtension(muleConfigID).concat(MAIN_FLOW_SUFFIX));
-            MuleConfig muleConfig = createMuleConfig(api);
-            if (global != null) {
-                commonConfigurations(api, global);
-                global = setAPIAutodiscoveryId(global, apiAutodiscoveryConfig);
-                global.setConfigurationPropertiesConfig(configurationPropertiesConfig);
-                flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
-            } else {
-                muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
-                muleConfig.setConfigurationPropertiesConfig(configurationPropertiesConfig);
-                muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
-            }
-            if (api.getMuleConfig() == null) {
-                flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
-                muleConfig.addFlow(new Flow(flowScope.generate()));
-                addConsoleFlow(api, muleConfig);
-                muleConfig = fromDoc(muleConfig.buildContent());
-                api.setMuleConfig(muleConfig);
-            } else {
-                muleConfigID = api.getMuleConfig().getName();
-            }
-            addMuleConfig(muleConfigs, muleConfig, muleConfigID);
-        }
-        if (global != null) {
-            addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
-        }
-        return muleConfigs;
+  private Optional<MuleConfig> searchExistingMuleConfigByName() {
+    return muleConfigsInApp.stream().filter(config -> {
+      String externalConfigurationFile = configuration.getExternalConfigurationFile();
+      return isNotEmpty(externalConfigurationFile) && externalConfigurationFile.equalsIgnoreCase(config.getName());
+    }).findAny();
+  }
+
+  private MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
+    if (api.getMuleConfig() == null) {
+      Document document = new Document();
+      document.setRootElement(new MuleScope(false, false).generate());
+      MuleConfig muleConfig = fromDoc(document);
+      if (configuration.getExternalConfigurationFile() == null) {
+        commonConfigurations(api, muleConfig);
+      }
+      return muleConfig;
     }
+    return api.getMuleConfig();
+  }
 
-    private ConfigurationPropertiesConfig createConfigurationProperties() {
-        if (configuration.getConfigurationGroup() != null) {
-            ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
-            configurationPropertiesConfig
-                    .setFile("${env}-configuration.".concat(configuration.getConfigurationGroup().getExtension()));
-            return configurationPropertiesConfig;
-        }
-        return null;
+  private void commonConfigurations(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    addApikitConfiguration(api, muleConfig);
+    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+    addHttpListenerConfiguration(api, muleConfig);
+  }
+
+  /**
+   * If needed it will add the muleConfig file to the mule configurations, previously setting its name.
+   */
+
+  public void addMuleConfig(Set<MuleConfig> muleConfigs, MuleConfig muleConfig, String name) {
+    muleConfig.setName(name);
+    muleConfigs.add(muleConfig);
+  }
+
+  private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
+    if (configuration.getApiAutodiscoveryID() != null) {
+      String apiId = configuration.getConfigurationGroup() != null ? API_ID_REFERENCE
+          : configuration.getApiAutodiscoveryID();
+      Boolean ignoreBasePath = Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT);
+      return new APIAutodiscoveryConfig(apiId, ignoreBasePath, mainFlowRef);
     }
+    return null;
+  }
 
-    private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
-        Optional<MuleConfig> preExistingMuleConfigOptional =
-                muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
-                        && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
-        if (configuration.getApiAutodiscoveryID() != null
-                && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
-            muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
-            //update originalContent
-            return fromDoc(muleConfig.buildContent(), false);
-        }
-        return muleConfig;
+
+  /**
+   * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
+   * needed.
+   *
+   * @param flowEntry new flow to be generated
+   */
+  private void generateFlowEntryInMuleConfig(GenerationModel flowEntry) {
+    Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
+    MuleConfig mainMuleConfig = flowEntry.getApi().getMuleConfig();
+    mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(apikitFlowScope);
+    mainMuleConfig.addFlow(new Flow(apikitFlowScope));
+  }
+
+  /**
+   * Replaces the pre-existent Apikit configuration element with the new one.
+   *
+   * @param newApikitConfigFromApi
+   * @param preExistingApikitConfig
+   * @param preExistingMuleConfig
+   */
+  private void replaceExistingConfigWithNew(Element newApikitConfigFromApi, Element preExistingApikitConfig,
+                                            MuleConfig preExistingMuleConfig) {
+    int index = preExistingMuleConfig.getContentAsDocument().getRootElement().indexOf(preExistingApikitConfig);
+    preExistingMuleConfig.getContentAsDocument().getRootElement().removeContent(index);
+    preExistingMuleConfig.getContentAsDocument().getRootElement().addContent(index, newApikitConfigFromApi);
+  }
+
+  /**
+   * Returns the children elements of type apikit:config from the configuration
+   *
+   * @param config
+   * @return list of apikit:config elements
+   */
+  private List<Element> getApikitConfigDocumentElement(MuleConfig config) {
+    return config.getContentAsDocument().getRootElement().getChildren("config", APIKitTools.API_KIT_NAMESPACE.getNamespace());
+  }
+
+  /**
+   * Creates a document containing all common configuration files
+   *
+   * @return a document to build a common mule configuration
+   */
+  private MuleConfig createCommonPropertiesFile() {
+    Optional<MuleConfig> muleConfig = searchExistingMuleConfigByName();
+    if (muleConfig.isPresent()) {
+      return muleConfig.get();
     }
-
-    private Optional<MuleConfig> searchExistingMuleConfigByName() {
-        return muleConfigsInApp.stream().filter(config -> {
-            String externalConfigurationFile = configuration.getExternalConfigurationFile();
-            return isNotEmpty(externalConfigurationFile) && externalConfigurationFile.equalsIgnoreCase(config.getName());
-        }).findAny();
+    if (configuration.getExternalConfigurationFile() != null) {
+      Document document = new Document();
+      document.setRootElement(new MuleScope(false, false).generate());
+      MuleConfig global = fromDoc(document);
+      return global;
     }
+    return null;
+  }
 
-    private MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
-        if (api.getMuleConfig() == null) {
-            Document document = new Document();
-            document.setRootElement(new MuleScope(false, false).generate());
-            MuleConfig muleConfig = fromDoc(document);
-            if (configuration.getExternalConfigurationFile() == null) {
-                commonConfigurations(api, muleConfig);
-            }
-            return muleConfig;
-        }
-        return api.getMuleConfig();
+  /**
+   * Concatenates an id with suffix to create a mule configuration id.
+   *
+   * @param id id of apikit main flow container
+   * @return new mule configuration id
+   */
+  private String createMuleConfigID(String id) {
+    return id + ".xml";
+  }
+
+  /**
+   * Creates a new apikit configuration and adds it to the mule configuration file.
+   *
+   * @param api        container of the main mule application file
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   */
+  private void addApikitConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    if (api.getConfig() == null) {
+      APIKitConfig apikitConfig = new APIKitConfig();
+      apikitConfig.setApi(api.getApiFilePath());
+      apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
+      api.setConfig(apikitConfig);
     }
-
-    private void commonConfigurations(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-        addApikitConfiguration(api, muleConfig);
-        api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
-        addHttpListenerConfiguration(api, muleConfig);
+    if (!muleConfig.getApikitConfigs().stream().filter(config -> config.equals(api.getConfig())).findAny().isPresent()) {
+      muleConfig.addConfig(api.getConfig());
     }
+  }
 
-    /**
-     * If needed it will add the muleConfig file to the mule configurations, previously setting its name.
-     */
-
-    public void addMuleConfig(Set<MuleConfig> muleConfigs, MuleConfig muleConfig, String name) {
-        muleConfig.setName(name);
-        muleConfigs.add(muleConfig);
+  /**
+   * Adds http listener configuration if it doesn't already exist
+   *
+   * @param api        container of the main mule application file
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   */
+  private void addHttpListenerConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    if (isEmpty(muleConfig.getHttpListenerConfigs())
+        || !muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
+      muleConfig.addHttpListener(api.getHttpListenerConfig());
     }
+  }
 
-    private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
-        if (configuration.getApiAutodiscoveryID() != null) {
-            String apiId = configuration.getConfigurationGroup() != null ? API_ID_REFERENCE
-                    : configuration.getApiAutodiscoveryID();
-            Boolean ignoreBasePath = Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT);
-            return new APIAutodiscoveryConfig(apiId, ignoreBasePath, mainFlowRef);
-        }
-        return null;
+  /**
+   * Adds console flow only if it is toggled on.
+   *
+   * @param api        container of the main mule application file
+   * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
+   */
+  private void addConsoleFlow(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    if (configuration.isShowConsole()) {
+      muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
     }
+  }
 
+  /**
+   * Determines runtime edition
+   *
+   * @return true for EE / false for CE
+   */
+  private boolean isMuleEE() {
+    return scaffolderContext.getRuntimeEdition() == EE;
+  }
 
-    /**
-     * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
-     * needed.
-     *
-     * @param flowEntry new flow to be generated
-     */
-    private void generateFlowEntryInMuleConfig(GenerationModel flowEntry) {
-        Element apikitFlowScope = new APIKitFlowScope(flowEntry, isMuleEE()).generate();
-        MuleConfig mainMuleConfig = flowEntry.getApi().getMuleConfig();
-        mainMuleConfig.getContentAsDocument().getRootElement().getContent().add(apikitFlowScope);
-        mainMuleConfig.addFlow(new Flow(apikitFlowScope));
-    }
+  /**
+   * Conditions for updating apikit configurations: attributes have the same name and any other attribute is null or has changed.
+   *
+   * @param apikitConfigFromApi        incoming new element for apikit configuration
+   * @param apikitConfigFromMuleConfig existing element for apikit configuration
+   * @return true for conditions explained above, false any other
+   */
+  private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
+    return apikitConfigFromApi.getAttributeValue("name").equals(apikitConfigFromMuleConfig.getAttributeValue("name")) &&
+        apikitConfigFromApi.getAttributes().stream()
+            .anyMatch(attribute -> lookForDifferences(apikitConfigFromMuleConfig.getAttribute(attribute.getName()), attribute));
+  }
 
-    /**
-     * Replaces the pre-existent Apikit configuration element with the new one.
-     *
-     * @param newApikitConfigFromApi
-     * @param preExistingApikitConfig
-     * @param preExistingMuleConfig
-     */
-    private void replaceExistingConfigWithNew(Element newApikitConfigFromApi, Element preExistingApikitConfig,
-                                              MuleConfig preExistingMuleConfig) {
-        int index = preExistingMuleConfig.getContentAsDocument().getRootElement().indexOf(preExistingApikitConfig);
-        preExistingMuleConfig.getContentAsDocument().getRootElement().removeContent(index);
-        preExistingMuleConfig.getContentAsDocument().getRootElement().addContent(index, newApikitConfigFromApi);
-    }
+  /**
+   * Conditions for attributes to be different: existing attribute not existing, or attribute has changed.
+   *
+   * @param existingAttribute existing attribute
+   * @param attribute         new attribute potentially different
+   * @return true for conditions explained above, false any other
+   */
+  private boolean lookForDifferences(Attribute existingAttribute, Attribute attribute) {
+    return existingAttribute == null || attributeHasChanged(attribute.getValue(), existingAttribute.getValue());
+  }
 
-    /**
-     * Returns the children elements of type apikit:config from the configuration
-     *
-     * @param config
-     * @return list of apikit:config elements
-     */
-    private List<Element> getApikitConfigDocumentElement(MuleConfig config) {
-        return config.getContentAsDocument().getRootElement().getChildren("config", APIKitTools.API_KIT_NAMESPACE.getNamespace());
-    }
+  /**
+   * Checks if existing attribute contains incoming. If it does, then it hasn't changed, otherwise attribute has changed.
+   *
+   * @param currentAttribute  existing attribute
+   * @param incomingAttribute attribute that could be different than existing one
+   * @return true for conditions explained above, false any other
+   */
+  private boolean attributeHasChanged(String currentAttribute, String incomingAttribute) {
+    String normalizedCurrentAttribute = normalizePath(currentAttribute);
+    String normalizedIncomingAttribute = normalizePath(incomingAttribute);
+    boolean attributesExist =
+        isNotEmpty(normalizedCurrentAttribute) && isNotEmpty(normalizedIncomingAttribute);
+    return attributesExist && !normalizedCurrentAttribute.contains(normalizedIncomingAttribute);
+  }
 
-    /**
-     * Creates a document containing all common configuration files
-     *
-     * @return a document to build a common mule configuration
-     */
-    private MuleConfig createCommonPropertiesFile() {
-        Optional<MuleConfig> muleConfig = searchExistingMuleConfigByName();
-        if (muleConfig.isPresent()) {
-            return muleConfig.get();
-        }
-        if (configuration.getExternalConfigurationFile() != null) {
-            Document document = new Document();
-            document.setRootElement(new MuleScope(false, false).generate());
-            MuleConfig global = fromDoc(document);
-            return global;
-        }
-        return null;
-    }
-
-    /**
-     * Concatenates an id with suffix to create a mule configuration id.
-     *
-     * @param id id of apikit main flow container
-     * @return new mule configuration id
-     */
-    private String createMuleConfigID(String id) {
-        return id + ".xml";
-    }
-
-    /**
-     * Creates a new apikit configuration and adds it to the mule configuration file.
-     *
-     * @param api        container of the main mule application file
-     * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
-     */
-    private void addApikitConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-        if (api.getConfig() == null) {
-            APIKitConfig apikitConfig = new APIKitConfig();
-            apikitConfig.setApi(api.getApiFilePath());
-            apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
-            api.setConfig(apikitConfig);
-        }
-        if (!muleConfig.getApikitConfigs().stream().filter(config -> config.equals(api.getConfig())).findAny().isPresent()) {
-            muleConfig.addConfig(api.getConfig());
-        }
-    }
-
-    /**
-     * Adds http listener configuration if it doesn't already exist
-     *
-     * @param api        container of the main mule application file
-     * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
-     */
-    private void addHttpListenerConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-        if (isEmpty(muleConfig.getHttpListenerConfigs())
-                || !muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
-            muleConfig.addHttpListener(api.getHttpListenerConfig());
-        }
-    }
-
-    /**
-     * Adds console flow only if it is toggled on.
-     *
-     * @param api        container of the main mule application file
-     * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
-     */
-    private void addConsoleFlow(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-        if (configuration.isShowConsole()) {
-            muleConfig.addFlow(new Flow(new ConsoleFlowScope(api, isMuleEE()).generate()));
-        }
-    }
-
-    /**
-     * Determines runtime edition
-     *
-     * @return true for EE / false for CE
-     */
-    private boolean isMuleEE() {
-        return scaffolderContext.getRuntimeEdition() == EE;
-    }
-
-    /**
-     * Conditions for updating apikit configurations: attributes have the same name and any other attribute is null or has changed.
-     *
-     * @param apikitConfigFromApi        incoming new element for apikit configuration
-     * @param apikitConfigFromMuleConfig existing element for apikit configuration
-     * @return true for conditions explained above, false any other
-     */
-    private boolean shouldUpdateApikitConfig(Element apikitConfigFromApi, Element apikitConfigFromMuleConfig) {
-        return apikitConfigFromApi.getAttributeValue("name").equals(apikitConfigFromMuleConfig.getAttributeValue("name")) &&
-                apikitConfigFromApi.getAttributes().stream()
-                        .anyMatch(attribute -> lookForDifferences(apikitConfigFromMuleConfig.getAttribute(attribute.getName()), attribute));
-    }
-
-    /**
-     * Conditions for attributes to be different: existing attribute not existing, or attribute has changed.
-     *
-     * @param existingAttribute existing attribute
-     * @param attribute         new attribute potentially different
-     * @return true for conditions explained above, false any other
-     */
-    private boolean lookForDifferences(Attribute existingAttribute, Attribute attribute) {
-        return existingAttribute == null || attributeHasChanged(attribute.getValue(), existingAttribute.getValue());
-    }
-
-    /**
-     * Checks if existing attribute contains incoming. If it does, then it hasn't changed, otherwise attribute has changed.
-     *
-     * @param currentAttribute  existing attribute
-     * @param incomingAttribute attribute that could be different than existing one
-     * @return true for conditions explained above, false any other
-     */
-    private boolean attributeHasChanged(String currentAttribute, String incomingAttribute) {
-        String normalizedCurrentAttribute = normalizePath(currentAttribute);
-        String normalizedIncomingAttribute = normalizePath(incomingAttribute);
-        boolean attributesExist =
-                isNotEmpty(normalizedCurrentAttribute) && isNotEmpty(normalizedIncomingAttribute);
-        return attributesExist && !normalizedCurrentAttribute.contains(normalizedIncomingAttribute);
-    }
-
-    /**
-     * Normalize every path to single slash format
-     *
-     * @param path path to check
-     * @return normalized path
-     */
-    private String normalizePath(String path) {
-        return isNotEmpty(path) ? path.replace("\\", "/") : path;
-    }
+  /**
+   * Normalize every path to single slash format
+   *
+   * @param path path to check
+   * @return normalized path
+   */
+  private String normalizePath(String path) {
+    return isNotEmpty(path) ? path.replace("\\", "/") : path;
+  }
 
 }
