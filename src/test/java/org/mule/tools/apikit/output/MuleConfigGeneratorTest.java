@@ -14,9 +14,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mule.tools.apikit.Helper;
+import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
+import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -104,40 +106,6 @@ public class MuleConfigGeneratorTest {
     return flowEntry;
   }
 
-  @Test
-  public void blankDocumentWithoutExternalizedGlobalsAndAPIAutodiscovery() {
-    String apiAutodiscovery = "1234";
-    ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiAutodiscoveryId(apiAutodiscovery);
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
-    for (MuleConfig muleConfig : muleConfigs) {
-      Document document = muleConfig.getContentAsDocument();
-      Element rootElement = document.getRootElement();
-      assertEquals("mule", rootElement.getName());
-      assertConfigurations(rootElement);
-    }
-  }
-
-  @Test
-  public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
-    String externalConfigurationFile = "globals.xml";
-    String apiAutodiscovery = "1234";
-    ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile)
-            .withApiAutodiscoveryId(apiAutodiscovery);
-    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
-    for (MuleConfig muleConfig : muleConfigs) {
-      Document document = muleConfig.getContentAsDocument();
-      Element rootElement = document.getRootElement();
-      if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals("mule", rootElement.getName());
-        assertConfigurations(rootElement);
-      } else {
-        assertMainFlow(rootElement, 0);
-      }
-      System.out.println(document);
-    }
-  }
 
   @Test
   public void blankDocumentWithExternalizedGlobals() {
@@ -146,13 +114,12 @@ public class MuleConfigGeneratorTest {
         ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
-      Document document = muleConfig.getContentAsDocument();
-      Element rootElement = document.getRootElement();
       if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals("mule", rootElement.getName());
-        assertConfigurations(rootElement);
+        assertEquals(muleConfig.getApiAutodiscoveryConfig(), null);
+        assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
+        assertEquals(muleConfig.getApikitConfigs().size(), 1);
       } else {
-        assertMainFlow(rootElement, 0);
+        assertEquals(muleConfig.getMainFlows().size(), 1);
       }
     }
   }
@@ -167,6 +134,40 @@ public class MuleConfigGeneratorTest {
       Element rootElement = document.getRootElement();
       assertEquals("mule", rootElement.getName());
       assertConfigurations(rootElement);
+    }
+  }
+
+  @Test
+  public void blankDocumentWithAPIAutodiscovery() {
+    String apiAutodiscovery = "1234";
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiAutodiscoveryId(apiAutodiscovery);
+    APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
+    assertEquals(muleConfigs.size(), 1);
+    for (MuleConfig muleConfig : muleConfigs) {
+      assertEquals(muleConfig.getApiAutodiscoveryConfig(), expectedApiAutodiscoveryConfig);
+    }
+  }
+
+  @Test
+  public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
+    String externalConfigurationFile = "globals.xml";
+    String apiAutodiscovery = "1234";
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile)
+            .withApiAutodiscoveryId(apiAutodiscovery);
+    APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
+    assertEquals(muleConfigs.size(), 2);
+    for (MuleConfig muleConfig : muleConfigs) {
+      if (muleConfig.getName() == externalConfigurationFile) {
+        assertEquals(muleConfig.getApiAutodiscoveryConfig(), expectedApiAutodiscoveryConfig);
+        assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
+        assertEquals(muleConfig.getApikitConfigs().size(), 1);
+      } else {
+        assertEquals(muleConfig.getMainFlows().size(), 1);
+      }
     }
   }
 
