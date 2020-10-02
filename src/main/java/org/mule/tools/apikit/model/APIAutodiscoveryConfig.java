@@ -13,6 +13,8 @@ import org.mule.tools.apikit.output.scopes.APIAutodiscoveryScope;
 
 import org.mule.tools.apikit.output.scopes.Scope;
 
+import java.util.Objects;
+
 public class APIAutodiscoveryConfig implements Scope {
 
   public static final NamespaceWithLocation API_AUTODISCOVERY_NAMESPACE = new NamespaceWithLocation(
@@ -35,6 +37,12 @@ public class APIAutodiscoveryConfig implements Scope {
     this.apiId = apiId;
     this.ignoreBasePath = ignoreBasePath;
     this.flowRef = flowRef;
+  }
+
+  public APIAutodiscoveryConfig() {
+    this.apiId = null;
+    this.ignoreBasePath = true;
+    this.flowRef = null;
   }
 
   public String getApiId() {
@@ -65,5 +73,22 @@ public class APIAutodiscoveryConfig implements Scope {
   public Element generate() {
     APIAutodiscoveryScope apiKitConfigScope = new APIAutodiscoveryScope(this);
     return apiKitConfigScope.generate();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    APIAutodiscoveryConfig that = (APIAutodiscoveryConfig) o;
+    return Objects.equals(apiId, that.apiId) &&
+        Objects.equals(ignoreBasePath, that.ignoreBasePath) &&
+        Objects.equals(flowRef, that.flowRef);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(apiId, ignoreBasePath, flowRef);
   }
 }
