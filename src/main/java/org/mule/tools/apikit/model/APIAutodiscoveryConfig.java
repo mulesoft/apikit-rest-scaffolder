@@ -37,10 +37,6 @@ public class APIAutodiscoveryConfig implements Scope {
     this.flowRef = flowRef;
   }
 
-  public APIAutodiscoveryConfig() {
-
-  }
-
   public String getApiId() {
     return apiId;
   }

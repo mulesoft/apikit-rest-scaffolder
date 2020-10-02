@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -244,10 +245,10 @@ public class MuleConfigGenerator {
       MuleConfig muleConfig = createMuleConfig(api);
       if (global != null) {
         commonConfigurations(api, global);
-        global.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+        global = setAPIAutodiscoveryId(global, apiAutodiscoveryConfig);
         flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
       } else {
-        muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+        muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
       }
       if (api.getMuleConfig() == null) {
         flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
@@ -264,6 +265,26 @@ public class MuleConfigGenerator {
       addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
     }
     return muleConfigs;
+  }
+
+  private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
+    Optional<MuleConfig> preExistingMuleConfigOptional =
+        muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
+            && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
+    if (configuration.getApiAutodiscoveryID() != null
+        && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
+      muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+      //update originalContent
+      return fromDoc(muleConfig.buildContent(), false);
+    }
+    return muleConfig;
+  }
+
+  private Optional<MuleConfig> searchExistingMuleConfigByName() {
+    return muleConfigsInApp.stream().filter(config -> {
+      String externalConfigurationFile = configuration.getExternalConfigurationFile();
+      return isNotEmpty(externalConfigurationFile) && externalConfigurationFile.equalsIgnoreCase(config.getName());
+    }).findAny();
   }
 
   private MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
@@ -305,13 +326,6 @@ public class MuleConfigGenerator {
     return null;
   }
 
-  public void addGlobal(Set<MuleConfig> muleConfigs, MuleConfig global) {
-    if (configuration.getExternalConfigurationFile() != null) {
-      global = fromDoc(global.buildContent());
-      global.setName(configuration.getExternalConfigurationFile());
-      muleConfigs.add(global);
-    }
-  }
 
   /**
    * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
@@ -356,6 +370,10 @@ public class MuleConfigGenerator {
    * @return a document to build a common mule configuration
    */
   private MuleConfig createCommonPropertiesFile() {
+    Optional<MuleConfig> muleConfig = searchExistingMuleConfigByName();
+    if (muleConfig.isPresent()) {
+      return muleConfig.get();
+    }
     if (configuration.getExternalConfigurationFile() != null) {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false).generate());
@@ -388,7 +406,9 @@ public class MuleConfigGenerator {
       apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
       api.setConfig(apikitConfig);
     }
-    muleConfig.addConfig(api.getConfig());
+    if (!muleConfig.getApikitConfigs().stream().filter(config -> config.equals(api.getConfig())).findAny().isPresent()) {
+      muleConfig.addConfig(api.getConfig());
+    }
   }
 
   /**
