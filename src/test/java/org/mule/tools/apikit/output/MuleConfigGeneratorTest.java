@@ -10,18 +10,15 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mule.tools.apikit.Helper;
-import org.mule.tools.apikit.misc.APIKitTools;
+import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.HttpListenerConfig;
+import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
@@ -35,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -110,6 +106,7 @@ public class MuleConfigGeneratorTest {
     return flowEntry;
   }
 
+
   @Test
   public void blankDocumentWithExternalizedGlobals() {
     String externalConfigurationFile = "globals.xml";
@@ -117,13 +114,12 @@ public class MuleConfigGeneratorTest {
         ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
-      Document document = muleConfig.getContentAsDocument();
-      Element rootElement = document.getRootElement();
       if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals("mule", rootElement.getName());
-        assertConfigurations(rootElement);
+        assertEquals(muleConfig.getApiAutodiscoveryConfig(), null);
+        assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
+        assertEquals(muleConfig.getApikitConfigs().size(), 1);
       } else {
-        assertMainFlow(rootElement, 0);
+        assertEquals(muleConfig.getMainFlows().size(), 1);
       }
     }
   }
@@ -138,6 +134,40 @@ public class MuleConfigGeneratorTest {
       Element rootElement = document.getRootElement();
       assertEquals("mule", rootElement.getName());
       assertConfigurations(rootElement);
+    }
+  }
+
+  @Test
+  public void blankDocumentWithAPIAutodiscovery() {
+    String apiAutodiscovery = "1234";
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiAutodiscoveryId(apiAutodiscovery);
+    APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
+    assertEquals(muleConfigs.size(), 1);
+    for (MuleConfig muleConfig : muleConfigs) {
+      assertEquals(muleConfig.getApiAutodiscoveryConfig(), expectedApiAutodiscoveryConfig);
+    }
+  }
+
+  @Test
+  public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
+    String externalConfigurationFile = "globals.xml";
+    String apiAutodiscovery = "1234";
+    ScaffoldingConfiguration.Builder builder =
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile)
+            .withApiAutodiscoveryId(apiAutodiscovery);
+    APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
+    List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
+    assertEquals(muleConfigs.size(), 2);
+    for (MuleConfig muleConfig : muleConfigs) {
+      if (muleConfig.getName() == externalConfigurationFile) {
+        assertEquals(muleConfig.getApiAutodiscoveryConfig(), expectedApiAutodiscoveryConfig);
+        assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
+        assertEquals(muleConfig.getApikitConfigs().size(), 1);
+      } else {
+        assertEquals(muleConfig.getMainFlows().size(), 1);
+      }
     }
   }
 

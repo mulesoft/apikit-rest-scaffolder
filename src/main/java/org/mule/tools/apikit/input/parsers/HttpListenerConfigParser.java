@@ -25,10 +25,19 @@ public class HttpListenerConfigParser implements MuleConfigFileParser<List<HttpL
 
   private static final String ELEMENT_NAME = "listener-config";
   private static final XPathExpression<Element> LISTENER_COMPILED_EXPRESSION = getCompiledExpression();
+  private boolean persisted;
 
   private static XPathExpression<Element> getCompiledExpression() {
     return XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
                                            Filters.element(HTTP_NAMESPACE.getNamespace()));
+  }
+
+  public HttpListenerConfigParser() {
+    this.persisted = true;
+  }
+
+  public HttpListenerConfigParser(boolean persisted) {
+    this.persisted = persisted;
   }
 
   public List<HttpListenerConfig> parse(Document document) {
@@ -61,7 +70,7 @@ public class HttpListenerConfigParser implements MuleConfigFileParser<List<HttpL
           }
           final HttpListenerConfig httpListenerConfig =
               new HttpListenerConfig(name, basePath, new HttpListenerConnection(host, port, protocol));
-          httpListenerConfig.setPersisted(true);
+          httpListenerConfig.setPersisted(persisted);
           httpListenerConfigMap.add(httpListenerConfig);
         }
       }

@@ -74,6 +74,56 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
   }
 
   /**
+   * First it takes an API normally with configuration of APIKit, http and api autodiscovery inside global xml file.
+   * Finally it simulates re-scaffolding.
+   * Expected behaviour is that the new scaffolded API has two configurations, globals.xml(with common configurations) and api.xml.
+   */
+  @Test
+  public void reScaffoldWithGlobalsAndAPIAutodiscovery() throws Exception {
+    String existingConfigFolder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/api-autodiscovery";
+
+    ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigFolder);
+    ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
+
+    String api = existingConfigFolder + "/api.xml";
+    String global = existingConfigFolder + "/globals.xml";
+    String expectedGlobals = existingConfigFolder + "/globals-with-autodiscovery.xml";
+    List<MuleConfig> muleConfigsFromLocations = createMuleConfigsFromLocations(asList(api, global));
+
+    //rescaffold
+    testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigFolder);
+    apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
+
+    ScaffoldingResult rescaffoldResult =
+        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigsFromLocations, true, "globals.xml", "1234");
+    verifySuccessfulScaffolding(rescaffoldResult, api, expectedGlobals);
+  }
+
+  /**
+   * First it takes an API normally with configuration of APIKit, http and api autodiscovery inside global xml file.
+   * Finally it simulates re-scaffolding.
+   * Expected behaviour is that the new scaffolded API has two configurations, globals.xml(with common configurations) and api.xml.
+   */
+  @Test
+  public void reScaffoldToOneFileFromTwoWithGlobalsAndAPIAutodiscoveryID() throws Exception {
+    String existingConfigFolder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/api-autodiscovery";
+
+    String existingAPI = existingConfigFolder + "/api.xml";
+    String existingGlobals = existingConfigFolder + "/globals.xml";
+    String expectedAPI = existingConfigFolder + "/api-with-autodiscovery.xml";
+    List<MuleConfig> muleConfigsFromLocations = createMuleConfigsFromLocations(asList(existingAPI, existingGlobals));
+
+    //rescaffold
+    ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigFolder);
+    ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
+
+    ScaffoldingResult rescaffoldResult =
+        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigsFromLocations, true, null, "5678");
+    List<MuleConfig> muleConfigsFromLocations2 = createMuleConfigsFromLocations(asList(expectedAPI));
+    verifySuccessfulScaffolding(rescaffoldResult, expectedAPI);
+  }
+
+  /**
    * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0.
    * Finally it re-scaffolds with version 2.0.0.
    * Expected behaviour is that the new scaffolded API has version 2.0.0 in the main xml.

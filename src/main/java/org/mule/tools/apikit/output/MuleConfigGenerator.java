@@ -7,11 +7,13 @@
 package org.mule.tools.apikit.output;
 
 
+import org.apache.commons.io.FilenameUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.mule.tools.apikit.misc.APIKitTools;
+import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.Flow;
@@ -30,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -63,6 +66,7 @@ public class MuleConfigGenerator {
                                                                                      "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
 
   private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
+  public static final String MAIN_FLOW_SUFFIX = "-main";
 
   private final List<GenerationModel> flowEntriesDiff;
   private final List<ApikitMainFlowContainer> apiContainers;
@@ -75,7 +79,7 @@ public class MuleConfigGenerator {
    * @param flowEntriesDiff   New flows that needs to be added
    * @param muleConfigsInApp  Pre-existing Mule configurations
    * @param scaffolderContext Scaffolder context information
-   * @param configuration    Scaffolding custom configurations
+   * @param configuration     Scaffolding custom configurations
    */
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apiContainers, List<GenerationModel> flowEntriesDiff,
                              List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext,
@@ -235,30 +239,93 @@ public class MuleConfigGenerator {
     MuleConfig global = createCommonPropertiesFile();
     for (ApikitMainFlowContainer api : apiContainers) {
       FlowScope flowScope = null;
-      if (configuration.getExternalConfigurationFile().isPresent()) {
-        addHttpListenerConfiguration(api, global);
-        addApikitConfiguration(api, global);
-        api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+      String muleConfigID = createMuleConfigID(api.getId());
+      APIAutodiscoveryConfig apiAutodiscoveryConfig =
+          createAPIAutodiscoveryConfig(FilenameUtils.removeExtension(muleConfigID).concat(MAIN_FLOW_SUFFIX));
+      MuleConfig muleConfig = createMuleConfig(api);
+      if (global != null) {
+        commonConfigurations(api, global);
+        global = setAPIAutodiscoveryId(global, apiAutodiscoveryConfig);
         flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
+      } else {
+        muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
       }
-      MuleConfig muleConfig = api.getMuleConfig() == null ? createMuleConfig(api, flowScope) : api.getMuleConfig();
-      muleConfigs.add(muleConfig);
+      if (api.getMuleConfig() == null) {
+        flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
+        muleConfig.addFlow(new Flow(flowScope.generate()));
+        addConsoleFlow(api, muleConfig);
+        muleConfig = fromDoc(muleConfig.buildContent());
+        api.setMuleConfig(muleConfig);
+      } else {
+        muleConfigID = api.getMuleConfig().getName();
+      }
+      addMuleConfig(muleConfigs, muleConfig, muleConfigID);
     }
-    addGlobal(muleConfigs, global);
+    if (global != null) {
+      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
+    }
     return muleConfigs;
   }
 
-  /**
-   * If needed it will add the global file to the mule configurations, previously setting its name.
-   *
-   */
-  public void addGlobal(Set<MuleConfig> muleConfigs, MuleConfig global) {
-    if (configuration.getExternalConfigurationFile().isPresent()) {
-      global = fromDoc(global.buildContent());
-      global.setName(configuration.getExternalConfigurationFile().get());
-      muleConfigs.add(global);
+  private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
+    Optional<MuleConfig> preExistingMuleConfigOptional =
+        muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
+            && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
+    if (configuration.getApiAutodiscoveryID() != null
+        && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
+      muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+      //update originalContent
+      return fromDoc(muleConfig.buildContent(), false);
     }
+    return muleConfig;
   }
+
+  private Optional<MuleConfig> searchExistingMuleConfigByName() {
+    return muleConfigsInApp.stream().filter(config -> {
+      String externalConfigurationFile = configuration.getExternalConfigurationFile();
+      return isNotEmpty(externalConfigurationFile) && externalConfigurationFile.equalsIgnoreCase(config.getName());
+    }).findAny();
+  }
+
+  private MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
+    if (api.getMuleConfig() == null) {
+      Document document = new Document();
+      document.setRootElement(new MuleScope(false, false).generate());
+      MuleConfig muleConfig = fromDoc(document);
+      if (configuration.getExternalConfigurationFile() == null) {
+        commonConfigurations(api, muleConfig);
+      }
+      return muleConfig;
+    }
+    return api.getMuleConfig();
+  }
+
+  private void commonConfigurations(ApikitMainFlowContainer api, MuleConfig muleConfig) {
+    addApikitConfiguration(api, muleConfig);
+    api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
+    addHttpListenerConfiguration(api, muleConfig);
+  }
+
+  /**
+   * If needed it will add the muleConfig file to the mule configurations, previously setting its name.
+   */
+
+  public void addMuleConfig(Set<MuleConfig> muleConfigs, MuleConfig muleConfig, String name) {
+    muleConfig.setName(name);
+    muleConfigs.add(muleConfig);
+  }
+
+  private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
+    if (configuration.getApiAutodiscoveryID() != null) {
+      APIAutodiscoveryConfig apiAutodiscoveryConfig = new APIAutodiscoveryConfig();
+      apiAutodiscoveryConfig.setFlowRef(mainFlowRef);
+      apiAutodiscoveryConfig.setApiId(configuration.getApiAutodiscoveryID());
+      apiAutodiscoveryConfig.setIgnoreBasePath(Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT));
+      return apiAutodiscoveryConfig;
+    }
+    return null;
+  }
+
 
   /**
    * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
@@ -298,49 +365,16 @@ public class MuleConfigGenerator {
   }
 
   /**
-   * It creates a document for the new mule configuration, then builds it. Sets its name and adds it to the
-   * existing mule configurations of the application.
-   *
-   * @param api container of the main mule application file
-   * @param flowScope helps creating the flow of the application
-   * @return new mule configuration
-   */
-  public MuleConfig createMuleConfig(ApikitMainFlowContainer api, FlowScope flowScope) {
-    Document muleConfigContent = createMuleConfigContent(api, flowScope);
-    MuleConfig config = fromDoc(muleConfigContent);
-    config.setName(createMuleConfigID(api.getId()));
-    api.setMuleConfig(config);
-    return config;
-  }
-
-  /**
-   * Creates a document containing a name,  http/apikit configuration if applies, http listener flow and console flow
-   * @param api container of the main mule application file
-   * @param flowScope helps creating the flow of the application
-   * @return a document to build a mule configuration
-   */
-  private Document createMuleConfigContent(ApikitMainFlowContainer api, FlowScope flowScope) {
-    Document document = new Document();
-    document.setRootElement(new MuleScope(false, false).generate());
-    MuleConfig muleConfig = fromDoc(document);
-    muleConfig.setName(createMuleConfigID(api.getId()));
-    if (!configuration.getExternalConfigurationFile().isPresent()) {
-      addApikitConfiguration(api, muleConfig);
-      api.setPath(APIKitTools.addAsteriskToPath(api.getPath()));
-      addHttpListenerConfiguration(api, muleConfig);
-    }
-    flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
-    muleConfig.addFlow(new Flow(flowScope.generate()));
-    addConsoleFlow(api, muleConfig);
-    return muleConfig.buildContent();
-  }
-
-  /**
    * Creates a document containing all common configuration files
+   *
    * @return a document to build a common mule configuration
    */
   private MuleConfig createCommonPropertiesFile() {
-    if (configuration.getExternalConfigurationFile().isPresent()) {
+    Optional<MuleConfig> muleConfig = searchExistingMuleConfigByName();
+    if (muleConfig.isPresent()) {
+      return muleConfig.get();
+    }
+    if (configuration.getExternalConfigurationFile() != null) {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false).generate());
       MuleConfig global = fromDoc(document);
@@ -351,6 +385,7 @@ public class MuleConfigGenerator {
 
   /**
    * Concatenates an id with suffix to create a mule configuration id.
+   *
    * @param id id of apikit main flow container
    * @return new mule configuration id
    */
@@ -360,7 +395,8 @@ public class MuleConfigGenerator {
 
   /**
    * Creates a new apikit configuration and adds it to the mule configuration file.
-   * @param api container of the main mule application file
+   *
+   * @param api        container of the main mule application file
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
   private void addApikitConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
@@ -369,24 +405,29 @@ public class MuleConfigGenerator {
       apikitConfig.setApi(api.getApiFilePath());
       apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
       api.setConfig(apikitConfig);
+    }
+    if (!muleConfig.getApikitConfigs().stream().filter(config -> config.equals(api.getConfig())).findAny().isPresent()) {
       muleConfig.addConfig(api.getConfig());
     }
   }
 
   /**
    * Adds http listener configuration if it doesn't already exist
-   * @param api container of the main mule application file
+   *
+   * @param api        container of the main mule application file
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
   private void addHttpListenerConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
-    if (!muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
+    if (isEmpty(muleConfig.getHttpListenerConfigs())
+        || !muleConfig.getHttpListenerConfigs().contains(api.getHttpListenerConfig())) {
       muleConfig.addHttpListener(api.getHttpListenerConfig());
     }
   }
 
   /**
    * Adds console flow only if it is toggled on.
-   * @param api container of the main mule application file
+   *
+   * @param api        container of the main mule application file
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
   private void addConsoleFlow(ApikitMainFlowContainer api, MuleConfig muleConfig) {
@@ -397,6 +438,7 @@ public class MuleConfigGenerator {
 
   /**
    * Determines runtime edition
+   *
    * @return true for EE / false for CE
    */
   private boolean isMuleEE() {
@@ -418,8 +460,9 @@ public class MuleConfigGenerator {
 
   /**
    * Conditions for attributes to be different: existing attribute not existing, or attribute has changed.
+   *
    * @param existingAttribute existing attribute
-   * @param attribute new attribute potentially different
+   * @param attribute         new attribute potentially different
    * @return true for conditions explained above, false any other
    */
   private boolean lookForDifferences(Attribute existingAttribute, Attribute attribute) {
@@ -428,7 +471,8 @@ public class MuleConfigGenerator {
 
   /**
    * Checks if existing attribute contains incoming. If it does, then it hasn't changed, otherwise attribute has changed.
-   * @param currentAttribute existing attribute
+   *
+   * @param currentAttribute  existing attribute
    * @param incomingAttribute attribute that could be different than existing one
    * @return true for conditions explained above, false any other
    */
@@ -442,6 +486,7 @@ public class MuleConfigGenerator {
 
   /**
    * Normalize every path to single slash format
+   *
    * @param path path to check
    * @return normalized path
    */
