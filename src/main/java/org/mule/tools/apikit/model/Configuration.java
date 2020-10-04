@@ -12,11 +12,11 @@ public class Configuration {
 
   private String environment;
   private CommonProperties commonProperties;
-  private Map<String, String> properties;
+  private Map<String, Object> properties;
 
   public Configuration() {}
 
-  public Configuration(String environment, CommonProperties commonProperties, Map<String, String> properties) {
+  public Configuration(String environment, CommonProperties commonProperties, Map<String, Object> properties) {
     this.environment = environment;
     this.commonProperties = commonProperties;
     this.properties = properties;
@@ -38,11 +38,11 @@ public class Configuration {
     this.environment = environment;
   }
 
-  public Map<String, String> getProperties() {
+  public Map<String, Object> getProperties() {
     return properties;
   }
 
-  public void setProperties(Map<String, String> properties) {
+  public void setProperties(Map<String, Object> properties) {
     this.properties = properties;
   }
 }

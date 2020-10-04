@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.Configuration;
 import org.mule.tools.apikit.model.ConfigurationGroup;
-import org.mule.tools.apikit.model.CustomConfiguration;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.ScaffolderResource;
@@ -33,10 +32,8 @@ public class ResourcesGenerator {
       List<ScaffolderResource> resources = new ArrayList<>();
       String extension = configurationGroup.getExtension();
       for (Configuration configuration : configurationGroup.getConfigurations()) {
-        String fileName = configuration.getEnvironment().concat(FILE_NAME_SEPARATOR).concat(extension);
-        String payload =
-            CommonPropertiesGenerator.fill(configuration, scaffoldingConfiguration.getApiAutodiscoveryID());
-        payload = safeConcat(payload, CustomPropertiesGenerator.fill(extension, configuration.getProperties()));
+        String fileName = getEnvironment(configuration).concat(FILE_NAME_SEPARATOR).concat(extension);
+        String payload = PropertyGenerator.generate(configuration, scaffoldingConfiguration.getApiAutodiscoveryID(), extension);
         resources.add(new ScaffolderResource(SLASH, fileName, IOUtils.toInputStream(payload)));
       }
       return resources;
@@ -44,12 +41,13 @@ public class ResourcesGenerator {
     return null;
   }
 
-  private static String safeConcat(String payload, String customValues) {
-    if (StringUtils.isNotEmpty(payload) && StringUtils.isNotEmpty(customValues)) {
-      return payload.concat(customValues);
+  private static String getEnvironment(Configuration configuration) {
+    if (StringUtils.isEmpty(configuration.getEnvironment())) {
+      throw new RuntimeException("must specify an environment");
     }
-    return payload;
+    return configuration.getEnvironment();
   }
+
 
   public static void replaceReferencesToProperties(ScaffoldingConfiguration config, List<ApikitMainFlowContainer> includedApis) {
     if (config != null && config.getConfigurationGroup() != null) {

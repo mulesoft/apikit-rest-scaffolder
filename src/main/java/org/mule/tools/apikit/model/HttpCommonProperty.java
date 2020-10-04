@@ -11,6 +11,9 @@ public class HttpCommonProperty {
   private String host;
   private String port;
 
+  public HttpCommonProperty() {}
+
+
   public HttpCommonProperty(String host, String port) {
     this.host = host;
     this.port = port;
