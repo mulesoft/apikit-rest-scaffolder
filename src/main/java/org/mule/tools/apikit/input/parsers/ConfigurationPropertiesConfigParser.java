@@ -16,6 +16,7 @@ import org.jdom2.xpath.XPathFactory;
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.ConfigurationPropertiesConfig;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ConfigurationPropertiesConfigParser implements MuleConfigFileParser<ConfigurationPropertiesConfig> {
@@ -31,11 +32,10 @@ public class ConfigurationPropertiesConfigParser implements MuleConfigFileParser
   @Override
   public ConfigurationPropertiesConfig parse(Document document) {
     ConfigurationPropertiesConfig config = null;
-    Optional<Element> optionalElement = CONFIGURATION_PROPERTIES_EXPRESSION.evaluate(document).stream().findFirst();
+    List<Element> elements = CONFIGURATION_PROPERTIES_EXPRESSION.evaluate(document);
 
-    if (optionalElement.isPresent()) {
+    for (Element element : elements) {
       config = new ConfigurationPropertiesConfig();
-      Element element = optionalElement.get();
       Attribute fileAttribute = element.getAttribute(ConfigurationPropertiesConfig.FILE_ATTRIBUTE);
 
       if (fileAttribute != null) {

@@ -289,19 +289,24 @@ public class MuleConfigGenerator {
     Optional<MuleConfig> preExistingMuleConfigOptional =
         muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
             && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
-    ConfigurationGroup configurationGroup = configuration.getConfigurationGroup();
-    Optional<Configuration> hasConfigurationWithApiId =
-        configurationGroup != null && configurationGroup.getConfigurations() != null ? configurationGroup.getConfigurations()
-            .stream()
-            .filter(config -> config.getCommonProperties() != null && config.getCommonProperties().getApiId() != null).findAny()
-            : Optional.empty();
-    if ((configuration.getApiAutodiscoveryID() != null || hasConfigurationWithApiId.isPresent())
+    boolean hasAPIAutodiscoveryId = hasAPIAutodiscoveryId();
+    if (hasAPIAutodiscoveryId
         && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
       muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
       //update originalContent
       return fromDoc(muleConfig.buildContent(), false);
     }
     return muleConfig;
+  }
+
+  private boolean hasAPIAutodiscoveryId() {
+    ConfigurationGroup configurationGroup = configuration.getConfigurationGroup();
+    Optional<Configuration> hasConfigurationWithApiId =
+        configurationGroup != null && configurationGroup.getConfigurations() != null ? configurationGroup.getConfigurations()
+            .stream()
+            .filter(config -> config.getCommonProperties() != null && config.getCommonProperties().getApiId() != null).findAny()
+            : Optional.empty();
+    return configuration.getApiAutodiscoveryID() != null || hasConfigurationWithApiId.isPresent();
   }
 
   private Optional<MuleConfig> searchExistingMuleConfigByName() {
@@ -314,7 +319,7 @@ public class MuleConfigGenerator {
   private MuleConfig createMuleConfig(ApikitMainFlowContainer api) {
     if (api.getMuleConfig() == null) {
       Document document = new Document();
-      document.setRootElement(new MuleScope(false, false).generate());
+      document.setRootElement(new MuleScope(false, false, hasAPIAutodiscoveryId()).generate());
       MuleConfig muleConfig = fromDoc(document);
       if (configuration.getExternalConfigurationFile() == null) {
         commonConfigurations(api, muleConfig);
@@ -340,7 +345,7 @@ public class MuleConfigGenerator {
   }
 
   private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
-    if (configuration.getApiAutodiscoveryID() != null) {
+    if (hasAPIAutodiscoveryId()) {
       String apiId = configuration.getConfigurationGroup() != null ? API_ID_REFERENCE
           : configuration.getApiAutodiscoveryID();
       Boolean ignoreBasePath = Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT);
@@ -399,7 +404,7 @@ public class MuleConfigGenerator {
     }
     if (configuration.getExternalConfigurationFile() != null) {
       Document document = new Document();
-      document.setRootElement(new MuleScope(false, false).generate());
+      document.setRootElement(new MuleScope(false, false, hasAPIAutodiscoveryId()).generate());
       MuleConfig global = fromDoc(document);
       return global;
     }

@@ -7,6 +7,7 @@
 package org.mule.tools.apikit.output.scopes;
 
 import org.jdom2.Element;
+import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.output.NamespaceWithLocation;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class MuleScope implements Scope {
         .append(" ");
   }
 
-  public MuleScope(boolean addEENamespace, boolean isMunitSuite) {
+  public MuleScope(boolean addEENamespace, boolean isMunitSuite, boolean apiAutodiscoveryNamespace) {
     mule = new Element("mule");
     StringBuilder stringBuilder = new StringBuilder();
 
@@ -45,6 +46,10 @@ public class MuleScope implements Scope {
       namespaces.addAll(Arrays.asList(MUNIT_NAMESPACE, MUNIT_TOOLS_NAMESPACE));
     } else {
       namespaces.add(API_KIT_NAMESPACE);
+    }
+
+    if (apiAutodiscoveryNamespace) {
+      namespaces.add(APIAutodiscoveryConfig.API_AUTODISCOVERY_NAMESPACE);
     }
 
     mule.addNamespaceDeclaration(XSI_NAMESPACE.getNamespace());

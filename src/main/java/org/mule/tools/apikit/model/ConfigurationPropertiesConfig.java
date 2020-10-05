@@ -14,12 +14,6 @@ import org.mule.tools.apikit.output.scopes.Scope;
 
 public class ConfigurationPropertiesConfig implements Scope {
 
-  public static final NamespaceWithLocation CONFIGURATION_PROPERTIES_NAMESPACE = new NamespaceWithLocation(
-                                                                                                           Namespace
-                                                                                                               .getNamespace("api-gateway",
-                                                                                                                             "http://www.mulesoft.org/schema/mule/api-gateway"),
-                                                                                                           "http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd");
-
   public static final String ELEMENT_NAME = "configuration-properties";
   public static final String FILE_ATTRIBUTE = "file";
 

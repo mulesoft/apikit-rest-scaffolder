@@ -15,7 +15,7 @@ public class MuleConfigBuilderTest {
   @Test
   public void testFromDoc() {
     Document document = new Document();
-    document.setRootElement(new MuleScope(false, false).generate());
+    document.setRootElement(new MuleScope(false, false, false).generate());
     MuleConfigBuilder.fromDoc(document);
   }
 

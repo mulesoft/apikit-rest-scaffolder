@@ -15,6 +15,7 @@ import org.jdom2.xpath.XPathFactory;
 
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 
+import java.util.List;
 import java.util.Optional;
 
 public class APIAutodiscoveryConfigParser implements MuleConfigFileParser<APIAutodiscoveryConfig> {
@@ -30,11 +31,10 @@ public class APIAutodiscoveryConfigParser implements MuleConfigFileParser<APIAut
   public APIAutodiscoveryConfig parse(Document document) {
 
     APIAutodiscoveryConfig config = null;
-    Optional<Element> optionalElement = API_AUTODISCOVERY_EXPRESSION.evaluate(document).stream().findFirst();
+    List<Element> elements = API_AUTODISCOVERY_EXPRESSION.evaluate(document);
 
-    if (optionalElement.isPresent()) {
+    for (Element element : elements) {
       config = new APIAutodiscoveryConfig();
-      Element element = optionalElement.get();
       Attribute apiIdAttribute = element.getAttribute(APIAutodiscoveryConfig.API_ID_ATTRIBUTE);
       Attribute ignoreBasePathAttribute = element.getAttribute(APIAutodiscoveryConfig.IGNORE_BASE_PATH_ATTRIBUTE);
       Attribute flowRefAttribute = element.getAttribute(APIAutodiscoveryConfig.FLOW_REF_ATTRIBUTE);
