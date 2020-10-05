@@ -16,6 +16,8 @@ import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.Configuration;
+import org.mule.tools.apikit.model.ConfigurationGroup;
 import org.mule.tools.apikit.model.ConfigurationPropertiesConfig;
 import org.mule.tools.apikit.model.Flow;
 import org.mule.tools.apikit.model.MainFlow;
@@ -287,7 +289,13 @@ public class MuleConfigGenerator {
     Optional<MuleConfig> preExistingMuleConfigOptional =
         muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
             && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
-    if (configuration.getApiAutodiscoveryID() != null
+    ConfigurationGroup configurationGroup = configuration.getConfigurationGroup();
+    Optional<Configuration> hasConfigurationWithApiId =
+        configurationGroup != null && configurationGroup.getConfigurations() != null ? configurationGroup.getConfigurations()
+            .stream()
+            .filter(config -> config.getCommonProperties() != null && config.getCommonProperties().getApiId() != null).findAny()
+            : Optional.empty();
+    if ((configuration.getApiAutodiscoveryID() != null || hasConfigurationWithApiId.isPresent())
         && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
       muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
       //update originalContent
