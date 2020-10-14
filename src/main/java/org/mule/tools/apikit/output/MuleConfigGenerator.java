@@ -241,48 +241,63 @@ public class MuleConfigGenerator {
   private Set<MuleConfig> getConfigsFromApiContainers() {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     MuleConfig global = createCommonPropertiesFile();
+    ConfigurationPropertiesConfig configurationPropertiesConfig =
+        configuration.getConfigurationGroup() != null ? createConfigurationProperties() : null;
     for (ApikitMainFlowContainer api : apiContainers) {
-      FlowScope flowScope = null;
-      String muleConfigID = createMuleConfigID(api.getId());
-      ConfigurationPropertiesConfig configurationPropertiesConfig = createConfigurationProperties();
-      APIAutodiscoveryConfig apiAutodiscoveryConfig =
-          createAPIAutodiscoveryConfig(FilenameUtils.removeExtension(muleConfigID).concat(MAIN_FLOW_SUFFIX));
-      MuleConfig muleConfig = createMuleConfig(api);
-      if (global != null) {
-        commonConfigurations(api, global);
-        global = setAPIAutodiscoveryId(global, apiAutodiscoveryConfig);
-        global.setConfigurationPropertiesConfig(configurationPropertiesConfig);
-        flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
-      } else {
-        muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
-        muleConfig.setConfigurationPropertiesConfig(configurationPropertiesConfig);
-        muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
-      }
-      if (api.getMuleConfig() == null) {
-        flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
-        muleConfig.addFlow(new Flow(flowScope.generate()));
-        addConsoleFlow(api, muleConfig);
-        muleConfig = fromDoc(muleConfig.buildContent());
-        api.setMuleConfig(muleConfig);
-      } else {
-        muleConfigID = api.getMuleConfig().getName();
-      }
-      addMuleConfig(muleConfigs, muleConfig, muleConfigID);
-    }
-    if (global != null) {
-      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
+      muleConfigs.addAll(processMuleConfig(global, configurationPropertiesConfig, api));
     }
     return muleConfigs;
   }
 
-  private ConfigurationPropertiesConfig createConfigurationProperties() {
-    if (configuration.getConfigurationGroup() != null) {
-      ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
-      configurationPropertiesConfig
-          .setFile("${env}-configuration.".concat(configuration.getConfigurationGroup().getExtension()));
-      return configurationPropertiesConfig;
+  private Set<MuleConfig> processMuleConfig(MuleConfig global, ConfigurationPropertiesConfig configurationPropertiesConfig,
+                                            ApikitMainFlowContainer api) {
+    Set<MuleConfig> muleConfigs = new HashSet<>();
+    FlowScope flowScope = null;
+    String muleConfigID = createMuleConfigID(api.getId());
+    String mainFlowRef = FilenameUtils.removeExtension(muleConfigID).concat(MAIN_FLOW_SUFFIX);
+    APIAutodiscoveryConfig apiAutodiscoveryConfig = createAPIAutodiscoveryConfig(mainFlowRef);
+    MuleConfig muleConfig = createMuleConfig(api);
+    if (global != null) {
+      commonConfigurations(api, global);
+      global = addCustomizations(configurationPropertiesConfig, apiAutodiscoveryConfig, global);
+      flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
+      addMuleConfig(muleConfigs, fromDoc(global.buildContent()), configuration.getExternalConfigurationFile());
+    } else {
+      muleConfig = addCustomizations(configurationPropertiesConfig, apiAutodiscoveryConfig, muleConfig);
     }
-    return null;
+    if (api.getMuleConfig() == null) {
+      flowScope = flowScope == null ? new FlowScope(api, isMuleEE()) : flowScope;
+      muleConfig.addFlow(new Flow(flowScope.generate()));
+      addConsoleFlow(api, muleConfig);
+      muleConfig = fromDoc(muleConfig.buildContent());
+      api.setMuleConfig(muleConfig);
+    } else {
+      muleConfigID = api.getMuleConfig().getName();
+    }
+    addMuleConfig(muleConfigs, muleConfig, muleConfigID);
+    return muleConfigs;
+  }
+
+  /**
+   * Used for adding custom attributes that the mule config may have
+   *
+   * @param apiAutodiscoveryConfig        API Autodiscovery configuratoin to add.
+   * @param configurationPropertiesConfig Configuration properties configuration to add.
+   * @param muleConfig                    Mule configuration to customize.
+   * @return muleConfig with customizations.
+   */
+  private MuleConfig addCustomizations(ConfigurationPropertiesConfig configurationPropertiesConfig,
+                                       APIAutodiscoveryConfig apiAutodiscoveryConfig, MuleConfig muleConfig) {
+    muleConfig.setConfigurationPropertiesConfig(configurationPropertiesConfig);
+    muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
+    return muleConfig;
+  }
+
+  private ConfigurationPropertiesConfig createConfigurationProperties() {
+    ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
+    configurationPropertiesConfig
+        .setFile("${env}-configuration.".concat(configuration.getConfigurationGroup().getExtension()));
+    return configurationPropertiesConfig;
   }
 
   private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
