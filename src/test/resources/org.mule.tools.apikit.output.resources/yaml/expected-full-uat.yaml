@@ -1,4 +1,4 @@
-http:
-  port: '23423'
-  host: myHostEnUAT
 apiId: '123'
+http:
+  host: myHostEnUAT
+  port: '23423'

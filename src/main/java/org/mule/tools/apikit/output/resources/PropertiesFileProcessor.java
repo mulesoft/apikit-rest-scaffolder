@@ -7,8 +7,6 @@
 package org.mule.tools.apikit.output.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.mule.tools.apikit.model.CommonProperties;
-import org.mule.tools.apikit.model.Configuration;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -23,25 +21,26 @@ public class PropertiesFileProcessor extends FileProcessor {
   public static final String HTTP_HOST_KEY = "http.host";
 
   @Override
-  protected String processCommon(Configuration configuration, String apiAutodiscoveryId) {
+  protected String processCommon(Map<String, Object> configuration, String apiAutodiscoveryId) {
     Properties properties = new Properties();
     createHttpProperties(configuration, properties);
-    boolean hasApiAutodiscoveryIdForEnvironment = hasApiAutodiscoveryIdForEnvironment(configuration.getCommonProperties());
+    boolean hasApiAutodiscoveryIdForEnvironment = hasApiAutodiscoveryIdForEnvironment(configuration);
     if (apiAutodiscoveryId != null) {
       String apiAutodiscoveryIdValue =
-          getApiAutodiscoveryID(configuration.getCommonProperties(), apiAutodiscoveryId, hasApiAutodiscoveryIdForEnvironment);
+          getApiAutodiscoveryID(configuration, apiAutodiscoveryId, hasApiAutodiscoveryIdForEnvironment);
       properties.setProperty(API_ID_KEY, apiAutodiscoveryIdValue);
     }
     return createResult(properties);
   }
 
-  private void createHttpProperties(Configuration configuration, Properties properties) {
+  private void createHttpProperties(Map<String, Object> configuration, Properties properties) {
     String host = HTTP_HOST_VALUE;
     String port = HTTP_PORT_VALUE;
-    final CommonProperties commonProperties = configuration.getCommonProperties();
-    if (commonProperties != null && commonProperties.getHttp() != null) {
-      host = commonProperties.getHttp().getHost();
-      port = commonProperties.getHttp().getPort();
+    if (configuration != null && configuration.get("http") != null) {
+      Object http = configuration.get("http");
+      Map<String, String> httpMap = new ObjectMapper().convertValue(http, Map.class);
+      host = httpMap.get("host");
+      port = httpMap.get("port");
     }
     properties.setProperty(HTTP_HOST_KEY, host);
     properties.setProperty(HTTP_PORT_KEY, port);
@@ -57,9 +56,8 @@ public class PropertiesFileProcessor extends FileProcessor {
   }
 
   @Override
-  protected String processCustom(Configuration configuration) {
+  protected String processCustom(Map<String, Object> properties) {
     Properties propertiesFile = new Properties();
-    Map<String, Object> properties = configuration.getProperties();
     if (properties != null) {
       for (String key : properties.keySet()) {
         Object value = properties.get(key);

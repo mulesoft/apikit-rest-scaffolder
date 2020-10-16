@@ -6,8 +6,7 @@
  */
 package org.mule.tools.apikit.output.resources;
 
-import org.mule.tools.apikit.model.CommonProperties;
-import org.mule.tools.apikit.model.Configuration;
+import java.util.Map;
 
 public abstract class FileProcessor {
 
@@ -17,17 +16,17 @@ public abstract class FileProcessor {
   public static final String HTTP_KEY = "http";
   public static final String API_ID_KEY = "apiId";
 
-  protected abstract String processCommon(Configuration configuration, String apiAutodiscoveryId);
+  protected abstract String processCommon(Map<String, Object> configuration, String apiAutodiscoveryId);
 
-  protected abstract String processCustom(Configuration configuration);
+  protected abstract String processCustom(Map<String, Object> configuration);
 
-  protected String getApiAutodiscoveryID(CommonProperties commonProperties, String apiAutodiscoveryId,
+  protected String getApiAutodiscoveryID(Map<String, Object> commonProperties, String apiAutodiscoveryId,
                                          boolean hasApiAutodiscoveryIdForEnvironment) {
-    return hasApiAutodiscoveryIdForEnvironment ? commonProperties.getApiId() : apiAutodiscoveryId;
+    return hasApiAutodiscoveryIdForEnvironment ? commonProperties.get(API_ID_KEY).toString() : apiAutodiscoveryId;
   }
 
-  protected boolean hasApiAutodiscoveryIdForEnvironment(CommonProperties commonProperties) {
-    return commonProperties != null && commonProperties.getApiId() != null;
+  protected boolean hasApiAutodiscoveryIdForEnvironment(Map<String, Object> commonProperties) {
+    return commonProperties != null && commonProperties.get(API_ID_KEY) != null;
   }
 
 }

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.ConfigurationGroup;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.ScaffolderResource;
@@ -20,7 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -45,7 +46,7 @@ public class ResourceGeneratorTest {
   @Test
   public void testNoGeneration() {
     ScaffoldingConfiguration.Builder scaffoldingConfigurationBuilder = ScaffoldingConfiguration.builder();
-    scaffoldingConfigurationBuilder.withConfigurationGroup(null);
+    scaffoldingConfigurationBuilder.withProperties(null);
     assertNull(ResourcesGenerator.generate(scaffoldingConfigurationBuilder.build()));
   }
 
@@ -118,14 +119,15 @@ public class ResourceGeneratorTest {
   private ScaffoldingConfiguration buildScaffoldingConfiguration(String file, String apiAutodiscoveryId) {
     ScaffoldingConfiguration.Builder scaffoldingConfigurationBuilder = ScaffoldingConfiguration.builder();
     ObjectMapper mapper = new ObjectMapper();
-    ConfigurationGroup configurationGroup;
     File configurationGroupFile = new File(BASE_PATH + file);
+    Map<String, Map<String, Object>> properties = new HashMap<>();
     try {
-      configurationGroup = mapper.readValue(configurationGroupFile, ConfigurationGroup.class);
+      properties = mapper.readValue(configurationGroupFile, Map.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    scaffoldingConfigurationBuilder.withConfigurationGroup(configurationGroup);
+    scaffoldingConfigurationBuilder.withPropertiesFormat("yaml");
+    scaffoldingConfigurationBuilder.withProperties(properties);
     if (apiAutodiscoveryId != null) {
       scaffoldingConfigurationBuilder.withApiAutodiscoveryId(apiAutodiscoveryId);
     }

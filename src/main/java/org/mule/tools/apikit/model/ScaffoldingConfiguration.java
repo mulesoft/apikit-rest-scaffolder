@@ -10,6 +10,7 @@ import org.mule.apikit.model.ApiSpecification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ScaffoldingConfiguration {
@@ -20,28 +21,23 @@ public class ScaffoldingConfiguration {
   private final boolean showConsole;
   private String externalConfigurationFile;
   private String apiAutodiscoveryID;
-  private ConfigurationGroup configurationGroup;
-
+  private String propertiesFormat;
+  private Map<String, Map<String, Object>> properties;
 
   private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain, boolean showConsole,
                                    String externalConfigurationFile,
-                                   String apiAutodiscoveryID, ConfigurationGroup configurationGroup) {
+                                   String apiAutodiscoveryID, String propertiesFormat,
+                                   Map<String, Map<String, Object>> properties) {
     this.api = api;
     this.configurations = configs;
     this.domain = domain;
     this.showConsole = showConsole;
     this.externalConfigurationFile = externalConfigurationFile;
     this.apiAutodiscoveryID = apiAutodiscoveryID;
-    this.configurationGroup = configurationGroup;
+    this.propertiesFormat = propertiesFormat;
+    this.properties = properties;
   }
 
-  public ConfigurationGroup getConfigurationGroup() {
-    return configurationGroup;
-  }
-
-  public void setConfigurationGroup(ConfigurationGroup configurationGroup) {
-    this.configurationGroup = configurationGroup;
-  }
 
   public ApiSpecification getApi() {
     return api;
@@ -67,6 +63,14 @@ public class ScaffoldingConfiguration {
     return apiAutodiscoveryID;
   }
 
+  public String getPropertiesFormat() {
+    return propertiesFormat;
+  }
+
+  public Map<String, Map<String, Object>> getProperties() {
+    return properties;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -79,14 +83,16 @@ public class ScaffoldingConfiguration {
     private boolean showConsole;
     private String externalConfigurationFile;
     private String apiAutodiscoveryID;
-    private ConfigurationGroup configurationGroup;
+    private String propertiesFormat;
+    private Map<String, Map<String, Object>> properties;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
       this.showConsole = true;
       this.externalConfigurationFile = null;
       this.apiAutodiscoveryID = null;
-      this.configurationGroup = null;
+      this.propertiesFormat = null;
+      this.properties = null;
       domain = MuleDomain.builder().build();
     }
 
@@ -120,14 +126,19 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
-    public Builder withConfigurationGroup(ConfigurationGroup configurationGroup) {
-      this.configurationGroup = configurationGroup;
+    public Builder withPropertiesFormat(String propertiesFormat) {
+      this.propertiesFormat = propertiesFormat;
+      return this;
+    }
+
+    public Builder withProperties(Map<String, Map<String, Object>> properties) {
+      this.properties = properties;
       return this;
     }
 
     public ScaffoldingConfiguration build() {
       return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole, externalConfigurationFile,
-                                          apiAutodiscoveryID, configurationGroup);
+                                          apiAutodiscoveryID, propertiesFormat, properties);
     }
   }
 

@@ -1,37 +1,23 @@
 {
-  "extension": "properties",
-  "configurations": [
-    {
-      "environment": "dev",
-      "commonProperties": {
-        "http": {
-          "port": "customPort",
-          "host": "customHost"
-        }
-      },
-      "properties": {
-        "wsdl": {
-          "host": 123,
-          "port": 2134
-        },
-        "myProperty": "myPropertyValue",
-        "lalala": "123"
-      }
+  "dev": {
+    "http": {
+      "port": "customPort",
+      "host": "customHost"
     },
-    {
-      "environment": "uat",
-      "commonProperties": {
-        "http": {
-          "host": "myHostEnUAT",
-          "port": 23423
-        }
-      }
+    "wsdl": {
+      "host": 123,
+      "port": 2134
     },
-    {
-      "environment": "prod",
-      "commonProperties": {
-        "apiId": 12313312
-      }
+    "myProperty": "myPropertyValue",
+    "lalala": "lalalaValue"
+  },
+  "uat": {
+    "http": {
+      "host": "myHostEnUAT",
+      "port": 23423
     }
-  ]
+  },
+  "prod": {
+    "apiId": 12313312
+  }
 }

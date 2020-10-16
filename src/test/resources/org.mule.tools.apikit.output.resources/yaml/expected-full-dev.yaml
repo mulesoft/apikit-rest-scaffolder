@@ -1,9 +1,9 @@
+apiId: '123'
 http:
   port: customPort
   host: customHost
-apiId: '123'
 wsdl:
   host: '123'
   port: '2134'
 myProperty: myPropertyValue
-lalala: 123
+lalala: lalalaValue

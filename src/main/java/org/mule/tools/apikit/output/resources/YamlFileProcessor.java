@@ -8,8 +8,7 @@ package org.mule.tools.apikit.output.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
-import org.mule.tools.apikit.model.CommonProperties;
-import org.mule.tools.apikit.model.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -32,20 +31,17 @@ public class YamlFileProcessor extends FileProcessor {
   };
 
   @Override
-  protected String processCommon(Configuration configuration, String apiAutodiscoveryId) {
+  protected String processCommon(Map<String, Object> configuration, String apiAutodiscoveryId) {
     String payload = createHTTPProperties(configuration);
-    boolean hasApiAutodiscoveryIdForEnvironment = hasApiAutodiscoveryIdForEnvironment(configuration.getCommonProperties());
-    if (apiAutodiscoveryId != null || hasApiAutodiscoveryIdForEnvironment) {
-      String apiAutodiscoveryIdValue =
-          getApiAutodiscoveryID(configuration.getCommonProperties(), apiAutodiscoveryId, hasApiAutodiscoveryIdForEnvironment);
-      payload = payload.concat(createYamlFormat(API_ID_KEY, apiAutodiscoveryIdValue));
+    boolean hasApiAutodiscoveryIdForEnvironment = hasApiAutodiscoveryIdForEnvironment(configuration);
+    if (apiAutodiscoveryId != null && !hasApiAutodiscoveryIdForEnvironment) {
+      payload = payload.concat(createYamlFormat(API_ID_KEY, apiAutodiscoveryId));
     }
     return payload;
   }
 
   @Override
-  protected String processCustom(Configuration configuration) {
-    Map<String, Object> properties = configuration.getProperties();
+  protected String processCustom(Map<String, Object> properties) {
     if (properties != null && CollectionUtils.isNotEmpty(properties.keySet())) {
       String customPayload = "";
       for (String key : properties.keySet()) {
@@ -68,7 +64,7 @@ public class YamlFileProcessor extends FileProcessor {
 
   private <T> String createCustomPayload(T value, String key) {
     String customPayload = "";
-    if (value instanceof String) {
+    if (value instanceof String || value instanceof Integer) {
       customPayload =
           customPayload.concat(key).concat(getSeparator())
               .concat(String.valueOf(value))
@@ -95,15 +91,12 @@ public class YamlFileProcessor extends FileProcessor {
     return writer.toString();
   }
 
-  private String createHTTPProperties(Configuration configuration) {
+  private String createHTTPProperties(Map<String, Object> properties) {
     Map<String, String> subMapHTTP = SUB_MAP_HTTP;
-    final CommonProperties commonProperties = configuration.getCommonProperties();
-    if (commonProperties != null && commonProperties.getHttp() != null) {
-      subMapHTTP = new HashMap<>();
-      subMapHTTP.put(HTTP_HOST_SHORT_KEY, commonProperties.getHttp().getHost());
-      subMapHTTP.put(HTTP_PORT_SHORT_KEY, commonProperties.getHttp().getPort());
+    if (properties != null && properties.get("http") == null) {
+      return createYamlFormat(HTTP_KEY, subMapHTTP);
     }
-    return createYamlFormat(HTTP_KEY, subMapHTTP);
+    return StringUtils.EMPTY;
   }
 
 }

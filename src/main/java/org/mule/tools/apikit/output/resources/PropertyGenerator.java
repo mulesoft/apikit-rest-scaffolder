@@ -6,26 +6,11 @@
  */
 package org.mule.tools.apikit.output.resources;
 
-import org.apache.commons.lang.StringUtils;
-import org.mule.tools.apikit.model.Configuration;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 public class PropertyGenerator {
 
-  public static final String YAML = "yaml";
-  public static final String PROPERTIES = "properties";
-  public static final String QUOTES = "\'";
-  public static final String LINE_BREAK = "\n";
-  public static final String YAML_SEPARATOR = ": ";
-  public static final String PROPERTIES_SEPARATOR = "=";
-
-
-  public static String generate(Configuration configuration, String apiAutodiscoveryId, String extension) {
+  public static String generate(Map<String, Object> configuration, String apiAutodiscoveryId, String extension) {
     FileProcessor fileProcessor = pickProcessor(extension);
     String payload = fileProcessor.processCommon(configuration, apiAutodiscoveryId);
     payload = safeConcat(payload, fileProcessor.processCustom(configuration));
@@ -33,7 +18,7 @@ public class PropertyGenerator {
   }
 
   private static String safeConcat(String payload, String customValues) {
-    if (StringUtils.isNotEmpty(payload) && StringUtils.isNotEmpty(customValues)) {
+    if (payload != null && customValues != null) {
       return payload.concat(customValues);
     }
     return payload;

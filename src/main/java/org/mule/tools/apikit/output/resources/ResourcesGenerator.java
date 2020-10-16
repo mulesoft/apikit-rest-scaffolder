@@ -9,8 +9,6 @@ package org.mule.tools.apikit.output.resources;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.Configuration;
-import org.mule.tools.apikit.model.ConfigurationGroup;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.ScaffolderResource;
@@ -18,6 +16,7 @@ import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ResourcesGenerator {
 
@@ -27,13 +26,14 @@ public class ResourcesGenerator {
   public static final String HTTP_PORT_REFERENCE = "${http.port}";
 
   public static List<ScaffolderResource> generate(ScaffoldingConfiguration scaffoldingConfiguration) {
-    if (scaffoldingConfiguration != null && scaffoldingConfiguration.getConfigurationGroup() != null) {
-      ConfigurationGroup configurationGroup = scaffoldingConfiguration.getConfigurationGroup();
+    String extension = scaffoldingConfiguration.getPropertiesFormat();
+    if (scaffoldingConfiguration.getProperties() != null && StringUtils.isNotEmpty(extension)) {
       List<ScaffolderResource> resources = new ArrayList<>();
-      String extension = configurationGroup.getExtension();
-      for (Configuration configuration : configurationGroup.getConfigurations()) {
-        String fileName = getEnvironment(configuration).concat(FILE_NAME_SEPARATOR).concat(extension);
-        String payload = PropertyGenerator.generate(configuration, scaffoldingConfiguration.getApiAutodiscoveryID(), extension);
+      for (Map.Entry<String, Map<String, Object>> properties : scaffoldingConfiguration.getProperties().entrySet()) {
+        String environment = properties.getKey();
+        String fileName = environment.concat(FILE_NAME_SEPARATOR).concat(extension);
+        String payload =
+            PropertyGenerator.generate(properties.getValue(), scaffoldingConfiguration.getApiAutodiscoveryID(), extension);
         resources.add(new ScaffolderResource(SLASH, fileName, IOUtils.toInputStream(payload)));
       }
       return resources;
@@ -41,16 +41,8 @@ public class ResourcesGenerator {
     return null;
   }
 
-  private static String getEnvironment(Configuration configuration) {
-    if (StringUtils.isEmpty(configuration.getEnvironment())) {
-      throw new RuntimeException("must specify an environment");
-    }
-    return configuration.getEnvironment();
-  }
-
-
   public static void replaceReferencesToProperties(ScaffoldingConfiguration config, List<ApikitMainFlowContainer> includedApis) {
-    if (config != null && config.getConfigurationGroup() != null) {
+    if (config != null && config.getProperties() != null) {
       for (ApikitMainFlowContainer api : includedApis) {
         HttpListenerConfig existingHttpConfig = api.getHttpListenerConfig();
         HttpListenerConnection httpListenerConnection =

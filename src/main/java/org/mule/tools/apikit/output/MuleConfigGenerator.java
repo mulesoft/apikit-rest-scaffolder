@@ -16,8 +16,6 @@ import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.Configuration;
-import org.mule.tools.apikit.model.ConfigurationGroup;
 import org.mule.tools.apikit.model.ConfigurationPropertiesConfig;
 import org.mule.tools.apikit.model.Flow;
 import org.mule.tools.apikit.model.MainFlow;
@@ -242,7 +240,7 @@ public class MuleConfigGenerator {
     Set<MuleConfig> muleConfigs = new HashSet<>();
     MuleConfig global = createCommonPropertiesFile();
     ConfigurationPropertiesConfig configurationPropertiesConfig =
-        configuration.getConfigurationGroup() != null ? createConfigurationProperties() : null;
+        configuration.getProperties() != null ? createConfigurationProperties() : null;
     for (ApikitMainFlowContainer api : apiContainers) {
       muleConfigs.addAll(processMuleConfig(global, configurationPropertiesConfig, api));
     }
@@ -296,7 +294,7 @@ public class MuleConfigGenerator {
   private ConfigurationPropertiesConfig createConfigurationProperties() {
     ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
     configurationPropertiesConfig
-        .setFile("${env}-configuration.".concat(configuration.getConfigurationGroup().getExtension()));
+        .setFile("${env}-configuration.".concat(configuration.getPropertiesFormat()));
     return configurationPropertiesConfig;
   }
 
@@ -315,13 +313,17 @@ public class MuleConfigGenerator {
   }
 
   private boolean hasAPIAutodiscoveryId() {
-    ConfigurationGroup configurationGroup = configuration.getConfigurationGroup();
-    Optional<Configuration> hasConfigurationWithApiId =
-        configurationGroup != null && configurationGroup.getConfigurations() != null ? configurationGroup.getConfigurations()
-            .stream()
-            .filter(config -> config.getCommonProperties() != null && config.getCommonProperties().getApiId() != null).findAny()
-            : Optional.empty();
-    return configuration.getApiAutodiscoveryID() != null || hasConfigurationWithApiId.isPresent();
+    Map<String, Map<String, Object>> properties = configuration.getProperties();
+    if (properties != null) {
+      for (Entry<String, Map<String, Object>> propertyList : properties.entrySet()) {
+        for (Entry<String, Object> property : propertyList.getValue().entrySet()) {
+          if (property.getKey().equalsIgnoreCase("apiId")) {
+            return true;
+          }
+        }
+      }
+    }
+    return configuration.getApiAutodiscoveryID() != null;
   }
 
   private Optional<MuleConfig> searchExistingMuleConfigByName() {
@@ -361,7 +363,7 @@ public class MuleConfigGenerator {
 
   private APIAutodiscoveryConfig createAPIAutodiscoveryConfig(String mainFlowRef) {
     if (hasAPIAutodiscoveryId()) {
-      String apiId = configuration.getConfigurationGroup() != null ? API_ID_REFERENCE
+      String apiId = configuration.getProperties() != null ? API_ID_REFERENCE
           : configuration.getApiAutodiscoveryID();
       Boolean ignoreBasePath = Boolean.valueOf(APIAutodiscoveryConfig.IGNORE_BASE_PATH_DEFAULT);
       return new APIAutodiscoveryConfig(apiId, ignoreBasePath, mainFlowRef);

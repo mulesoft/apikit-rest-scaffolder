@@ -1,4 +1,4 @@
 http:
   port: '8081'
   host: 0.0.0.0
-apiId: '12313312'
+apiId: 12313312
