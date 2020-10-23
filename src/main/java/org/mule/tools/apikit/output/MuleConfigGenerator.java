@@ -294,7 +294,7 @@ public class MuleConfigGenerator {
   private ConfigurationPropertiesConfig createConfigurationProperties() {
     ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
     configurationPropertiesConfig
-        .setFile("${env}-configuration.".concat(configuration.getPropertiesFormat()));
+        .setFile("${env}-configuration.".concat(configuration.getProperties().getFormat()));
     return configurationPropertiesConfig;
   }
 
@@ -313,8 +313,8 @@ public class MuleConfigGenerator {
   }
 
   private boolean hasAPIAutodiscoveryId() {
-    Map<String, Map<String, Object>> properties = configuration.getProperties();
-    if (properties != null) {
+    if (configuration.getProperties() != null) {
+      Map<String, Map<String, Object>> properties = configuration.getProperties().getFiles();
       for (Entry<String, Map<String, Object>> propertyList : properties.entrySet()) {
         for (Entry<String, Object> property : propertyList.getValue().entrySet()) {
           if (property.getKey().equalsIgnoreCase("apiId")) {

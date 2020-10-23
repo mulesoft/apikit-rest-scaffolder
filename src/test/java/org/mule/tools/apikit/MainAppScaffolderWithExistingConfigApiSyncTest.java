@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.ParserService;
-import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MuleDomain;
@@ -19,7 +17,6 @@ import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
-import org.mule.tools.apikit.model.ScaffoldingConfigurationMojo;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.FileInputStream;
@@ -73,10 +70,9 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ObjectMapper mapper = new ObjectMapper();
     InputStream scaffoldingConfigurationFile =
         new FileInputStream("src/test/resources/rescaffolding-apisync-version-with-global-config/pre-existing/configuration.json");
-    ScaffoldingConfigurationMojo scaffoldingConfigurationMojo =
-        mapper.readValue(scaffoldingConfigurationFile, ScaffoldingConfigurationMojo.class);
+    org.mule.tools.apikit.model.ScaffoldingConfigurationMojo scaffoldingConfigurationMojo =
+        mapper.readValue(scaffoldingConfigurationFile, org.mule.tools.apikit.model.ScaffoldingConfigurationMojo.class);
     configurationBuilder.withProperties(scaffoldingConfigurationMojo.getProperties());
-    configurationBuilder.withPropertiesFormat(scaffoldingConfigurationMojo.getPropertiesFormat());
     configurationBuilder.withApiAutodiscoveryId(scaffoldingConfigurationMojo.getApiId());
     configurationBuilder.withExternalConfigurationFile(scaffoldingConfigurationMojo.getExternalCommonFile());
     configurationBuilder
@@ -84,7 +80,10 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     String existingConfigV1Folder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/v1";
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigV1Folder);
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
-    ScaffoldingResult scaffoldingResult = scaffoldApi(RuntimeEdition.EE, apiReference, MuleDomain.builder().build(), muleConfigs, scaffoldingConfigurationMojo.isShowConsole(), scaffoldingConfigurationMojo.getExternalCommonFile(), scaffoldingConfigurationMojo.getApiId());
+    ScaffoldingResult scaffoldingResult =
+        scaffoldApi(RuntimeEdition.EE, apiReference, MuleDomain.builder().build(), muleConfigs,
+                    scaffoldingConfigurationMojo.isShowConsole(), scaffoldingConfigurationMojo.getExternalCommonFile(),
+                    scaffoldingConfigurationMojo.getApiId());
   }
 
   /**
