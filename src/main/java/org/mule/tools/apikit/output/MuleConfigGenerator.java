@@ -68,7 +68,7 @@ public class MuleConfigGenerator {
 
   private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
   public static final String MAIN_FLOW_SUFFIX = "-main";
-  public static final String API_ID_REFERENCE = "${api.id}";
+  public static final String API_ID_REFERENCE = "${apiId}";
 
   private final List<GenerationModel> flowEntriesDiff;
   private final List<ApikitMainFlowContainer> apiContainers;
@@ -301,7 +301,7 @@ public class MuleConfigGenerator {
   private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
     Optional<MuleConfig> preExistingMuleConfigOptional =
         muleConfigsInApp.stream().filter(config -> config.getApiAutodiscoveryConfig() != null
-            && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
+            && config.getName() != null && !config.getName().equalsIgnoreCase(muleConfig.getName())).findAny();
     boolean hasAPIAutodiscoveryId = hasAPIAutodiscoveryId();
     if (hasAPIAutodiscoveryId
         && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
@@ -447,7 +447,9 @@ public class MuleConfigGenerator {
   private void addApikitConfiguration(ApikitMainFlowContainer api, MuleConfig muleConfig) {
     if (api.getConfig() == null) {
       APIKitConfig apikitConfig = new APIKitConfig();
-      apikitConfig.setApi(api.getApiFilePath());
+      String apiFilePathSource = api.getApiFilePath();
+      String apiFilePath = configuration.getApiSyncResource() == null ? apiFilePathSource : configuration.getApiSyncResource();
+      apikitConfig.setApi(apiFilePath);
       apikitConfig.setName(api.getId() + "-" + APIKitConfig.DEFAULT_CONFIG_NAME);
       api.setConfig(apikitConfig);
     }
@@ -455,6 +457,7 @@ public class MuleConfigGenerator {
       muleConfig.addConfig(api.getConfig());
     }
   }
+
 
   /**
    * Adds http listener configuration if it doesn't already exist

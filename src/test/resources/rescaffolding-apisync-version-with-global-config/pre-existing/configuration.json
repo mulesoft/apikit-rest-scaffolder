@@ -1,0 +1,24 @@
+{
+  "externalCommonFile": "global.xml",
+  "apiId": "45678",
+  "propertiesFormat": "yaml",
+  "properties": {
+    "dev": {
+      "apiId": "99999",
+      "wsdl": {
+        "host": 123,
+        "port": 2134
+      },
+      "myProperty2": "test",
+      "lalala": "lalala"
+    },
+    "uat": {
+      "http": {
+        "port": 1234,
+        "host": "myHost"
+      }
+    },
+    "prod": {
+    }
+  }
+}

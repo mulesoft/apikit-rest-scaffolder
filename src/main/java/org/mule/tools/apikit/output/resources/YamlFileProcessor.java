@@ -64,10 +64,13 @@ public class YamlFileProcessor extends FileProcessor {
 
   private <T> String createCustomPayload(T value, String key) {
     String customPayload = "";
-    if (value instanceof String || value instanceof Integer) {
+    if (value instanceof Integer) {
+      value = (T) (value.toString());
+    }
+    if (value instanceof String) {
       customPayload =
           customPayload.concat(key).concat(getSeparator())
-              .concat(String.valueOf(value))
+              .concat(quotify(value.toString()))
               .concat(LINE_BREAK);
     }
     if (value instanceof HashMap) {
@@ -76,9 +79,13 @@ public class YamlFileProcessor extends FileProcessor {
       for (Map.Entry<String, String> mapValue : map.entrySet()) {
         mapValue.setValue(String.valueOf(mapValue.getValue()));
       }
-      customPayload = createYamlFormat(key, map);
+      customPayload = customPayload.concat(createYamlFormat(key, map));
     }
     return customPayload;
+  }
+
+  private String quotify(Object value) {
+    return "\'".concat(value.toString()).concat("\'");
   }
 
   private static <T extends Map> String createYaml(T map) {

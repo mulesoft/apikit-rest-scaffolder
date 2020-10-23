@@ -5,5 +5,5 @@ http:
 wsdl:
   host: '123'
   port: '2134'
-myProperty: myPropertyValue
-lalala: lalalaValue
+myProperty: 'myPropertyValue'
+lalala: 'lalalaValue'

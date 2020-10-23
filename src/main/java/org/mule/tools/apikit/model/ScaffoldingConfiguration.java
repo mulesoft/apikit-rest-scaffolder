@@ -11,7 +11,6 @@ import org.mule.apikit.model.ApiSpecification;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class ScaffoldingConfiguration {
 
@@ -23,11 +22,12 @@ public class ScaffoldingConfiguration {
   private String apiAutodiscoveryID;
   private String propertiesFormat;
   private Map<String, Map<String, Object>> properties;
+  private String apiSyncResource;
 
   private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain, boolean showConsole,
                                    String externalConfigurationFile,
                                    String apiAutodiscoveryID, String propertiesFormat,
-                                   Map<String, Map<String, Object>> properties) {
+                                   Map<String, Map<String, Object>> properties, String apiSyncResource) {
     this.api = api;
     this.configurations = configs;
     this.domain = domain;
@@ -36,6 +36,7 @@ public class ScaffoldingConfiguration {
     this.apiAutodiscoveryID = apiAutodiscoveryID;
     this.propertiesFormat = propertiesFormat;
     this.properties = properties;
+    this.apiSyncResource = apiSyncResource;
   }
 
 
@@ -71,6 +72,10 @@ public class ScaffoldingConfiguration {
     return properties;
   }
 
+  public String getApiSyncResource() {
+    return apiSyncResource;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -85,6 +90,7 @@ public class ScaffoldingConfiguration {
     private String apiAutodiscoveryID;
     private String propertiesFormat;
     private Map<String, Map<String, Object>> properties;
+    private String apiSyncResource;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
@@ -93,6 +99,7 @@ public class ScaffoldingConfiguration {
       this.apiAutodiscoveryID = null;
       this.propertiesFormat = null;
       this.properties = null;
+      this.apiSyncResource = null;
       domain = MuleDomain.builder().build();
     }
 
@@ -136,9 +143,14 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
+    public Builder withApiSyncResource(String apiSyncResource) {
+      this.apiSyncResource = apiSyncResource;
+      return this;
+    }
+
     public ScaffoldingConfiguration build() {
       return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole, externalConfigurationFile,
-                                          apiAutodiscoveryID, propertiesFormat, properties);
+                                          apiAutodiscoveryID, propertiesFormat, properties, apiSyncResource);
     }
   }
 

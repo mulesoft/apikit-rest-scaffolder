@@ -6,13 +6,24 @@
  */
 package org.mule.tools.apikit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.mule.apikit.loader.ResourceLoader;
 import org.mule.apikit.model.api.ApiReference;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
+import org.mule.tools.apikit.model.MuleConfigBuilder;
+import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.RuntimeEdition;
+import org.mule.tools.apikit.model.ScaffolderContext;
+import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingConfiguration;
+import org.mule.tools.apikit.model.ScaffoldingConfigurationMojo;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +36,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
   private static final String TEST_RESOURCES_APISYNC = "rescaffolding-apisync-version";
   private static final String TEST_RESOURCES_APISYNC_W_GLOBAL = "rescaffolding-apisync-version-with-global-config";
+  public static final String COLON = ":";
 
   /**
    * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0.
@@ -43,6 +55,36 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ScaffoldingResult secondScaffoldingResult = scaffoldApi(RuntimeEdition.CE, apiReference, muleConfig);
 
     verifySuccessfulScaffolding(secondScaffoldingResult, TEST_RESOURCES_APISYNC + "/v1/api.xml");
+  }
+
+  @Test
+  public void testRescaffoldSameVersionsGlobals() throws Exception {
+    ScaffoldingConfiguration.Builder configurationBuilder = ScaffoldingConfiguration.builder();
+    List<MuleConfig> muleConfigs = new ArrayList<>();
+    InputStream api =
+        new FileInputStream("src/test/resources/rescaffolding-apisync-version-with-global-config/pre-existing/api.xml");
+    InputStream global =
+        new FileInputStream("src/test/resources/rescaffolding-apisync-version-with-global-config/pre-existing/global.xml");
+    muleConfigs.add(MuleConfigBuilder.fromStream(api));
+    muleConfigs.add(MuleConfigBuilder.fromStream(global));
+    configurationBuilder.withMuleConfigurations(muleConfigs);
+    ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(RuntimeEdition.EE).build();
+    MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
+    ObjectMapper mapper = new ObjectMapper();
+    InputStream scaffoldingConfigurationFile =
+        new FileInputStream("src/test/resources/rescaffolding-apisync-version-with-global-config/pre-existing/configuration.json");
+    ScaffoldingConfigurationMojo scaffoldingConfigurationMojo =
+        mapper.readValue(scaffoldingConfigurationFile, ScaffoldingConfigurationMojo.class);
+    configurationBuilder.withProperties(scaffoldingConfigurationMojo.getProperties());
+    configurationBuilder.withPropertiesFormat(scaffoldingConfigurationMojo.getPropertiesFormat());
+    configurationBuilder.withApiAutodiscoveryId(scaffoldingConfigurationMojo.getApiId());
+    configurationBuilder.withExternalConfigurationFile(scaffoldingConfigurationMojo.getExternalCommonFile());
+    configurationBuilder
+        .withApiSyncResource(createResourceForApiSync("967b013a-46fe-4be7-8eb5-c91caebf3bc0", "test-yaml", "1.0.0"));
+    String existingConfigV1Folder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/v1";
+    ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigV1Folder);
+    ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
+    ScaffoldingResult scaffoldingResult = scaffoldApi(RuntimeEdition.EE, apiReference, MuleDomain.builder().build(), muleConfigs, scaffoldingConfigurationMojo.isShowConsole(), scaffoldingConfigurationMojo.getExternalCommonFile(), scaffoldingConfigurationMojo.getApiId());
   }
 
   /**
@@ -157,6 +199,12 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
                                                   existingConfigFolder + "/global.xml");
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference, null, existingConfigLocations);
     verifySuccessfulScaffolding(result, existingConfigFolder + "/api_refactored.xml");
+  }
+
+  private String createResourceForApiSync(String groupId, String artifact, String version) {
+    return "resource::".concat(groupId).concat(COLON).concat(artifact).concat(COLON)
+        .concat(version).concat(COLON).concat("raml").concat(COLON).concat("zip")
+        .concat(COLON).concat(artifact).concat(".raml");
   }
 
 }
