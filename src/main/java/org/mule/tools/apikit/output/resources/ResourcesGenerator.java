@@ -26,10 +26,11 @@ public class ResourcesGenerator {
   public static final String HTTP_PORT_REFERENCE = "${http.port}";
 
   public static List<ScaffolderResource> generate(ScaffoldingConfiguration scaffoldingConfiguration) {
-    String extension = scaffoldingConfiguration.getPropertiesFormat();
-    if (scaffoldingConfiguration.getProperties() != null && StringUtils.isNotEmpty(extension)) {
+    if (scaffoldingConfiguration.getProperties() != null) {
+      String extension = scaffoldingConfiguration.getProperties().getFormat();
+      Map<String, Map<String, Object>> files = scaffoldingConfiguration.getProperties().getFiles();
       List<ScaffolderResource> resources = new ArrayList<>();
-      for (Map.Entry<String, Map<String, Object>> properties : scaffoldingConfiguration.getProperties().entrySet()) {
+      for (Map.Entry<String, Map<String, Object>> properties : files.entrySet()) {
         String environment = properties.getKey();
         String fileName = environment.concat(FILE_NAME_SEPARATOR).concat(extension);
         String payload =

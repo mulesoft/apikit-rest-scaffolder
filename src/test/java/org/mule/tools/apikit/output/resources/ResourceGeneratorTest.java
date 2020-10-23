@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
+import org.mule.tools.apikit.model.Properties;
 import org.mule.tools.apikit.model.ScaffolderResource;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
@@ -120,13 +121,13 @@ public class ResourceGeneratorTest {
     ScaffoldingConfiguration.Builder scaffoldingConfigurationBuilder = ScaffoldingConfiguration.builder();
     ObjectMapper mapper = new ObjectMapper();
     File configurationGroupFile = new File(BASE_PATH + file);
-    Map<String, Map<String, Object>> properties = new HashMap<>();
+    Map<String, Map<String, Object>> files = new HashMap<>();
     try {
-      properties = mapper.readValue(configurationGroupFile, Map.class);
+      files = mapper.readValue(configurationGroupFile, Map.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    scaffoldingConfigurationBuilder.withPropertiesFormat("yaml");
+    Properties properties = new Properties("yaml", files);
     scaffoldingConfigurationBuilder.withProperties(properties);
     if (apiAutodiscoveryId != null) {
       scaffoldingConfigurationBuilder.withApiAutodiscoveryId(apiAutodiscoveryId);
