@@ -23,6 +23,7 @@ import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.xml.sax.SAXException;
@@ -110,8 +111,10 @@ public class MuleConfigGeneratorTest {
   @Test
   public void blankDocumentWithExternalizedGlobals() {
     String externalConfigurationFile = "globals.xml";
+    ScaffoldingAccessories scaffoldingAccessories =
+        new ScaffoldingAccessories(HIDE_CONSOLE, externalConfigurationFile, null, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile);
+        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       if (muleConfig.getName() == externalConfigurationFile) {
@@ -126,8 +129,9 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutExternalizedGlobals() {
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, null, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(null);
+        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
@@ -140,8 +144,9 @@ public class MuleConfigGeneratorTest {
   @Test
   public void blankDocumentWithAPIAutodiscovery() {
     String apiAutodiscovery = "1234";
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiAutodiscoveryId(apiAutodiscovery);
+        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
     APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     assertEquals(muleConfigs.size(), 1);
@@ -154,9 +159,10 @@ public class MuleConfigGeneratorTest {
   public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
     String externalConfigurationFile = "globals.xml";
     String apiAutodiscovery = "1234";
+    ScaffoldingAccessories scaffoldingAccessories =
+        new ScaffoldingAccessories(HIDE_CONSOLE, externalConfigurationFile, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalConfigurationFile(externalConfigurationFile)
-            .withApiAutodiscoveryId(apiAutodiscovery);
+        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
     APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     assertEquals(muleConfigs.size(), 2);
@@ -173,7 +179,8 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutLCInDomain() {
-    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withShowConsole(SHOW_CONSOLE);
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(SHOW_CONSOLE, null, null, null);
+    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
@@ -190,7 +197,8 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutLCInDomainHideConsole() {
-    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withShowConsole(SHOW_CONSOLE);
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(true, null, null, null);
+    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();

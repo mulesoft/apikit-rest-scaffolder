@@ -16,26 +16,21 @@ public class ScaffoldingConfiguration {
   private final ApiSpecification api;
   private final List<MuleConfig> configurations;
   private final MuleDomain domain;
-  private final boolean showConsole;
-  private String externalConfigurationFile;
-  private String apiAutodiscoveryID;
   private String apiSyncResource;
-  private Properties properties;
+  private final ScaffoldingAccessories scaffoldingAccessories;
 
-  private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain, boolean showConsole,
-                                   String externalConfigurationFile,
-                                   String apiAutodiscoveryID,
-                                   Properties properties, String apiSyncResource) {
+  private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain,
+                                   ScaffoldingAccessories scaffoldingAccessories, String apiSyncResource) {
     this.api = api;
     this.configurations = configs;
     this.domain = domain;
-    this.showConsole = showConsole;
-    this.externalConfigurationFile = externalConfigurationFile;
-    this.apiAutodiscoveryID = apiAutodiscoveryID;
-    this.properties = properties;
+    this.scaffoldingAccessories = scaffoldingAccessories;
     this.apiSyncResource = apiSyncResource;
   }
 
+  public ScaffoldingAccessories getScaffoldingAccessories() {
+    return scaffoldingAccessories;
+  }
 
   public ApiSpecification getApi() {
     return api;
@@ -49,24 +44,12 @@ public class ScaffoldingConfiguration {
     return domain;
   }
 
-  public boolean isShowConsole() {
-    return showConsole;
-  }
-
-  public String getExternalConfigurationFile() {
-    return externalConfigurationFile;
-  }
-
-  public String getApiAutodiscoveryID() {
-    return apiAutodiscoveryID;
-  }
-
-  public Properties getProperties() {
-    return properties;
-  }
-
   public String getApiSyncResource() {
     return apiSyncResource;
+  }
+
+  public void setApiSyncResource(String apiSyncResource) {
+    this.apiSyncResource = apiSyncResource;
   }
 
   public static Builder builder() {
@@ -78,18 +61,12 @@ public class ScaffoldingConfiguration {
     private ApiSpecification api;
     private List<MuleConfig> muleConfigurations;
     private MuleDomain domain;
-    private boolean showConsole;
-    private String externalConfigurationFile;
-    private String apiAutodiscoveryID;
+    private ScaffoldingAccessories scaffoldingAccessories;
     private String apiSyncResource;
-    private Properties properties;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
-      this.showConsole = true;
-      this.externalConfigurationFile = null;
-      this.apiAutodiscoveryID = null;
-      this.properties = null;
+      this.scaffoldingAccessories = new ScaffoldingAccessories();
       this.apiSyncResource = null;
       domain = MuleDomain.builder().build();
     }
@@ -109,23 +86,8 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
-    public Builder withShowConsole(boolean showConsole) {
-      this.showConsole = showConsole;
-      return this;
-    }
-
-    public Builder withExternalConfigurationFile(String externalConfigurationFile) {
-      this.externalConfigurationFile = externalConfigurationFile;
-      return this;
-    }
-
-    public Builder withApiAutodiscoveryId(String apiAutodiscoveryID) {
-      this.apiAutodiscoveryID = apiAutodiscoveryID;
-      return this;
-    }
-
-    public Builder withProperties(Properties properties) {
-      this.properties = properties;
+    public Builder withAccessories(ScaffoldingAccessories scaffoldingAccessories) {
+      this.scaffoldingAccessories = scaffoldingAccessories;
       return this;
     }
 
@@ -135,8 +97,7 @@ public class ScaffoldingConfiguration {
     }
 
     public ScaffoldingConfiguration build() {
-      return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole, externalConfigurationFile,
-                                          apiAutodiscoveryID, properties, apiSyncResource);
+      return new ScaffoldingConfiguration(api, muleConfigurations, domain, scaffoldingAccessories, apiSyncResource);
     }
   }
 

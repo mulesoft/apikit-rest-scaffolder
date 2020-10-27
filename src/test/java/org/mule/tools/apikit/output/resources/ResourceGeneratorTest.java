@@ -14,6 +14,7 @@ import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.Properties;
 import org.mule.tools.apikit.model.ScaffolderResource;
+import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import java.io.File;
@@ -29,17 +30,6 @@ import static org.junit.Assert.assertNull;
 
 public class ResourceGeneratorTest {
 
-  public static final String EXPECTED_YAML_0 = "http:\n" +
-      "  port: customPort\n" +
-      "  host: customHost\n" +
-      "myProperty: myNewHost\n" +
-      "lalala: 123\n";
-  public static final String EXPECTED_YAML_1 = "http:\n" +
-      "  port: '8081'\n" +
-      "  host: 0.0.0.0\n";
-  public static final String DEV_CONFIGURATION_YAML = "dev-configuration.yaml";
-  public static final String UAT_CONFIGURATION_YAML = "uat-configuration.yaml";
-  public static final String PROD_CONFIGURATION_YAML = "prod-configuration.yaml";
   public static final String BASE_PATH = "src/test/resources/org.mule.tools.apikit.output.resources/";
   public static final String PREFFIX_FULL = "expected-full";
   public static final String SLASH = "/";
@@ -47,7 +37,7 @@ public class ResourceGeneratorTest {
   @Test
   public void testNoGeneration() {
     ScaffoldingConfiguration.Builder scaffoldingConfigurationBuilder = ScaffoldingConfiguration.builder();
-    scaffoldingConfigurationBuilder.withProperties(null);
+    scaffoldingConfigurationBuilder.withAccessories(new ScaffoldingAccessories());
     assertNull(ResourcesGenerator.generate(scaffoldingConfigurationBuilder.build()));
   }
 
@@ -128,10 +118,12 @@ public class ResourceGeneratorTest {
       throw new RuntimeException(e);
     }
     Properties properties = new Properties("yaml", files);
-    scaffoldingConfigurationBuilder.withProperties(properties);
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories();
+    scaffoldingAccessories.setProperties(properties);
     if (apiAutodiscoveryId != null) {
-      scaffoldingConfigurationBuilder.withApiAutodiscoveryId(apiAutodiscoveryId);
+      scaffoldingAccessories.setApiId(apiAutodiscoveryId);
     }
+    scaffoldingConfigurationBuilder.withAccessories(scaffoldingAccessories);
     ScaffoldingConfiguration scaffoldingConfiguration = scaffoldingConfigurationBuilder.build();
     return scaffoldingConfiguration;
   }

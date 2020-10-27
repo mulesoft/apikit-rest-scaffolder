@@ -12,6 +12,7 @@ import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
 import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.ScaffolderResource;
+import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import java.util.ArrayList;
@@ -26,15 +27,16 @@ public class ResourcesGenerator {
   public static final String HTTP_PORT_REFERENCE = "${http.port}";
 
   public static List<ScaffolderResource> generate(ScaffoldingConfiguration scaffoldingConfiguration) {
-    if (scaffoldingConfiguration.getProperties() != null) {
-      String extension = scaffoldingConfiguration.getProperties().getFormat();
-      Map<String, Map<String, Object>> files = scaffoldingConfiguration.getProperties().getFiles();
+    ScaffoldingAccessories scaffoldingAccessories = scaffoldingConfiguration.getScaffoldingAccessories();
+    if (scaffoldingAccessories.getProperties() != null) {
+      String extension = scaffoldingAccessories.getProperties().getFormat();
+      Map<String, Map<String, Object>> files = scaffoldingAccessories.getProperties().getFiles();
       List<ScaffolderResource> resources = new ArrayList<>();
       for (Map.Entry<String, Map<String, Object>> properties : files.entrySet()) {
         String environment = properties.getKey();
         String fileName = environment.concat(FILE_NAME_SEPARATOR).concat(extension);
         String payload =
-            PropertyGenerator.generate(properties.getValue(), scaffoldingConfiguration.getApiAutodiscoveryID(), extension);
+            PropertyGenerator.generate(properties.getValue(), scaffoldingAccessories.getApiId(), extension);
         resources.add(new ScaffolderResource(SLASH, fileName, IOUtils.toInputStream(payload)));
       }
       return resources;
@@ -43,7 +45,7 @@ public class ResourcesGenerator {
   }
 
   public static void replaceReferencesToProperties(ScaffoldingConfiguration config, List<ApikitMainFlowContainer> includedApis) {
-    if (config != null && config.getProperties() != null) {
+    if (config != null && config.getScaffoldingAccessories().getProperties() != null) {
       for (ApikitMainFlowContainer api : includedApis) {
         HttpListenerConfig existingHttpConfig = api.getHttpListenerConfig();
         HttpListenerConnection httpListenerConnection =

@@ -15,6 +15,7 @@ import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
@@ -138,7 +139,8 @@ public class ScaffolderExecutionBuilder {
     }
 
     public void setShowConsole(boolean showConsole) {
-      scaffoldingConfigurationBuilder.withShowConsole(showConsole);
+      ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(showConsole, null, null, null);
+      scaffoldingConfigurationBuilder.withAccessories(scaffoldingAccessories);
     }
 
     public void setRuntimeEdition(RuntimeEdition runtimeEdition) {

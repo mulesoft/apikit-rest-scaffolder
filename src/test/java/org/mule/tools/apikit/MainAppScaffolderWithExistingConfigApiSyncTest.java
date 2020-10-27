@@ -16,6 +16,7 @@ import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
@@ -45,11 +46,11 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(TEST_RESOURCES_APISYNC + "/v1");
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
 
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference, null, null, null);
     verifySuccessfulScaffolding(result, TEST_RESOURCES_APISYNC + "/v1/api.xml");
 
     List<MuleConfig> muleConfig = new ArrayList<>(result.getGeneratedConfigs());
-    ScaffoldingResult secondScaffoldingResult = scaffoldApi(RuntimeEdition.CE, apiReference, muleConfig);
+    ScaffoldingResult secondScaffoldingResult = scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfig, null);
 
     verifySuccessfulScaffolding(secondScaffoldingResult, TEST_RESOURCES_APISYNC + "/v1/api.xml");
   }
@@ -70,20 +71,16 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ObjectMapper mapper = new ObjectMapper();
     InputStream scaffoldingConfigurationFile =
         new FileInputStream("src/test/resources/rescaffolding-apisync-version-with-global-config/pre-existing/configuration.json");
-    org.mule.tools.apikit.model.ScaffoldingConfigurationMojo scaffoldingConfigurationMojo =
-        mapper.readValue(scaffoldingConfigurationFile, org.mule.tools.apikit.model.ScaffoldingConfigurationMojo.class);
-    configurationBuilder.withProperties(scaffoldingConfigurationMojo.getProperties());
-    configurationBuilder.withApiAutodiscoveryId(scaffoldingConfigurationMojo.getApiId());
-    configurationBuilder.withExternalConfigurationFile(scaffoldingConfigurationMojo.getExternalCommonFile());
+    ScaffoldingAccessories scaffoldingAccessories =
+        mapper.readValue(scaffoldingConfigurationFile, ScaffoldingAccessories.class);
+    configurationBuilder.withAccessories(scaffoldingAccessories);
     configurationBuilder
         .withApiSyncResource(createResourceForApiSync("967b013a-46fe-4be7-8eb5-c91caebf3bc0", "test-yaml", "1.0.0"));
     String existingConfigV1Folder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/v1";
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigV1Folder);
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
     ScaffoldingResult scaffoldingResult =
-        scaffoldApi(RuntimeEdition.EE, apiReference, MuleDomain.builder().build(), muleConfigs,
-                    scaffoldingConfigurationMojo.isShowConsole(), scaffoldingConfigurationMojo.getExternalCommonFile(),
-                    scaffoldingConfigurationMojo.getApiId());
+        scaffoldApi(RuntimeEdition.EE, apiReference, MuleDomain.builder().build(), muleConfigs, scaffoldingAccessories);
   }
 
   /**
@@ -101,7 +98,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
 
     ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference, null,
-                                           asList(existingConfigV1Folder + "/api.xml"));
+                                           createMuleConfigsFromLocations(asList(existingConfigV1Folder + "/api.xml")), null);
     verifySuccessfulScaffolding(result, existingConfigV1Folder + "/api.xml");
 
     testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigV2Folder);
@@ -109,7 +106,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
     List<String> muleConfigs = asList(existingConfigV1Folder + "/api_refactored.xml", existingConfigV1Folder + "/global.xml");
     ScaffoldingResult rescaffoldResult =
-        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigs);
+        scaffoldApi(RuntimeEdition.CE, apiReference, null, createMuleConfigsFromLocations(muleConfigs), null);
     verifySuccessfulScaffolding(rescaffoldResult, existingConfigV2Folder + "/api_refactored.xml",
                                 existingConfigV2Folder + "/global.xml");
   }
@@ -135,8 +132,10 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigFolder);
     apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
 
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(true, "globals.xml", "1234", null);
+
     ScaffoldingResult rescaffoldResult =
-        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigsFromLocations, true, "globals.xml", "1234");
+        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigsFromLocations, scaffoldingAccessories);
     verifySuccessfulScaffolding(rescaffoldResult, api, expectedGlobals);
   }
 
@@ -157,10 +156,10 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     //rescaffold
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigFolder);
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
+    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(true, null, "5678", null);
 
     ScaffoldingResult rescaffoldResult =
-        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigsFromLocations, true, null, "5678");
-    List<MuleConfig> muleConfigsFromLocations2 = createMuleConfigsFromLocations(asList(expectedAPI));
+        scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigsFromLocations, scaffoldingAccessories);
     verifySuccessfulScaffolding(rescaffoldResult, expectedAPI);
   }
 
@@ -174,14 +173,14 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(TEST_RESOURCES_APISYNC + "/v1");
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
 
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference);
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference, null, null, null);
     verifySuccessfulScaffolding(result, TEST_RESOURCES_APISYNC + "/v1/api.xml");
 
     testScaffolderResourceLoader = new TestScaffolderResourceLoader(TEST_RESOURCES_APISYNC + "/v2");
     apiReference = ApiReference.create(RAML_RESOURCE_URL_V2, testScaffolderResourceLoader);
 
     List<MuleConfig> muleConfigs = new ArrayList<>(result.getGeneratedConfigs());
-    ScaffoldingResult rescaffoldResult = scaffoldApi(RuntimeEdition.CE, apiReference, muleConfigs);
+    ScaffoldingResult rescaffoldResult = scaffoldApi(RuntimeEdition.CE, apiReference, null, muleConfigs, null);
     verifySuccessfulScaffolding(rescaffoldResult, TEST_RESOURCES_APISYNC + "/v2/api.xml");
   }
 
@@ -196,7 +195,8 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V2, testScaffolderResourceLoader);
     List<String> existingConfigLocations = asList(existingConfigFolder + "/api_refactored.xml",
                                                   existingConfigFolder + "/global.xml");
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.CE, apiReference, null, existingConfigLocations);
+    ScaffoldingResult result =
+        scaffoldApi(RuntimeEdition.CE, apiReference, null, createMuleConfigsFromLocations(existingConfigLocations), null);
     verifySuccessfulScaffolding(result, existingConfigFolder + "/api_refactored.xml");
   }
 
