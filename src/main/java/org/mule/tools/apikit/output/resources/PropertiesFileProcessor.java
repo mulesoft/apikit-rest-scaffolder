@@ -40,7 +40,7 @@ public class PropertiesFileProcessor extends FileProcessor {
       Object http = configuration.get("http");
       Map<String, String> httpMap = new ObjectMapper().convertValue(http, Map.class);
       host = httpMap.get("host");
-      port = httpMap.get("port");
+      port = String.valueOf(httpMap.get("port"));
     }
     properties.setProperty(HTTP_HOST_KEY, host);
     properties.setProperty(HTTP_PORT_KEY, port);

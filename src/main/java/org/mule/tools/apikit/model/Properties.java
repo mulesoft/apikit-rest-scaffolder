@@ -10,32 +10,32 @@ import java.util.Map;
 
 public class Properties {
 
-    private String format;
-    private Map<String, Map<String, Object>> files;
+  private String format;
+  private Map<String, Map<String, Object>> files;
 
-    public Properties() {
-        this.format = null;
-        this.files = null;
-    }
+  public Properties() {
+    this.format = null;
+    this.files = null;
+  }
 
-    public Properties(String format, Map<String, Map<String, Object>> files) {
-        this.format = format;
-        this.files = files;
-    }
+  public Properties(String format, Map<String, Map<String, Object>> files) {
+    this.format = format;
+    this.files = files;
+  }
 
-    public String getFormat() {
-        return format;
-    }
+  public String getFormat() {
+    return format;
+  }
 
-    public void setFormat(String format) {
-        this.format = format;
-    }
+  public void setFormat(String format) {
+    this.format = format;
+  }
 
-    public Map<String, Map<String, Object>> getFiles() {
-        return files;
-    }
+  public Map<String, Map<String, Object>> getFiles() {
+    return files;
+  }
 
-    public void setFiles(Map<String, Map<String, Object>> files) {
-        this.files = files;
-    }
+  public void setFiles(Map<String, Map<String, Object>> files) {
+    this.files = files;
+  }
 }
