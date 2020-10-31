@@ -23,7 +23,9 @@ import org.jdom2.xpath.XPathFactory;
 
 public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfig>> {
 
-  private static final XPathExpression<Element> APIKIT_CONFIG_EXPRESSION = getCompiledExpression();
+  private static final XPathExpression<Element> APIKIT_CONFIG_EXPRESSION =
+      XPathFactory.instance().compile("//*/*[local-name()='" + APIKitConfig.ELEMENT_NAME + "']",
+                                      Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
 
   @Override
   public List<APIKitConfig> parse(Document document) {
@@ -67,8 +69,4 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
     return apikitConfigs;
   }
 
-  private static XPathExpression<Element> getCompiledExpression() {
-    return XPathFactory.instance().compile("//*/*[local-name()='" + APIKitConfig.ELEMENT_NAME + "']",
-                                           Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
-  }
 }

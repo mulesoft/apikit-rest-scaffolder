@@ -16,26 +16,23 @@ import org.jdom2.xpath.XPathFactory;
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.ConfigurationPropertiesConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ConfigurationPropertiesConfigParser implements MuleConfigFileParser<ConfigurationPropertiesConfig> {
+public class ConfigurationPropertiesConfigParser implements MuleConfigFileParser<List<ConfigurationPropertiesConfig>> {
 
-  private static final XPathExpression<Element> CONFIGURATION_PROPERTIES_EXPRESSION = getCompiledExpression();
-
-  private static XPathExpression<Element> getCompiledExpression() {
-    return XPathFactory.instance().compile("//*/*[local-name()='" + ConfigurationPropertiesConfig.ELEMENT_NAME + "']",
-                                           new ElementFilter());
-  }
-
+  private static final XPathExpression<Element> CONFIGURATION_PROPERTIES_EXPRESSION =
+      XPathFactory.instance().compile("//*/*[local-name()='" + ConfigurationPropertiesConfig.ELEMENT_NAME + "']",
+                                      new ElementFilter());
 
   @Override
-  public ConfigurationPropertiesConfig parse(Document document) {
-    ConfigurationPropertiesConfig config = null;
+  public List<ConfigurationPropertiesConfig> parse(Document document) {
+    List<ConfigurationPropertiesConfig> configurations = new ArrayList<>();
     List<Element> elements = CONFIGURATION_PROPERTIES_EXPRESSION.evaluate(document);
 
     for (Element element : elements) {
-      config = new ConfigurationPropertiesConfig();
+      ConfigurationPropertiesConfig config = new ConfigurationPropertiesConfig();
       Attribute fileAttribute = element.getAttribute(ConfigurationPropertiesConfig.FILE_ATTRIBUTE);
 
       if (fileAttribute != null) {
@@ -43,7 +40,8 @@ public class ConfigurationPropertiesConfigParser implements MuleConfigFileParser
       } else {
         throw new RuntimeException("file is a mandatory field");
       }
+      configurations.add(config);
     }
-    return config;
+    return configurations;
   }
 }

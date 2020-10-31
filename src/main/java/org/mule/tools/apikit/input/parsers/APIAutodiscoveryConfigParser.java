@@ -6,6 +6,7 @@
  */
 package org.mule.tools.apikit.input.parsers;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -15,45 +16,45 @@ import org.jdom2.xpath.XPathFactory;
 
 import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class APIAutodiscoveryConfigParser implements MuleConfigFileParser<APIAutodiscoveryConfig> {
+public class APIAutodiscoveryConfigParser implements MuleConfigFileParser<List<APIAutodiscoveryConfig>> {
 
-  private static final XPathExpression<Element> API_AUTODISCOVERY_EXPRESSION = getCompiledExpression();
-
-  private static XPathExpression<Element> getCompiledExpression() {
-    return XPathFactory.instance().compile("//*/*[local-name()='" + APIAutodiscoveryConfig.ELEMENT_NAME + "']",
-                                           Filters.element(APIAutodiscoveryConfig.API_AUTODISCOVERY_NAMESPACE.getNamespace()));
-  }
+  private static final XPathExpression<Element> API_AUTODISCOVERY_EXPRESSION =
+      XPathFactory.instance().compile("//*/*[local-name()='" + APIAutodiscoveryConfig.ELEMENT_NAME + "']",
+                                      Filters.element(APIAutodiscoveryConfig.API_AUTODISCOVERY_NAMESPACE.getNamespace()));
 
   @Override
-  public APIAutodiscoveryConfig parse(Document document) {
-
-    APIAutodiscoveryConfig config = null;
+  public List<APIAutodiscoveryConfig> parse(Document document) {
+    List<APIAutodiscoveryConfig> configurations = new LinkedList<>();
     List<Element> elements = API_AUTODISCOVERY_EXPRESSION.evaluate(document);
 
-    for (Element element : elements) {
-      config = new APIAutodiscoveryConfig();
-      Attribute apiIdAttribute = element.getAttribute(APIAutodiscoveryConfig.API_ID_ATTRIBUTE);
-      Attribute ignoreBasePathAttribute = element.getAttribute(APIAutodiscoveryConfig.IGNORE_BASE_PATH_ATTRIBUTE);
-      Attribute flowRefAttribute = element.getAttribute(APIAutodiscoveryConfig.FLOW_REF_ATTRIBUTE);
+    if (CollectionUtils.isNotEmpty(elements)) {
+      for (Element element : elements) {
+        APIAutodiscoveryConfig configuration = new APIAutodiscoveryConfig();
+        Attribute apiIdAttribute = element.getAttribute(APIAutodiscoveryConfig.API_ID_ATTRIBUTE);
+        Attribute ignoreBasePathAttribute = element.getAttribute(APIAutodiscoveryConfig.IGNORE_BASE_PATH_ATTRIBUTE);
+        Attribute flowRefAttribute = element.getAttribute(APIAutodiscoveryConfig.FLOW_REF_ATTRIBUTE);
 
-      if (apiIdAttribute != null) {
-        config.setApiId(apiIdAttribute.getValue());
-      } else {
-        throw new RuntimeException("apiId is a mandatory field");
-      }
+        if (apiIdAttribute != null) {
+          configuration.setApiId(apiIdAttribute.getValue());
+        } else {
+          throw new RuntimeException("apiId is a mandatory field");
+        }
 
-      if (ignoreBasePathAttribute != null) {
-        config.setIgnoreBasePath(Boolean.valueOf(ignoreBasePathAttribute.getValue()));
-      }
+        if (ignoreBasePathAttribute != null) {
+          configuration.setIgnoreBasePath(Boolean.valueOf(ignoreBasePathAttribute.getValue()));
+        }
 
-      if (flowRefAttribute != null) {
-        config.setFlowRef(flowRefAttribute.getValue());
+        if (flowRefAttribute != null) {
+          configuration.setFlowRef(flowRefAttribute.getValue());
+        }
+        configurations.add(configuration);
       }
     }
-    return config;
+    return configurations;
   }
 }
 

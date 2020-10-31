@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -118,7 +119,7 @@ public class MuleConfigGeneratorTest {
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals(muleConfig.getApiAutodiscoveryConfig(), null);
+        assertEquals(new ArrayList<>(), muleConfig.getApiAutodiscoveryConfig());
         assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
         assertEquals(muleConfig.getApikitConfigs().size(), 1);
       } else {
@@ -147,11 +148,12 @@ public class MuleConfigGeneratorTest {
     ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
         ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
-    APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
+    List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig =
+        Arrays.asList(new APIAutodiscoveryConfig("1234", true, "hello-main"));
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     assertEquals(muleConfigs.size(), 1);
     for (MuleConfig muleConfig : muleConfigs) {
-      assertEquals(muleConfig.getApiAutodiscoveryConfig(), expectedApiAutodiscoveryConfig);
+      assertEquals(expectedApiAutodiscoveryConfig, muleConfig.getApiAutodiscoveryConfig());
     }
   }
 
@@ -163,12 +165,13 @@ public class MuleConfigGeneratorTest {
         new ScaffoldingAccessories(HIDE_CONSOLE, externalConfigurationFile, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
         ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
-    APIAutodiscoveryConfig expectedApiAutodiscoveryConfig = new APIAutodiscoveryConfig("1234", true, "hello-main");
+    List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig =
+        Arrays.asList(new APIAutodiscoveryConfig("1234", true, "hello-main"));
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     assertEquals(muleConfigs.size(), 2);
     for (MuleConfig muleConfig : muleConfigs) {
       if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals(muleConfig.getApiAutodiscoveryConfig(), expectedApiAutodiscoveryConfig);
+        assertEquals(expectedApiAutodiscoveryConfig, muleConfig.getApiAutodiscoveryConfig());
         assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
         assertEquals(muleConfig.getApikitConfigs().size(), 1);
       } else {

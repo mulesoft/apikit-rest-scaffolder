@@ -31,12 +31,9 @@ import java.util.Set;
 
 public class APIKitRoutersParser implements MuleConfigFileParser {
 
-  private static final XPathExpression<Element> COMPILED_ROUTER_EXPRESSION = getCompiledExpression();
-
-  private static XPathExpression<Element> getCompiledExpression() {
-    return XPathFactory.instance().compile("//*/*[local-name()='router']",
-                                           Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));
-  }
+  private static final XPathExpression<Element> COMPILED_ROUTER_EXPRESSION =
+      XPathFactory.instance().compile("//*/*[local-name()='router']",
+                                      Filters.element(APIKitTools.API_KIT_NAMESPACE.getNamespace()));;
 
   private final List<APIKitConfig> apikitConfigs;
   private final List<HttpListenerConfig> httpListenerConfigs;

@@ -28,6 +28,7 @@ import org.mule.tools.apikit.output.scopes.FlowScope;
 import org.mule.tools.apikit.output.scopes.MuleScope;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -287,7 +288,9 @@ public class MuleConfigGenerator {
    */
   private MuleConfig addCustomizations(ConfigurationPropertiesConfig configurationPropertiesConfig,
                                        APIAutodiscoveryConfig apiAutodiscoveryConfig, MuleConfig muleConfig) {
-    muleConfig.setConfigurationPropertiesConfig(configurationPropertiesConfig);
+    if (configurationPropertiesConfig != null) {
+      muleConfig.setConfigurationPropertiesConfig(Arrays.asList(configurationPropertiesConfig));
+    }
     muleConfig = setAPIAutodiscoveryId(muleConfig, apiAutodiscoveryConfig);
     return muleConfig;
   }
@@ -306,7 +309,7 @@ public class MuleConfigGenerator {
     boolean hasAPIAutodiscoveryId = hasAPIAutodiscoveryId();
     if (hasAPIAutodiscoveryId
         && (!preExistingMuleConfigOptional.isPresent() || apiAutodiscoveryConfig != null)) {
-      muleConfig.setApiAutodiscoveryConfig(apiAutodiscoveryConfig);
+      muleConfig.setApiAutodiscoveryConfig(Arrays.asList(apiAutodiscoveryConfig));
       //update originalContent
       return fromDoc(muleConfig.buildContent(), false);
     }

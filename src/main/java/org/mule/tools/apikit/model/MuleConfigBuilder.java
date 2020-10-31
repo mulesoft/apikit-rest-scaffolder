@@ -37,8 +37,9 @@ public class MuleConfigBuilder {
 
     List<HttpListenerConfig> httpListenerConfigs = httpConfigParser.parse(muleConfigContent);
     List<APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
-    APIAutodiscoveryConfig apiAutodiscoveryConfig = apiAutodiscoveryConfigParser.parse(muleConfigContent);
-    ConfigurationPropertiesConfig configurationPropertiesConfig = configurationPropertiesConfigParser.parse(muleConfigContent);
+    List<APIAutodiscoveryConfig> apiAutodiscoveryConfig = apiAutodiscoveryConfigParser.parse(muleConfigContent);
+    List<ConfigurationPropertiesConfig> configurationPropertiesConfig =
+        configurationPropertiesConfigParser.parse(muleConfigContent);
 
     List<Flow> flowsInConfig = new ArrayList<>();
 

@@ -24,13 +24,10 @@ import org.jdom2.xpath.XPathFactory;
 public class HttpListenerConfigParser implements MuleConfigFileParser<List<HttpListenerConfig>> {
 
   private static final String ELEMENT_NAME = "listener-config";
-  private static final XPathExpression<Element> LISTENER_COMPILED_EXPRESSION = getCompiledExpression();
+  private static final XPathExpression<Element> LISTENER_COMPILED_EXPRESSION =
+      XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
+                                      Filters.element(HTTP_NAMESPACE.getNamespace()));
   private boolean persisted;
-
-  private static XPathExpression<Element> getCompiledExpression() {
-    return XPathFactory.instance().compile("//*/*[local-name()='" + ELEMENT_NAME + "']",
-                                           Filters.element(HTTP_NAMESPACE.getNamespace()));
-  }
 
   public HttpListenerConfigParser() {
     this.persisted = true;

@@ -7,6 +7,7 @@
 package org.mule.tools.apikit.model;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections.CollectionUtils.*;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
@@ -27,14 +29,14 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   private Document originalContent;
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
-  private APIAutodiscoveryConfig apiAutodiscoveryConfig;
-  private ConfigurationPropertiesConfig configurationPropertiesConfig;
+  private List<APIAutodiscoveryConfig> apiAutodiscoveryConfig;
+  private List<ConfigurationPropertiesConfig> configurationPropertiesConfig;
   private List<Flow> flows;
   private static final String INDENTATION = "    ";
 
   protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows,
-                       APIAutodiscoveryConfig apiAutodiscoveryConfig,
-                       ConfigurationPropertiesConfig configurationPropertiesConfig) {
+                       List<APIAutodiscoveryConfig> apiAutodiscoveryConfig,
+                       List<ConfigurationPropertiesConfig> configurationPropertiesConfig) {
     this.configurations = configurations;
     this.apikitConfigs = apikitConfigs;
     this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
@@ -43,25 +45,26 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   }
 
   protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows,
-                       APIAutodiscoveryConfig apiAutodiscoveryConfig, ConfigurationPropertiesConfig configurationPropertiesConfig,
+                       List<APIAutodiscoveryConfig> apiAutodiscoveryConfig,
+                       List<ConfigurationPropertiesConfig> configurationPropertiesConfig,
                        Document content) {
     this(httpConfigs, apikitConfigs, flows, apiAutodiscoveryConfig, configurationPropertiesConfig);
     this.originalContent = content;
   }
 
-  public ConfigurationPropertiesConfig getConfigurationPropertiesConfig() {
+  public List<ConfigurationPropertiesConfig> getConfigurationPropertiesConfig() {
     return configurationPropertiesConfig;
   }
 
-  public void setConfigurationPropertiesConfig(ConfigurationPropertiesConfig configurationPropertiesConfig) {
+  public void setConfigurationPropertiesConfig(List<ConfigurationPropertiesConfig> configurationPropertiesConfig) {
     this.configurationPropertiesConfig = configurationPropertiesConfig;
   }
 
-  public APIAutodiscoveryConfig getApiAutodiscoveryConfig() {
+  public List<APIAutodiscoveryConfig> getApiAutodiscoveryConfig() {
     return apiAutodiscoveryConfig;
   }
 
-  public void setApiAutodiscoveryConfig(APIAutodiscoveryConfig apiAutodiscoveryConfig) {
+  public void setApiAutodiscoveryConfig(List<APIAutodiscoveryConfig> apiAutodiscoveryConfig) {
     this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
   }
 
@@ -130,11 +133,12 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     }
     apikitConfigs.forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
     flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
-    if (apiAutodiscoveryConfig != null) {
-      addContent(document, apiAutodiscoveryConfig.generate());
+    if (isNotEmpty(apiAutodiscoveryConfig)) {
+      apiAutodiscoveryConfig.forEach(singleApiAutodiscovery -> addContent(document, singleApiAutodiscovery.generate()));
     }
     if (configurationPropertiesConfig != null) {
-      addContent(document, configurationPropertiesConfig.generate());
+      configurationPropertiesConfig
+          .forEach(singlCconfigurationPropertiesConfig -> addContent(document, singlCconfigurationPropertiesConfig.generate()));
     }
 
     return document;
