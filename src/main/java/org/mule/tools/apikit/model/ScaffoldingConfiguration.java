@@ -62,12 +62,15 @@ public class ScaffoldingConfiguration {
     private List<MuleConfig> muleConfigurations;
     private MuleDomain domain;
     private ScaffoldingAccessories scaffoldingAccessories;
+    private boolean showConsole = true;
+    private String externalCommonFile;
+    private String apiId;
+    private Properties properties;
+
     private String apiSyncResource;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
-      this.scaffoldingAccessories = new ScaffoldingAccessories();
-      this.apiSyncResource = null;
       domain = MuleDomain.builder().build();
     }
 
@@ -86,8 +89,23 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
-    public Builder withAccessories(ScaffoldingAccessories scaffoldingAccessories) {
-      this.scaffoldingAccessories = scaffoldingAccessories;
+    public Builder withExternalCommonFile(String externalCommonFile) {
+      this.externalCommonFile = externalCommonFile;
+      return this;
+    }
+
+    public Builder withApiId(String apiId) {
+      this.apiId = apiId;
+      return this;
+    }
+
+    public Builder withProperties(Properties properties) {
+      this.properties = properties;
+      return this;
+    }
+
+    public Builder withShowConsole(boolean showConsole) {
+      this.showConsole = showConsole;
       return this;
     }
 
@@ -97,7 +115,9 @@ public class ScaffoldingConfiguration {
     }
 
     public ScaffoldingConfiguration build() {
-      return new ScaffoldingConfiguration(api, muleConfigurations, domain, scaffoldingAccessories, apiSyncResource);
+      return new ScaffoldingConfiguration(api, muleConfigurations, domain,
+                                          new ScaffoldingAccessories(showConsole, externalCommonFile, apiId, properties),
+                                          apiSyncResource);
     }
   }
 

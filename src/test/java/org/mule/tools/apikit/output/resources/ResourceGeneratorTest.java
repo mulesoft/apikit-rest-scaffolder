@@ -37,7 +37,6 @@ public class ResourceGeneratorTest {
   @Test
   public void testNoGeneration() {
     ScaffoldingConfiguration.Builder scaffoldingConfigurationBuilder = ScaffoldingConfiguration.builder();
-    scaffoldingConfigurationBuilder.withAccessories(new ScaffoldingAccessories());
     assertNull(ResourcesGenerator.generate(scaffoldingConfigurationBuilder.build()));
   }
 
@@ -118,12 +117,10 @@ public class ResourceGeneratorTest {
       throw new RuntimeException(e);
     }
     Properties properties = new Properties("yaml", files);
-    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories();
-    scaffoldingAccessories.setProperties(properties);
+    scaffoldingConfigurationBuilder.withProperties(properties);
     if (apiAutodiscoveryId != null) {
-      scaffoldingAccessories.setApiId(apiAutodiscoveryId);
+      scaffoldingConfigurationBuilder.withApiId(apiAutodiscoveryId);
     }
-    scaffoldingConfigurationBuilder.withAccessories(scaffoldingAccessories);
     ScaffoldingConfiguration scaffoldingConfiguration = scaffoldingConfigurationBuilder.build();
     return scaffoldingConfiguration;
   }

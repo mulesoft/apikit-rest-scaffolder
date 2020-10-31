@@ -73,7 +73,9 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
         new FileInputStream("src/test/resources/rescaffolding-apisync-version-with-global-config/pre-existing/configuration.json");
     ScaffoldingAccessories scaffoldingAccessories =
         mapper.readValue(scaffoldingConfigurationFile, ScaffoldingAccessories.class);
-    configurationBuilder.withAccessories(scaffoldingAccessories);
+    configurationBuilder.withExternalCommonFile(scaffoldingAccessories.getExternalCommonFile());
+    configurationBuilder.withApiId(scaffoldingAccessories.getApiId());
+    configurationBuilder.withProperties(scaffoldingAccessories.getProperties());
     configurationBuilder
         .withApiSyncResource(createResourceForApiSync("967b013a-46fe-4be7-8eb5-c91caebf3bc0", "test-yaml", "1.0.0"));
     String existingConfigV1Folder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/v1";

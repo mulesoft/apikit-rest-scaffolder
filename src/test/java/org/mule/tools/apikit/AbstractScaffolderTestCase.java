@@ -96,32 +96,6 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return MuleDomain.fromInputStream(muleDomainInputStream);
   }
 
-  //  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation) throws Exception {
-  //    return scaffoldApi(runtimeEdition, ramlLocation, emptyList(), null);
-  //  }
-
-  //  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-  //                                          List<String> existingMuleConfigsLocations, MuleDomain muleDomain)
-  //      throws Exception {
-  //    List<MuleConfig> existingMuleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-  //    return scaffoldApi(runtimeEdition, ramlLocation, muleDomain, existingMuleConfigs, true);
-  //  }
-  //
-  //  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference, MuleDomain muleDomain,
-  //                                          List<String> existingMuleConfigsLocations)
-  //      throws Exception {
-  //    List<MuleConfig> existingMuleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-  //    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(true, null, null, null, null);
-  //    return scaffoldApi(runtimeEdition, apiReference, muleDomain, existingMuleConfigs, scaffoldingAccessories);
-  //  }
-  //
-  //  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-  //                                          MuleDomain muleDomain, List<MuleConfig> existingMuleConfigs, boolean showConsole) {
-  //    ApiReference apiReference = ApiReference.create(Paths.get(ramlLocation).toString());
-  //    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(showConsole, null, null, null, null);
-  //    return scaffoldApi(runtimeEdition, apiReference, muleDomain, existingMuleConfigs, scaffoldingAccessories);
-  //  }
-
   protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference,
                                           MuleDomain muleDomain, List<MuleConfig> existingMuleConfigs,
                                           ScaffoldingAccessories scaffoldingAccessories) {
@@ -152,7 +126,10 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
       configuration.withDomain(muleDomain);
     }
     if (scaffoldingAccessories != null) {
-      configuration.withAccessories(scaffoldingAccessories);
+      configuration.withShowConsole(scaffoldingAccessories.isShowConsole());
+      configuration.withProperties(scaffoldingAccessories.getProperties());
+      configuration.withApiId(scaffoldingAccessories.getApiId());
+      configuration.withExternalCommonFile(scaffoldingAccessories.getExternalCommonFile());
     }
     return configuration.build();
   }

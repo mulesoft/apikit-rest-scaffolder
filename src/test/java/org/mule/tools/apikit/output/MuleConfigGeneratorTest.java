@@ -115,7 +115,7 @@ public class MuleConfigGeneratorTest {
     ScaffoldingAccessories scaffoldingAccessories =
         new ScaffoldingAccessories(HIDE_CONSOLE, externalConfigurationFile, null, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalCommonFile(externalConfigurationFile);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       if (muleConfig.getName() == externalConfigurationFile) {
@@ -132,7 +132,7 @@ public class MuleConfigGeneratorTest {
   public void blankDocumentWithoutExternalizedGlobals() {
     ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, null, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
@@ -147,7 +147,7 @@ public class MuleConfigGeneratorTest {
     String apiAutodiscovery = "1234";
     ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiId(apiAutodiscovery);
     List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig =
         Arrays.asList(new APIAutodiscoveryConfig("1234", true, "hello-main"));
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
@@ -161,10 +161,9 @@ public class MuleConfigGeneratorTest {
   public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
     String externalConfigurationFile = "globals.xml";
     String apiAutodiscovery = "1234";
-    ScaffoldingAccessories scaffoldingAccessories =
-        new ScaffoldingAccessories(HIDE_CONSOLE, externalConfigurationFile, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
-        ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
+        ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalCommonFile(externalConfigurationFile)
+            .withApiId(apiAutodiscovery);
     List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig =
         Arrays.asList(new APIAutodiscoveryConfig("1234", true, "hello-main"));
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
@@ -182,8 +181,7 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutLCInDomain() {
-    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(SHOW_CONSOLE, null, null, null);
-    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
+    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder();
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();
@@ -200,8 +198,7 @@ public class MuleConfigGeneratorTest {
 
   @Test
   public void blankDocumentWithoutLCInDomainHideConsole() {
-    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(true, null, null, null);
-    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder().withAccessories(scaffoldingAccessories);
+    ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder();
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
       Document document = muleConfig.getContentAsDocument();

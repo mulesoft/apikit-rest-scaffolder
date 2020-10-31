@@ -90,7 +90,6 @@ public class ConsoleFlowTest {
     assertEquals(0, countOccurences(s, "<flow name=\"simple-enabled-console\">"));
   }
 
-  // revisar test
   private MainAppScaffolder getScaffolder() {
     ScaffolderContext context = ScaffolderContextBuilder.builder()
         .withRuntimeEdition(RuntimeEdition.EE)

@@ -261,7 +261,7 @@ public class MuleConfigGenerator {
       global = addCustomizations(configurationPropertiesConfig, apiAutodiscoveryConfig, global);
       flowScope = new FlowScope(api, isMuleEE(), global.getApikitConfigs().stream().findFirst().orElse(null).getName());
       addMuleConfig(muleConfigs, fromDoc(global.buildContent()),
-                    configuration.getScaffoldingAccessories().getExternalConfigurationFile());
+                    configuration.getScaffoldingAccessories().getExternalCommonFile());
     } else {
       muleConfig = addCustomizations(configurationPropertiesConfig, apiAutodiscoveryConfig, muleConfig);
     }
@@ -330,7 +330,7 @@ public class MuleConfigGenerator {
 
   private Optional<MuleConfig> searchExistingMuleConfigByName() {
     return muleConfigsInApp.stream().filter(config -> {
-      String externalConfigurationFile = configuration.getScaffoldingAccessories().getExternalConfigurationFile();
+      String externalConfigurationFile = configuration.getScaffoldingAccessories().getExternalCommonFile();
       return isNotEmpty(externalConfigurationFile) && externalConfigurationFile.equalsIgnoreCase(config.getName());
     }).findAny();
   }
@@ -340,7 +340,7 @@ public class MuleConfigGenerator {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false, hasAPIAutodiscoveryId()).generate());
       MuleConfig muleConfig = fromDoc(document);
-      if (configuration.getScaffoldingAccessories().getExternalConfigurationFile() == null) {
+      if (configuration.getScaffoldingAccessories().getExternalCommonFile() == null) {
         commonConfigurations(api, muleConfig);
       }
       return muleConfig;
@@ -421,7 +421,7 @@ public class MuleConfigGenerator {
     if (muleConfig.isPresent()) {
       return muleConfig.get();
     }
-    if (configuration.getScaffoldingAccessories().getExternalConfigurationFile() != null) {
+    if (configuration.getScaffoldingAccessories().getExternalCommonFile() != null) {
       Document document = new Document();
       document.setRootElement(new MuleScope(false, false, hasAPIAutodiscoveryId()).generate());
       MuleConfig global = fromDoc(document);

@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class Properties {
 
-  private String format;
-  private Map<String, Map<String, Object>> files;
+  private final String format;
+  private final Map<String, Map<String, Object>> files;
 
   public Properties() {
     this.format = null;
@@ -27,15 +27,8 @@ public class Properties {
     return format;
   }
 
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
   public Map<String, Map<String, Object>> getFiles() {
     return files;
   }
 
-  public void setFiles(Map<String, Map<String, Object>> files) {
-    this.files = files;
-  }
 }

@@ -140,7 +140,7 @@ public class ScaffolderExecutionBuilder {
 
     public void setShowConsole(boolean showConsole) {
       ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(showConsole, null, null, null);
-      scaffoldingConfigurationBuilder.withAccessories(scaffoldingAccessories);
+      scaffoldingConfigurationBuilder.withShowConsole(showConsole);
     }
 
     public void setRuntimeEdition(RuntimeEdition runtimeEdition) {

@@ -9,12 +9,15 @@ package org.mule.tools.apikit.model;
 public class ScaffoldingAccessories {
 
   private final boolean showConsole;
-  private String externalCommonFile;
-  private String apiId;
-  private Properties properties;
+  private final String externalCommonFile;
+  private final String apiId;
+  private final Properties properties;
 
   public ScaffoldingAccessories() {
     this.showConsole = true;
+    this.externalCommonFile = null;
+    this.apiId = null;
+    this.properties = null;
   }
 
   public ScaffoldingAccessories(boolean showConsole,
@@ -31,14 +34,6 @@ public class ScaffoldingAccessories {
     return showConsole;
   }
 
-  public String getExternalConfigurationFile() {
-    return externalCommonFile;
-  }
-
-  public void setExternalCommonFile(String externalCommonFile) {
-    this.externalCommonFile = externalCommonFile;
-  }
-
   public String getExternalCommonFile() {
     return externalCommonFile;
   }
@@ -47,15 +42,8 @@ public class ScaffoldingAccessories {
     return apiId;
   }
 
-  public void setApiId(String apiId) {
-    this.apiId = apiId;
-  }
-
   public Properties getProperties() {
     return properties;
   }
 
-  public void setProperties(Properties properties) {
-    this.properties = properties;
-  }
 }
