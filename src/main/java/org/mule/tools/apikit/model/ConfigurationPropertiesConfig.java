@@ -19,14 +19,12 @@ public class ConfigurationPropertiesConfig implements Scope {
 
   private String file;
 
-  public ConfigurationPropertiesConfig() {}
+  public ConfigurationPropertiesConfig(String file) {
+    this.file = file;
+  }
 
   public String getFile() {
     return file;
-  }
-
-  public void setFile(String file) {
-    this.file = file;
   }
 
   @Override

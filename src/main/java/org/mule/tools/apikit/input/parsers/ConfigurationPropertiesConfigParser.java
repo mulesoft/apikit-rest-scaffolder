@@ -32,15 +32,12 @@ public class ConfigurationPropertiesConfigParser implements MuleConfigFileParser
     List<Element> elements = CONFIGURATION_PROPERTIES_EXPRESSION.evaluate(document);
 
     for (Element element : elements) {
-      ConfigurationPropertiesConfig config = new ConfigurationPropertiesConfig();
       Attribute fileAttribute = element.getAttribute(ConfigurationPropertiesConfig.FILE_ATTRIBUTE);
-
       if (fileAttribute != null) {
-        config.setFile(fileAttribute.getValue());
+        configurations.add(new ConfigurationPropertiesConfig(fileAttribute.getValue()));
       } else {
         throw new RuntimeException("file is a mandatory field");
       }
-      configurations.add(config);
     }
     return configurations;
   }

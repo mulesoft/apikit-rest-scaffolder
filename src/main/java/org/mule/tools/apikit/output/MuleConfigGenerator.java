@@ -296,10 +296,8 @@ public class MuleConfigGenerator {
   }
 
   private ConfigurationPropertiesConfig createConfigurationProperties() {
-    ConfigurationPropertiesConfig configurationPropertiesConfig = new ConfigurationPropertiesConfig();
-    configurationPropertiesConfig
-        .setFile("${env}-configuration.".concat(configuration.getScaffoldingAccessories().getProperties().getFormat()));
-    return configurationPropertiesConfig;
+    return new ConfigurationPropertiesConfig("${env}-configuration."
+        .concat(configuration.getScaffoldingAccessories().getProperties().getFormat()));
   }
 
   private MuleConfig setAPIAutodiscoveryId(MuleConfig muleConfig, APIAutodiscoveryConfig apiAutodiscoveryConfig) {
