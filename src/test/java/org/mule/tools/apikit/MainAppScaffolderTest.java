@@ -27,6 +27,7 @@ import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -965,7 +966,7 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
   }
 
   @Test
-  public void twoUriParamas() throws Exception {
+  public void twoUriParams() throws Exception {
     String s = when()
         .api("scaffolder/twoUriParams.raml")
         .then()
@@ -1007,6 +1008,24 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
 
     assertEquals(APIKitTools.readContents(getResourceAsStream("scaffolder/body-with-mime-types-without-schema/output.xml"))
         .replaceAll("\\s+", ""), configContent.replaceAll("\\s+", ""));
+  }
+
+  @Test
+  public void scaffoldApiWithResourcesIncludingColon() throws IOException {
+    String configContent = when().api("scaffolder/resources-including-colon-api.raml")
+        .then()
+        .assertSuccess()
+        .assertConfigsSize(1)
+        .getConfigContent();
+    assertEquals(2, countOccurences(configContent, "get:\\resources\\(id)%3Alist:resources-including-colon-api"));
+    assertEquals(2,
+                 countOccurences(configContent, "post:\\resources\\(id)%3Alist:application\\xml:resources-including-colon-api"));
+    assertEquals(2, countOccurences(configContent, "get:\\resources\\%3Ainit:resources-including-colon-api"));
+    assertEquals(2, countOccurences(configContent, "post:\\resources\\%3Ainit:application\\xml:resources-including-colon-api"));
+    assertEquals(2, countOccurences(configContent, "get:\\(category)%3A(categoryId)\\resources:resources-including-colon-api"));
+    assertEquals(2,
+                 countOccurences(configContent,
+                                 "post:\\(category)%3A(categoryId)\\resources:application\\xml:resources-including-colon-api"));
   }
 
   private void assertPetApiScaffoldedContent(String content) {

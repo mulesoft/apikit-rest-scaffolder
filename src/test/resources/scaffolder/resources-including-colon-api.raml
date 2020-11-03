@@ -1,0 +1,41 @@
+#%RAML 1.0
+---
+title: Test API for enpoints including a colon in one of the path segments
+
+/resources/{id}:list:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+  post:
+    body:
+      application/xml:
+    responses:
+      "201": { }
+
+/resources/:init:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+  post:
+    body:
+      application/xml:
+        type: object
+    responses:
+      "201": { }
+
+/{category}:{categoryId}/resources:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+  post:
+    body:
+      application/xml:
+        type: object
+    responses:
+      "201": { }

@@ -6,17 +6,18 @@
  */
 package org.mule.tools.apikit.input;
 
-import static org.junit.Assert.assertEquals;
-import static org.mule.apikit.model.ActionType.GET;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.mule.apikit.model.ActionType.GET;
 
 public class APIKitFlowTest {
 
   private static final String RESOURCE = "/leagues/{leagueId}";
+  private static final String RESOURCE_WITH_COLONS = "/leagues/{region}%3A{leagueId}/%3Arename";
   private static final String BAD_RESOURCE = "leagues/{leagueId}";
   private static final String CONFIG_REF = "config-ref";
   private static final String MIME_TYPE = "text/xml";
@@ -29,6 +30,16 @@ public class APIKitFlowTest {
         APIKitFlow.buildFromName(buildName(GET.toString(), RESOURCE, null, CONFIG_REF), Arrays.asList(new String[] {CONFIG_REF}));
     assertEquals(GET.toString().toLowerCase(), flow.getAction());
     assertEquals(RESOURCE, flow.getResource());
+    assertEquals(CONFIG_REF, flow.getConfigRef());
+  }
+
+  @Test
+  public void testAPIKitFlowNameWithColons() {
+    APIKitFlow flow =
+        APIKitFlow.buildFromName(buildName(GET.toString(), RESOURCE_WITH_COLONS, null, CONFIG_REF),
+                                 Arrays.asList(new String[] {CONFIG_REF}));
+    assertEquals(GET.toString().toLowerCase(), flow.getAction());
+    assertEquals(RESOURCE_WITH_COLONS, flow.getResource());
     assertEquals(CONFIG_REF, flow.getConfigRef());
   }
 

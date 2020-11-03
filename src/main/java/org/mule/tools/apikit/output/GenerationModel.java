@@ -12,7 +12,6 @@ import org.mule.apikit.model.Action;
 import org.mule.apikit.model.Resource;
 import org.mule.apikit.model.Response;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.tools.apikit.misc.FlowNameUtils;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 
 import javax.annotation.Nonnull;
@@ -28,6 +27,8 @@ import java.util.regex.Pattern;
 import static java.util.stream.Collectors.toMap;
 import static org.mule.runtime.api.metadata.MediaType.parse;
 import static org.mule.tools.apikit.misc.FlowNameUtils.FLOW_NAME_SEPARATOR;
+import static org.mule.tools.apikit.misc.FlowNameUtils.encode;
+import static org.mule.tools.apikit.misc.FlowNameUtils.encodeColons;
 
 public class GenerationModel implements Comparable<GenerationModel> {
 
@@ -198,10 +199,10 @@ public class GenerationModel implements Comparable<GenerationModel> {
   }
 
   public String getFlowName() {
-    StringBuilder flowName = new StringBuilder("");
+    StringBuilder flowName = new StringBuilder();
     flowName.append(action.getType().toString().toLowerCase())
         .append(FLOW_NAME_SEPARATOR)
-        .append(resource.getResolvedUri(version));
+        .append(encodeColons(resource.getResolvedUri(version)));
 
     if (mimeType != null) {
       flowName.append(FLOW_NAME_SEPARATOR)
@@ -213,7 +214,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
       flowName.append(FLOW_NAME_SEPARATOR)
           .append(api.getConfig().getName());
     }
-    return FlowNameUtils.encode(flowName.toString());
+    return encode(flowName.toString());
   }
 
   @Override
@@ -239,4 +240,5 @@ public class GenerationModel implements Comparable<GenerationModel> {
     MediaType mType = parse(mediaType);
     return String.format("%s/%s", mType.getPrimaryType(), mType.getSubType());
   }
+
 }
