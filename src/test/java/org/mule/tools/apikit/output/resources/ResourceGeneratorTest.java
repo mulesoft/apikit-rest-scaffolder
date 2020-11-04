@@ -55,25 +55,6 @@ public class ResourceGeneratorTest {
     commonAssertResources(generatedResources, 3);
   }
 
-  @Test
-  public void testReplaceReferencesToProperties() {
-    ScaffoldingConfiguration config = buildScaffoldingConfiguration("yaml/configuration-yaml-full.json", null);
-    List<ApikitMainFlowContainer> apikitMainFlowContainers = new ArrayList<>();
-    ApikitMainFlowContainer api = new ApikitMainFlowContainer(null, null, null, null);
-    HttpListenerConnection httpListenerConnection =
-        new HttpListenerConnection.Builder("myHost", "myPort", "HTTP")
-            .build();
-    HttpListenerConfig httpListenerConfig = new HttpListenerConfig("listenerConfig", "/", httpListenerConnection);
-    api.setHttpListenerConfig(httpListenerConfig);
-    apikitMainFlowContainers.add(api);
-    ResourcesGenerator.replaceReferencesToProperties(config, apikitMainFlowContainers);
-    for (ApikitMainFlowContainer apiElement : apikitMainFlowContainers) {
-      HttpListenerConfig listenerConfig = apiElement.getHttpListenerConfig();
-      assertEquals("${http.host}", listenerConfig.getHost());
-      assertEquals("${http.port}", listenerConfig.getPort());
-    }
-  }
-
   private void commonAssertResources(List<ScaffolderResource> generatedResources, int expectedGeneratedResourcesSize)
       throws IOException {
     assertEquals(generatedResources.size(), expectedGeneratedResourcesSize);

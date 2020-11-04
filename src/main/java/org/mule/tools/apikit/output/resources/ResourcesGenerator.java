@@ -23,8 +23,6 @@ public class ResourcesGenerator {
 
   public static final String FILE_NAME_SEPARATOR = "-configuration.";
   public static final String SLASH = "/";
-  public static final String HTTP_HOST_REFERENCE = "${http.host}";
-  public static final String HTTP_PORT_REFERENCE = "${http.port}";
 
   public static List<ScaffolderResource> generate(ScaffoldingConfiguration scaffoldingConfiguration) {
     ScaffoldingAccessories scaffoldingAccessories = scaffoldingConfiguration.getScaffoldingAccessories();
@@ -43,20 +41,5 @@ public class ResourcesGenerator {
     }
     return null;
   }
-
-  public static void replaceReferencesToProperties(ScaffoldingConfiguration config, List<ApikitMainFlowContainer> includedApis) {
-    if (config != null && config.getScaffoldingAccessories().getProperties() != null) {
-      for (ApikitMainFlowContainer api : includedApis) {
-        HttpListenerConfig existingHttpConfig = api.getHttpListenerConfig();
-        HttpListenerConnection httpListenerConnection =
-            new HttpListenerConnection.Builder(HTTP_HOST_REFERENCE, HTTP_PORT_REFERENCE, existingHttpConfig.getProtocol())
-                .build();
-        api.setHttpListenerConfig(new HttpListenerConfig(existingHttpConfig.getName(), existingHttpConfig.getBasePath(),
-                                                         httpListenerConnection));
-        includedApis.set(includedApis.indexOf(api), api);
-      }
-    }
-  }
-
 
 }

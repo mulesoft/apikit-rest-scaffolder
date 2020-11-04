@@ -21,6 +21,8 @@ import static org.apache.commons.lang.StringUtils.isNumeric;
 import static org.mule.tools.apikit.model.APIKitConfig.DEFAULT_CONFIG_NAME;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_BASE_PATH;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_HOST;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_HOST_PLACEHOLDER;
+import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PORT_PLACEHOLDER;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_PROTOCOL;
 
 public class APIFactory {
@@ -29,9 +31,15 @@ public class APIFactory {
 
   private Map<String, ApikitMainFlowContainer> apis = new HashMap<>();
   private List<HttpListenerConfig> httpListenerConfigs;
+  private ScaffoldingAccessories scaffoldingAccessories;
 
   public APIFactory(List<HttpListenerConfig> httpListenerConfigs) {
+    this(httpListenerConfigs, null);
+  }
+
+  public APIFactory(List<HttpListenerConfig> httpListenerConfigs, ScaffoldingAccessories scaffoldingAccessories) {
     this.httpListenerConfigs = new ArrayList<>(httpListenerConfigs);
+    this.scaffoldingAccessories = scaffoldingAccessories;
   }
 
   public ApikitMainFlowContainer createAPIBindingInboundEndpoint(String apiFileName, String baseUri, String path,
@@ -94,9 +102,15 @@ public class APIFactory {
   }
 
   private HttpListenerConnection buildDefaultHttpListenerConnection(String port) {
+    String defaultHost = DEFAULT_HOST;
+    String defaultPort = port;
+    if (scaffoldingAccessories != null && scaffoldingAccessories.getProperties() != null) {
+      defaultHost = DEFAULT_HOST_PLACEHOLDER;
+      defaultPort = DEFAULT_PORT_PLACEHOLDER;
+    }
     return new HttpListenerConnection.Builder()
-        .setHost(DEFAULT_HOST)
-        .setPort(port)
+        .setHost(defaultHost)
+        .setPort(defaultPort)
         .setProtocol(DEFAULT_PROTOCOL)
         .build();
   }

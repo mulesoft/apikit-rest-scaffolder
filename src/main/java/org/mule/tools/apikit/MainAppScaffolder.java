@@ -38,14 +38,13 @@ public final class MainAppScaffolder implements Scaffolder {
   public ScaffoldingResult run(ScaffoldingConfiguration config) {
     ScaffolderResult.Builder scaffolderResultBuilder = ScaffolderResult.builder();
     try {
-      APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs());
+      APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs(), config.getScaffoldingAccessories());
       List<MuleConfig> muleConfigs = config.getMuleConfigurations();
 
       MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory, config.getApi().getLocation(), muleConfigs);
       RAMLFilesParser ramlFilesParser = new RAMLFilesParser(apiFactory, config.getApi());
 
       List<ApikitMainFlowContainer> includedApis = ramlFilesParser.getApisAsList();
-      ResourcesGenerator.replaceReferencesToProperties(config, includedApis);
       List<GenerationModel> generationModels = GENERATOR.generate(ramlFilesParser.getEntries(),
                                                                   muleConfigParser.getIncludedApis(),
                                                                   muleConfigParser.getEntries());
