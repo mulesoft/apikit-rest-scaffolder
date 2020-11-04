@@ -102,15 +102,10 @@ public class APIFactory {
   }
 
   private HttpListenerConnection buildDefaultHttpListenerConnection(String port) {
-    String defaultHost = DEFAULT_HOST;
-    String defaultPort = port;
-    if (scaffoldingAccessories != null && scaffoldingAccessories.getProperties() != null) {
-      defaultHost = DEFAULT_HOST_PLACEHOLDER;
-      defaultPort = DEFAULT_PORT_PLACEHOLDER;
-    }
+    boolean hasProperties = scaffoldingAccessories != null && scaffoldingAccessories.getProperties() != null;
     return new HttpListenerConnection.Builder()
-        .setHost(defaultHost)
-        .setPort(defaultPort)
+        .setHost(hasProperties ? DEFAULT_HOST_PLACEHOLDER : DEFAULT_HOST)
+        .setPort(hasProperties ? DEFAULT_PORT_PLACEHOLDER : port)
         .setProtocol(DEFAULT_PROTOCOL)
         .build();
   }

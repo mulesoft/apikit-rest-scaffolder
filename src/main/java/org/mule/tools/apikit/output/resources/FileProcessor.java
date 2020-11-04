@@ -16,8 +16,21 @@ public abstract class FileProcessor {
   public static final String HTTP_KEY = "http";
   public static final String API_ID_KEY = "apiId";
 
+  /**
+   * This method is intended to create all properties that are common for a new mule application, by default will be http listener
+   * and (if required) api autodiscovery.
+   * @param configuration map of configurations
+   * @param apiAutodiscoveryId api autodiscovery id
+   * @return string containing all properties in a format
+   */
   protected abstract String processCommon(Map<String, Object> configuration, String apiAutodiscoveryId);
 
+  /**
+   * This method is for properties that are specific for the application being created, could be connection to custom servers,
+   * web services, http calls, dbs, etc.
+   * @param configuration map of configurations
+   * @return string containing all properties in a format
+   */
   protected abstract String processCustom(Map<String, Object> configuration);
 
   protected String getApiAutodiscoveryID(Map<String, Object> commonProperties, String apiAutodiscoveryId,

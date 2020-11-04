@@ -7,7 +7,6 @@
 package org.mule.tools.apikit.model;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections.CollectionUtils.*;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
@@ -136,9 +135,9 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     if (isNotEmpty(apiAutodiscoveryConfig)) {
       apiAutodiscoveryConfig.forEach(singleApiAutodiscovery -> addContent(document, singleApiAutodiscovery.generate()));
     }
-    if (configurationPropertiesConfig != null) {
+    if (isNotEmpty(configurationPropertiesConfig)) {
       configurationPropertiesConfig
-          .forEach(singlCconfigurationPropertiesConfig -> addContent(document, singlCconfigurationPropertiesConfig.generate()));
+          .forEach(singleCconfigurationPropertiesConfig -> addContent(document, singleCconfigurationPropertiesConfig.generate()));
     }
 
     return document;
