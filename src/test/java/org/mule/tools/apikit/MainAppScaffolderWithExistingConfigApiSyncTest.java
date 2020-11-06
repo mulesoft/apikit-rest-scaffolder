@@ -125,9 +125,9 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
     ResourceLoader testScaffolderResourceLoader = new TestScaffolderResourceLoader(existingConfigFolder);
     ApiReference apiReference = ApiReference.create(RAML_RESOURCE_URL_V1, testScaffolderResourceLoader);
 
-    String api = existingConfigFolder + "/api.xml";
-    String global = existingConfigFolder + "/globals.xml";
-    String expectedGlobals = existingConfigFolder + "/globals-with-autodiscovery.xml";
+    String api = existingConfigFolder + "/actual/api.xml";
+    String global = existingConfigFolder + "/actual/globals.xml";
+    String expectedGlobals = existingConfigFolder + "/expected/globals.xml";
     List<MuleConfig> muleConfigsFromLocations = createMuleConfigsFromLocations(asList(api, global));
 
     //rescaffold
@@ -150,9 +150,9 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
   public void reScaffoldToOneFileFromTwoWithGlobalsAndAPIAutodiscoveryID() throws Exception {
     String existingConfigFolder = TEST_RESOURCES_APISYNC_W_GLOBAL + "/api-autodiscovery";
 
-    String existingAPI = existingConfigFolder + "/api.xml";
-    String existingGlobals = existingConfigFolder + "/globals.xml";
-    String expectedAPI = existingConfigFolder + "/api-with-autodiscovery.xml";
+    String existingAPI = existingConfigFolder + "/actual/api.xml";
+    String existingGlobals = existingConfigFolder + "/actual/globals.xml";
+    String expectedAPI = existingConfigFolder + "/expected/api.xml";
     List<MuleConfig> muleConfigsFromLocations = createMuleConfigsFromLocations(asList(existingAPI, existingGlobals));
 
     //rescaffold

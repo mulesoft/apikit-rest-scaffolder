@@ -62,15 +62,14 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     InputStream api =
         result.getGeneratedConfigs().stream().filter(config -> {
           String name = config.getName() != null ? extractName(config.getName()) : "";
-          return name.contains(fileName) || fileName.contains(name);
+          return name.equalsIgnoreCase(fileName);
         })
             .findFirst().orElseThrow(() -> new RuntimeException(("unable to find generated file"))).getContent();
     return APIKitTools.readContents(api);
   }
 
   protected static String extractName(String path) {
-    String[] pathParts = path.split("/");
-    return pathParts[pathParts.length - 1].split(".xml")[0];
+    return FilenameUtils.removeExtension(FilenameUtils.getName(path));
   }
 
   public static List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
@@ -81,7 +80,7 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     for (String location : ramlLocations) {
       InputStream muleConfigInputStream = getResourceAsStream(location);
       MuleConfig muleConfig = fromStream(muleConfigInputStream, false);
-      muleConfig.setName(extractName(location).concat(".xml"));
+      muleConfig.setName(FilenameUtils.getName(location));
       muleConfigs.add(muleConfig);
     }
     return muleConfigs;
