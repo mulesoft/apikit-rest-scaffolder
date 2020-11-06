@@ -30,7 +30,7 @@ public class MuleScope implements Scope {
         .append(" ");
   }
 
-  public MuleScope(boolean addEENamespace, boolean isMunitSuite, boolean apiAutodiscoveryNamespace) {
+  public MuleScope(boolean addEENamespace, boolean isMunitSuite, boolean addApiAutodiscoveryNamespace) {
     mule = new Element("mule");
     StringBuilder stringBuilder = new StringBuilder();
 
@@ -48,7 +48,7 @@ public class MuleScope implements Scope {
       namespaces.add(API_KIT_NAMESPACE);
     }
 
-    if (apiAutodiscoveryNamespace) {
+    if (addApiAutodiscoveryNamespace) {
       namespaces.add(APIAutodiscoveryConfig.API_AUTODISCOVERY_NAMESPACE);
     }
 
