@@ -10,6 +10,7 @@ package org.mule.tools.apikit;
 import org.apache.commons.io.FilenameUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -95,42 +96,20 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return MuleDomain.fromInputStream(muleDomainInputStream);
   }
 
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference,
-                                          MuleDomain muleDomain, List<MuleConfig> existingMuleConfigs,
-                                          ScaffoldingAccessories scaffoldingAccessories) {
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ScaffoldingConfiguration scaffoldingConfiguration) {
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(runtimeEdition).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-    if (scaffoldingAccessories == null) {
-      scaffoldingAccessories = new ScaffoldingAccessories(true, null, null, null);
-    }
-    ScaffoldingConfiguration scaffoldingConfiguration =
-        getScaffoldingConfiguration(apiReference, existingMuleConfigs, muleDomain, scaffoldingAccessories);
 
     ScaffoldingResult scaffoldingResult = mainAppScaffolder.run(scaffoldingConfiguration);
     assertTrue(scaffoldingResult.isSuccess());
     return scaffoldingResult;
   }
 
-
-  protected ScaffoldingConfiguration getScaffoldingConfiguration(ApiReference apiReference, List<MuleConfig> muleConfigs,
-                                                                 MuleDomain muleDomain,
-                                                                 ScaffoldingAccessories scaffoldingAccessories) {
+  protected ApiSpecification buildApiSpecification(ApiReference apiReference) {
     ParseResult parseResult = new ParserService().parse(apiReference);
     ScaffoldingConfiguration.Builder configuration = new ScaffoldingConfiguration.Builder();
     configuration.withApi(parseResult.get());
-    if (isNotEmpty(muleConfigs)) {
-      configuration.withMuleConfigurations(muleConfigs);
-    }
-    if (muleDomain != null) {
-      configuration.withDomain(muleDomain);
-    }
-    if (scaffoldingAccessories != null) {
-      configuration.withShowConsole(scaffoldingAccessories.isShowConsole());
-      configuration.withProperties(scaffoldingAccessories.getProperties());
-      configuration.withApiId(scaffoldingAccessories.getApiId());
-      configuration.withExternalCommonFile(scaffoldingAccessories.getExternalCommonFile());
-    }
-    return configuration.build();
+    return parseResult.get();
   }
 
   protected static String fileNameWhithOutExtension(final String path) {

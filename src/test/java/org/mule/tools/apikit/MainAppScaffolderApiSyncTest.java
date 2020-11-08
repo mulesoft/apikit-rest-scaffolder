@@ -168,7 +168,9 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
   private void testSimple(String ramlFolder, String rootRaml) throws Exception {
     String ramlFilePath = ramlFolder + rootRaml + ".raml";
     ApiReference apiReference = ApiReference.create(Paths.get(ramlFilePath).toString());
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, apiReference, null, null, null);
+    ScaffoldingConfiguration scaffoldingConfiguration =
+        ScaffoldingConfiguration.builder().withApi(buildApiSpecification(apiReference)).build();
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, scaffoldingConfiguration);
 
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());
