@@ -9,18 +9,13 @@ package org.mule.tools.apikit.output.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.HttpListenerConfig;
-import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.Properties;
 import org.mule.tools.apikit.model.ScaffolderResource;
-import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +37,8 @@ public class ResourceGeneratorTest {
 
   @Test
   public void testGenerationYAMLFull() throws IOException {
-    ScaffoldingConfiguration scaffoldingConfiguration = buildScaffoldingConfiguration("yaml/configuration-yaml-full.json", "123");
+    ScaffoldingConfiguration scaffoldingConfiguration =
+        buildScaffoldingConfiguration("yaml/configuration-yaml-full.json", "123", "yaml");
     List<ScaffolderResource> generatedResources = ResourcesGenerator.generate(scaffoldingConfiguration);
     commonAssertResources(generatedResources, 3);
   }
@@ -50,9 +46,21 @@ public class ResourceGeneratorTest {
   @Test
   public void testGenerationPropertiesFull() throws IOException {
     ScaffoldingConfiguration scaffoldingConfiguration =
-        buildScaffoldingConfiguration("properties/configuration-properties-full.json", "123");
+        buildScaffoldingConfiguration("properties/configuration-properties-full.json", "123", "properties");
     List<ScaffolderResource> generatedResources = ResourcesGenerator.generate(scaffoldingConfiguration);
     commonAssertResources(generatedResources, 3);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testGenerationPropertiesNoFormat() {
+    ScaffoldingConfiguration scaffoldingConfiguration =
+        buildScaffoldingConfiguration(null, null, null);
+    try {
+      ResourcesGenerator.generate(scaffoldingConfiguration);
+    } catch (RuntimeException ex) {
+      assertEquals(ex.getMessage(), "format must be present");
+      throw ex;
+    }
   }
 
   private void commonAssertResources(List<ScaffolderResource> generatedResources, int expectedGeneratedResourcesSize)
@@ -87,17 +95,19 @@ public class ResourceGeneratorTest {
     return name.split("configuration")[i];
   }
 
-  private ScaffoldingConfiguration buildScaffoldingConfiguration(String file, String apiAutodiscoveryId) {
+  private ScaffoldingConfiguration buildScaffoldingConfiguration(String file, String apiAutodiscoveryId, String format) {
     ScaffoldingConfiguration.Builder scaffoldingConfigurationBuilder = ScaffoldingConfiguration.builder();
-    ObjectMapper mapper = new ObjectMapper();
-    File configurationGroupFile = new File(BASE_PATH + file);
     Map<String, Map<String, Object>> files = new HashMap<>();
-    try {
-      files = mapper.readValue(configurationGroupFile, Map.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    if (format != null) {
+      ObjectMapper mapper = new ObjectMapper();
+      File configurationGroupFile = new File(BASE_PATH + file);
+      try {
+        files = mapper.readValue(configurationGroupFile, Map.class);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
-    Properties properties = new Properties("yaml", files);
+    Properties properties = new Properties(format, files);
     scaffoldingConfigurationBuilder.withProperties(properties);
     if (apiAutodiscoveryId != null) {
       scaffoldingConfigurationBuilder.withApiId(apiAutodiscoveryId);

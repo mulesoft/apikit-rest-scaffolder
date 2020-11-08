@@ -36,14 +36,14 @@ public class PropertiesFileProcessor extends FileProcessor {
   private void createHttpProperties(Map<String, Object> configuration, Properties properties) {
     String host = HTTP_HOST_VALUE;
     String port = HTTP_PORT_VALUE;
-    if (configuration != null && configuration.get("http") != null) {
-      Object http = configuration.get("http");
-      Map<String, String> httpMap = new ObjectMapper().convertValue(http, Map.class);
-      host = httpMap.get("host");
-      port = String.valueOf(httpMap.get("port"));
+    if (configuration != null && configuration.get("http") == null) {
+      //      Object http = configuration.get("http");
+      //      Map<String, String> httpMap = new ObjectMapper().convertValue(http, Map.class);
+      //      host = httpMap.get("host");
+      //      port = String.valueOf(httpMap.get("port"));
+      properties.setProperty(HTTP_HOST_KEY, host);
+      properties.setProperty(HTTP_PORT_KEY, port);
     }
-    properties.setProperty(HTTP_HOST_KEY, host);
-    properties.setProperty(HTTP_PORT_KEY, port);
   }
 
   private String createResult(Properties properties) {

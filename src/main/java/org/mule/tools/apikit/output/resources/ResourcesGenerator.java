@@ -7,10 +7,7 @@
 package org.mule.tools.apikit.output.resources;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.mule.tools.apikit.model.ApikitMainFlowContainer;
-import org.mule.tools.apikit.model.HttpListenerConfig;
-import org.mule.tools.apikit.model.HttpListenerConnection;
+import org.mule.tools.apikit.model.Properties;
 import org.mule.tools.apikit.model.ScaffolderResource;
 import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
@@ -18,6 +15,8 @@ import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class ResourcesGenerator {
 
@@ -27,7 +26,7 @@ public class ResourcesGenerator {
   public static List<ScaffolderResource> generate(ScaffoldingConfiguration scaffoldingConfiguration) {
     ScaffoldingAccessories scaffoldingAccessories = scaffoldingConfiguration.getScaffoldingAccessories();
     if (scaffoldingAccessories.getProperties() != null) {
-      String extension = scaffoldingAccessories.getProperties().getFormat();
+      String extension = getFormat(scaffoldingAccessories.getProperties());
       Map<String, Map<String, Object>> files = scaffoldingAccessories.getProperties().getFiles();
       List<ScaffolderResource> resources = new ArrayList<>();
       for (Map.Entry<String, Map<String, Object>> properties : files.entrySet()) {
@@ -40,6 +39,13 @@ public class ResourcesGenerator {
       return resources;
     }
     return null;
+  }
+
+  private static String getFormat(Properties properties) {
+    if (isEmpty(properties.getFormat())) {
+      throw new RuntimeException("format must be present");
+    }
+    return properties.getFormat();
   }
 
 }
