@@ -7,6 +7,7 @@
 package org.mule.tools.apikit.misc;
 
 import com.google.common.collect.ImmutableBiMap;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -107,6 +108,18 @@ public class FlowNameUtils {
     }
 
     return Optional.empty();
+  }
+
+  public static String encodeColons(String s) {
+    if (s.length() == 0) {
+      return s;
+    }
+    StringBuilder sb = new StringBuilder(s.length() + 16);
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      sb.append(c == ':' ? "%3A" : c);
+    }
+    return sb.toString();
   }
 
 }
