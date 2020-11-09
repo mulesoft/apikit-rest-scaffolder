@@ -26,11 +26,8 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaffolderTestCase {
-
-    public static final String API_SYNC_PROTOCOL = "resource::";
 
     private final static String RAML_RESOURCE_URL_V1 = "resource::com.mycompany:raml-api:1.0.0:raml:zip:api.raml";
     private final static String RAML_RESOURCE_URL_V2 = "resource::com.mycompany:raml-api:2.0.0:raml:zip:api.raml";
@@ -145,7 +142,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
     /**
      * First it takes an API normally with configuration of APIKit, http and api autodiscovery inside global xml file.
-     * Finally it simulates re-scaffolding.
+     * Finally it simulates re-scaffolding to two files.
      * Expected behaviour is that the new scaffolded API has two configurations, globals.xml(with common configurations) and api.xml.
      */
     @Test
@@ -173,7 +170,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
     /**
      * First it takes an API normally with configuration of APIKit, http and api autodiscovery inside global xml file.
-     * Finally it simulates re-scaffolding.
+     * Finally it simulates re-scaffolding to a single file.
      * Expected behaviour is that the new scaffolded API has two configurations, globals.xml(with common configurations) and api.xml.
      */
     @Test
