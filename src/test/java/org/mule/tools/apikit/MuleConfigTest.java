@@ -177,15 +177,12 @@ public class MuleConfigTest {
   }
 
   @Test
-  public void testMuleConfig() throws JDOMException, IOException {
+  public void testMuleConfigWithAPIAutodiscoveryAndConfigurationProperties() throws Exception {
     InputStream resourceAsStream =
         getResourceAsStream("test-mule-config/leagues-flow-config-apiautodiscovery-configurationProperties.xml");
-    String apiLocation = "leagues.raml";
-    List<HttpListenerConfig> domainHttpListenerConfigs = new ArrayList<>();
-    MuleConfig muleConfig = fromDoc(getDocumentFromStream(resourceAsStream));
-    Document document = muleConfig.buildContent();
-    Document document1 = fromDoc(document).buildContent();
-
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(resourceAsStream);
+    assertTrue(muleConfig.getApiAutodiscoveryConfig().size() > 0);
+    assertTrue(muleConfig.getConfigurationPropertiesConfig().size() > 0);
   }
 
   private Element findElementByAttribute(List<Content> contentList, String attributeName, String attributeValue) {
