@@ -167,7 +167,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
         scaffoldApi(RuntimeEdition.CE, scaffoldingConfiguration);
     verifySuccessfulScaffolding(rescaffoldResult, api, expectedGlobals);
   }
- 
+
   /**
    * First it takes an API normally with configuration of APIKit, http and api autodiscovery inside global xml file.
    * Finally it simulates re-scaffolding to a single file.

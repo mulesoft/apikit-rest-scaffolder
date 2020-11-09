@@ -10,6 +10,7 @@ import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -18,12 +19,10 @@ import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
-import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
-import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 import org.xml.sax.SAXException;
@@ -34,7 +33,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -47,7 +48,6 @@ import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
 
 public class MuleConfigGeneratorTest {
 
-  public static final boolean SHOW_CONSOLE = true;
   public static final boolean HIDE_CONSOLE = false;
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
@@ -110,16 +110,14 @@ public class MuleConfigGeneratorTest {
 
 
   @Test
-  public void blankDocumentWithExternalizedGlobals() {
+  public void blankDocumentWithExternalizedGlobals() throws JDOMException, IOException {
     String externalConfigurationFile = "globals.xml";
-    ScaffoldingAccessories scaffoldingAccessories =
-        new ScaffoldingAccessories(HIDE_CONSOLE, externalConfigurationFile, null, null);
     ScaffoldingConfiguration.Builder builder =
         ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalCommonFile(externalConfigurationFile);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
-      if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals(new ArrayList<>(), muleConfig.getApiAutodiscoveryConfig());
+      if (externalConfigurationFile.equals(muleConfig.getName())) {
+        assertTrue(isEmpty(muleConfig.getApiAutodiscoveryConfig()));
         assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
         assertEquals(muleConfig.getApikitConfigs().size(), 1);
       } else {
@@ -129,8 +127,7 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
-  public void blankDocumentWithoutExternalizedGlobals() {
-    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, null, null);
+  public void blankDocumentWithoutExternalizedGlobals() throws JDOMException, IOException {
     ScaffoldingConfiguration.Builder builder =
         ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE);
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
@@ -143,9 +140,8 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
-  public void blankDocumentWithAPIAutodiscovery() {
+  public void blankDocumentWithAPIAutodiscovery() throws JDOMException, IOException {
     String apiAutodiscovery = "1234";
-    ScaffoldingAccessories scaffoldingAccessories = new ScaffoldingAccessories(HIDE_CONSOLE, null, apiAutodiscovery, null);
     ScaffoldingConfiguration.Builder builder =
         ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withApiId(apiAutodiscovery);
     List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig =
@@ -158,19 +154,19 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
-  public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() {
+  public void blankDocumentWithExternalizedGlobalsAndAPIAutodiscovery() throws JDOMException, IOException {
     String externalConfigurationFile = "globals.xml";
     String apiAutodiscovery = "1234";
     ScaffoldingConfiguration.Builder builder =
         ScaffoldingConfiguration.builder().withShowConsole(HIDE_CONSOLE).withExternalCommonFile(externalConfigurationFile)
             .withApiId(apiAutodiscovery);
     List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig =
-        Arrays.asList(new APIAutodiscoveryConfig("1234", true, "hello-main"));
+        Arrays.asList(new APIAutodiscoveryConfig(apiAutodiscovery, true, "hello-main"));
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     assertEquals(muleConfigs.size(), 2);
     for (MuleConfig muleConfig : muleConfigs) {
-      if (muleConfig.getName() == externalConfigurationFile) {
-        assertEquals(expectedApiAutodiscoveryConfig, muleConfig.getApiAutodiscoveryConfig());
+      if (externalConfigurationFile.equals(muleConfig.getName())) {
+        assertAPIAutodiscovery(expectedApiAutodiscoveryConfig, muleConfig);
         assertEquals(muleConfig.getHttpListenerConfigs().size(), 1);
         assertEquals(muleConfig.getApikitConfigs().size(), 1);
       } else {
@@ -179,8 +175,22 @@ public class MuleConfigGeneratorTest {
     }
   }
 
+  private void assertAPIAutodiscovery(List<APIAutodiscoveryConfig> expectedApiAutodiscoveryConfig, MuleConfig muleConfig) {
+    for (APIAutodiscoveryConfig apiAutodiscoveryConfig : expectedApiAutodiscoveryConfig) {
+      Optional<APIAutodiscoveryConfig> apiAutodiscoveryConfigOptional = muleConfig.getApiAutodiscoveryConfig().stream()
+          .filter(generatedAPIAutodiscovery -> generatedAPIAutodiscovery.getApiId().equals(apiAutodiscoveryConfig.getApiId()))
+          .findAny();
+      boolean apiAutodiscoveryConfigPresent = apiAutodiscoveryConfigOptional.isPresent();
+      assertTrue(apiAutodiscoveryConfigPresent);
+      if (apiAutodiscoveryConfigPresent) {
+        assertEquals(apiAutodiscoveryConfig.getFlowRef(), apiAutodiscoveryConfigOptional.get().getFlowRef());
+        assertEquals(apiAutodiscoveryConfig.getIgnoreBasePath(), apiAutodiscoveryConfigOptional.get().getIgnoreBasePath());
+      }
+    }
+  }
+
   @Test
-  public void blankDocumentWithoutLCInDomain() {
+  public void blankDocumentWithoutLCInDomain() throws JDOMException, IOException {
     ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder();
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
@@ -197,7 +207,7 @@ public class MuleConfigGeneratorTest {
   }
 
   @Test
-  public void blankDocumentWithoutLCInDomainHideConsole() {
+  public void blankDocumentWithoutLCInDomainHideConsole() throws JDOMException, IOException {
     ScaffoldingConfiguration.Builder builder = ScaffoldingConfiguration.builder();
     List<MuleConfig> muleConfigs = scaffoldBlankDocument(builder.build());
     for (MuleConfig muleConfig : muleConfigs) {
@@ -211,11 +221,11 @@ public class MuleConfigGeneratorTest {
     assertEquals("mule", rootElement.getName());
     assertConfigurations(rootElement);
 
-    assertMainFlow(rootElement, 2);
+    assertMainFlow(rootElement);
   }
 
-  private void assertMainFlow(Element rootElement, int index) {
-    Element mainFlow = rootElement.getChildren().get(index);
+  private void assertMainFlow(Element rootElement) {
+    Element mainFlow = rootElement.getChildren().get(2);
 
     assertEquals("flow", mainFlow.getName());
     assertEquals("hello-main", mainFlow.getAttribute("name").getValue());
@@ -231,7 +241,7 @@ public class MuleConfigGeneratorTest {
     assertEquals("hello-config", apikitConfig.getAttribute("name").getValue());
   }
 
-  private List<MuleConfig> scaffoldBlankDocument(ScaffoldingConfiguration configuration) {
+  private List<MuleConfig> scaffoldBlankDocument(ScaffoldingConfiguration configuration) throws JDOMException, IOException {
     HttpListenerConfig listenerConfig =
         new HttpListenerConfig(HttpListenerConfig.DEFAULT_CONFIG_NAME, "localhost", "8080", "HTTP", "");
     InputStream apikitConfig = getResourceAsStream("scaffolder-only-apikit-config/api.xml");
@@ -240,6 +250,7 @@ public class MuleConfigGeneratorTest {
     when(api.getPath()).thenReturn("/api/*");
     when(api.getHttpListenerConfig()).thenReturn(listenerConfig);
     when(mock(MuleConfig.class).getApikitConfigs()).thenReturn(muleConfig.getApikitConfigs());
+
     File raml = mock(File.class);
     when(raml.getName()).thenReturn("hello.raml");
     when(api.getApiFilePath()).thenReturn("hello.raml");
@@ -261,13 +272,10 @@ public class MuleConfigGeneratorTest {
     return muleConfigGenerator.generate();
   }
 
-  private MuleConfig buildAPIKitMuleConfig(InputStream inputStream) {
+  private MuleConfig buildAPIKitMuleConfig(InputStream inputStream) throws JDOMException, IOException {
     Document apikitConfigDoc = null;
-    try {
-      apikitConfigDoc = getDocumentFromStream(inputStream);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    apikitConfigDoc = getDocumentFromStream(inputStream);
+
     return MuleConfigBuilder.fromDoc(apikitConfigDoc);
   }
 

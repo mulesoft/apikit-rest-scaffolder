@@ -67,32 +67,23 @@ public class ResourceGeneratorTest {
       throws IOException {
     assertEquals(generatedResources.size(), expectedGeneratedResourcesSize);
     for (ScaffolderResource resource : generatedResources) {
-      String environment = getEnvironment(resource.getName());
-      String extension = getExtension(resource.getName());
-      String expectedFile = getExpectedFile(extension, environment, PREFFIX_FULL);
-      commonAssertResource(resource, environment + "-configuration" + extension, expectedFile);
+
+      commonAssertResource(resource);
     }
   }
 
   private String getExpectedFile(String extension, String environment, String preffix) throws IOException {
-    String pathname = BASE_PATH + getFolder(extension) + SLASH + preffix + "-" + environment + extension;
+    String pathname = BASE_PATH + extension.substring(1) + SLASH + preffix + "-" + environment + extension;
     return IOUtils.toString(new FileInputStream(new File(pathname)));
   }
 
-  private String getFolder(String extension) {
-    return extension.replace(".", "");
-  }
 
   private String getEnvironment(String name) {
-    return getConfiguration(name, 0).split("-")[0];
+    return name.split("-")[0];
   }
 
   private String getExtension(String name) {
-    return getConfiguration(name, 1).split("-")[0];
-  }
-
-  private String getConfiguration(String name, int i) {
-    return name.split("configuration")[i];
+    return name.substring(name.lastIndexOf("."));
   }
 
   private ScaffoldingConfiguration buildScaffoldingConfiguration(String file, String apiAutodiscoveryId, String format) {
@@ -116,9 +107,13 @@ public class ResourceGeneratorTest {
     return scaffoldingConfiguration;
   }
 
-  private void commonAssertResource(ScaffolderResource resource, String name, String expectedValue) throws IOException {
+  private void commonAssertResource(ScaffolderResource resource) throws IOException {
+    String environment = getEnvironment(resource.getName());
+    String extension = getExtension(resource.getName());
+    String expectedFile = getExpectedFile(extension, environment, PREFFIX_FULL);
+    String name = environment + "-configuration" + extension;
     assertEquals(resource.getName(), name);
     String generatedValue = IOUtils.toString(resource.getContent());
-    assertEquals(expectedValue, generatedValue);
+    assertEquals(expectedFile, generatedValue);
   }
 }

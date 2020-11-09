@@ -8,7 +8,9 @@ package org.mule.tools.apikit.input;
 
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mule.tools.apikit.TestUtils;
 import org.mule.tools.apikit.input.parsers.APIAutodiscoveryConfigParser;
 import org.mule.tools.apikit.input.parsers.ConfigurationPropertiesConfigParser;
@@ -22,9 +24,11 @@ import static org.junit.Assert.assertEquals;
 
 public class ConfigurationPropertiesConfigParserTest {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void test() throws JDOMException, IOException {
+  public void testCorrectParsingWithAllFields() throws JDOMException, IOException {
     Document documentFromStream = TestUtils
         .getDocumentFromStream(TestUtils.getResourceAsStream("configuration-properties-parser/file-with-configuration.xml"));
     List<ConfigurationPropertiesConfig> configurationPropertiesConfigs =
@@ -33,16 +37,13 @@ public class ConfigurationPropertiesConfigParserTest {
     assertEquals(configurationPropertiesConfig.getFile(), "dev-configuration.yaml");
   }
 
-  @Test(expected = RuntimeException.class)
-  public void testFailure() throws JDOMException, IOException, RuntimeException {
+  @Test
+  public void testFailureParsingWithoutFile() throws JDOMException, IOException, RuntimeException {
+    thrown.expect(RuntimeException.class);
+    thrown.expectMessage("file is a mandatory field");
     Document documentFromStream = TestUtils
         .getDocumentFromStream(TestUtils.getResourceAsStream("configuration-properties-parser/file-without-configuration.xml"));
-    try {
-      new ConfigurationPropertiesConfigParser().parse(documentFromStream);
-    } catch (RuntimeException ex) {
-      assertEquals(ex.getMessage(), "file is a mandatory field");
-      throw ex;
-    }
+    new ConfigurationPropertiesConfigParser().parse(documentFromStream);
   }
 
 }

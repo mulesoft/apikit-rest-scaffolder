@@ -17,67 +17,66 @@ import java.util.Properties;
 
 public class PropertiesFileProcessor extends FileProcessor {
 
-  public static final String HTTP_PORT_KEY = "http.port";
-  public static final String HTTP_HOST_KEY = "http.host";
+    public static final String HTTP_PORT_KEY = "http.port";
+    public static final String HTTP_HOST_KEY = "http.host";
 
-  @Override
-  protected String processCommon(Map<String, Object> configuration, String apiAutodiscoveryId) {
-    Properties properties = new Properties();
-    createHttpProperties(configuration, properties);
-    boolean hasApiAutodiscoveryIdForEnvironment = hasApiAutodiscoveryIdForEnvironment(configuration);
-    if (apiAutodiscoveryId != null) {
-      String apiAutodiscoveryIdValue =
-          getApiAutodiscoveryID(configuration, apiAutodiscoveryId, hasApiAutodiscoveryIdForEnvironment);
-      properties.setProperty(API_ID_KEY, apiAutodiscoveryIdValue);
+    @Override
+    protected String processCommon(Map<String, Object> configuration, String apiAutodiscoveryId) {
+        Properties properties = new Properties();
+        createHttpProperties(configuration, properties);
+        boolean hasApiAutodiscoveryIdForEnvironment = hasApiAutodiscoveryIdForEnvironment(configuration);
+        if (apiAutodiscoveryId != null) {
+            String apiAutodiscoveryIdValue =
+                    getApiAutodiscoveryID(configuration, apiAutodiscoveryId, hasApiAutodiscoveryIdForEnvironment);
+            properties.setProperty(API_ID_KEY, apiAutodiscoveryIdValue);
+        }
+        return createResult(properties);
     }
-    return createResult(properties);
-  }
 
-  private void createHttpProperties(Map<String, Object> configuration, Properties properties) {
-    String host = HTTP_HOST_VALUE;
-    String port = HTTP_PORT_VALUE;
-    if (configuration != null && configuration.get("http") == null) {
-      //      Object http = configuration.get("http");
-      //      Map<String, String> httpMap = new ObjectMapper().convertValue(http, Map.class);
-      //      host = httpMap.get("host");
-      //      port = String.valueOf(httpMap.get("port"));
-      properties.setProperty(HTTP_HOST_KEY, host);
-      properties.setProperty(HTTP_PORT_KEY, port);
+    private void createHttpProperties(Map<String, Object> configuration, Properties properties) {
+        String host = HTTP_HOST_VALUE;
+        String port = HTTP_PORT_VALUE;
+        if (configuration != null && configuration.get("http") == null) {
+            //      Object http = configuration.get("http");
+            //      Map<String, String> httpMap = new ObjectMapper().convertValue(http, Map.class);
+            //      host = httpMap.get("host");
+            //      port = String.valueOf(httpMap.get("port"));
+            properties.setProperty(HTTP_HOST_KEY, host);
+            properties.setProperty(HTTP_PORT_KEY, port);
+        }
     }
-  }
 
-  private String createResult(Properties properties) {
-    String result;
-    Writer writer = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(writer);
-    properties.list(printWriter);
-    result = writer.toString().replace("-- listing properties --\n", "");
-    return result;
-  }
+    private String createResult(Properties properties) {
+        String result;
+        Writer writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        properties.list(printWriter);
+        result = writer.toString().replace("-- listing properties --\n", "");
+        return result;
+    }
 
-  @Override
-  protected String processCustom(Map<String, Object> properties) {
-    Properties propertiesFile = new Properties();
-    if (properties != null) {
-      for (String key : properties.keySet()) {
-        Object value = properties.get(key);
-        processValue(propertiesFile, key, value);
-      }
+    @Override
+    protected String processCustom(Map<String, Object> properties) {
+        Properties propertiesFile = new Properties();
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                Object value = properties.get(key);
+                processValue(propertiesFile, key, value);
+            }
+        }
+        return createResult(propertiesFile);
     }
-    return createResult(propertiesFile);
-  }
 
-  private void processValue(Properties propertiesFile, String key, Object value) {
-    if (value instanceof String) {
-      propertiesFile.setProperty(key, value.toString());
+    private void processValue(Properties propertiesFile, String key, Object value) {
+        if (value instanceof String) {
+            propertiesFile.setProperty(key, value.toString());
+        }
+        if (value instanceof HashMap) {
+            ObjectMapper oMapper = new ObjectMapper();
+            Map<String, Object> map = oMapper.convertValue(value, Map.class);
+            for (String objectKey : map.keySet()) {
+                propertiesFile.setProperty(key + "." + objectKey, map.get(objectKey).toString());
+            }
+        }
     }
-    if (value instanceof HashMap) {
-      ObjectMapper oMapper = new ObjectMapper();
-      Map<String, Object> map = oMapper.convertValue(value, Map.class);
-      System.out.println(map);
-      for (String objectKey : map.keySet()) {
-        propertiesFile.setProperty(key + "." + objectKey, map.get(objectKey).toString());
-      }
-    }
-  }
 }

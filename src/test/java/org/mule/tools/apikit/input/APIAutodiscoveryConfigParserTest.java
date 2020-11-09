@@ -18,7 +18,7 @@ import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class APIAutodiscoveryConfigParserTest {
 
@@ -26,7 +26,7 @@ public class APIAutodiscoveryConfigParserTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void test() throws JDOMException, IOException {
+  public void testCorrectParsingWithAllFields() throws JDOMException, IOException {
     Document documentFromStream =
         TestUtils.getDocumentFromStream(TestUtils.getResourceAsStream("api-autodiscovery-parser/file-with-autodiscovery.xml"));
     List<APIAutodiscoveryConfig> apiAutodiscoveryConfigs = new APIAutodiscoveryConfigParser().parse(documentFromStream);
@@ -36,15 +36,12 @@ public class APIAutodiscoveryConfigParserTest {
     assertEquals(apiAutodiscoveryConfig.getIgnoreBasePath(), Boolean.TRUE);
   }
 
-  @Test(expected = RuntimeException.class)
-  public void testFailure() throws JDOMException, IOException, RuntimeException {
+  @Test
+  public void testFailureParsingWithoutAPIId() throws JDOMException, IOException, RuntimeException {
+    thrown.expect(RuntimeException.class);
+    thrown.expectMessage("apiId is a mandatory field");
     Document documentFromStream =
         TestUtils.getDocumentFromStream(TestUtils.getResourceAsStream("api-autodiscovery-parser/file-without-autodiscovery.xml"));
-    try {
-      new APIAutodiscoveryConfigParser().parse(documentFromStream);
-    } catch (RuntimeException ex) {
-      assertEquals(ex.getMessage(), "apiId is a mandatory field");
-      throw ex;
-    }
+    new APIAutodiscoveryConfigParser().parse(documentFromStream);
   }
 }

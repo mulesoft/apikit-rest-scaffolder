@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class ConfigurationPropertiesScopeTest {
 
   @Test
-  public void test() throws IOException, SAXException {
+  public void testCorrectScopeCreation() throws IOException, SAXException {
     ConfigurationPropertiesConfig config = new ConfigurationPropertiesConfig("file.txt");
     ConfigurationPropertiesScope configurationPropertiesScope = new ConfigurationPropertiesScope(config);
 
