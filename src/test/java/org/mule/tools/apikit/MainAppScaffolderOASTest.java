@@ -17,8 +17,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mule.apikit.model.ApiVendor;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.ParserService;
-import org.mule.parser.service.result.ParseResult;
+import org.mule.parser.service.internal.ParserService;
+import org.mule.parser.service.result.internal.ParseResult;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.ScaffolderContext;
@@ -64,8 +64,9 @@ public class MainAppScaffolderOASTest {
   public void beforeTest() throws IOException {
     final File outputFolder = outputFolder(api).toFile();
 
-    if (outputFolder.exists())
+    if (outputFolder.exists()) {
       FileUtils.deleteDirectory(outputFolder);
+    }
   }
 
   @Test
@@ -148,8 +149,9 @@ public class MainAppScaffolderOASTest {
     final boolean isOas =
         Files.isRegularFile(path) && API_MATCHER.matches(fileName) && !"mule-artifact.json".equals(fileName.toString());
 
-    if (!isOas)
+    if (!isOas) {
       return false;
+    }
 
     ApiReference apiRef = ApiReference.create(path.toUri());
     return OAS_VENDORS.contains(apiRef.getVendor());
@@ -174,8 +176,9 @@ public class MainAppScaffolderOASTest {
 
     // Write golden files  with current values
     final Path parent = goldenPath.getParent();
-    if (!Files.exists(parent))
+    if (!Files.exists(parent)) {
       Files.createDirectory(parent);
+    }
     return Files.write(goldenPath, content.getBytes("UTF-8"));
   }
 
