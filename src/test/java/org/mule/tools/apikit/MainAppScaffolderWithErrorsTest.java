@@ -11,8 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.internal.ParserService;
-import org.mule.parser.service.result.internal.ParseResult;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.Scaffolder;
@@ -23,9 +23,9 @@ import org.mule.tools.apikit.model.ScaffoldingResult;
 
 import java.io.File;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class MainAppScaffolderWithErrorsTest {
 
