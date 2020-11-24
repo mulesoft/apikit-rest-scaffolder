@@ -9,13 +9,15 @@ package org.mule.tools.apikit.input;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.junit.Test;
+
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.internal.ParserService;
-import org.mule.parser.service.result.internal.ParseResult;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 import org.mule.tools.apikit.output.GenerationModel;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
