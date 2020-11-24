@@ -8,8 +8,8 @@ package org.mule.tools.apikit;
 
 import org.junit.Test;
 import org.mule.apikit.model.api.ApiReference;
-import org.mule.parser.service.internal.ParserService;
-import org.mule.parser.service.result.internal.ParseResult;
+import org.mule.parser.service.ParserService;
+import org.mule.parser.service.result.ParseResult;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
