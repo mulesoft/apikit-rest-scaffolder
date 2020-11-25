@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -166,7 +167,10 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   private void testSimple(String ramlFolder, String rootRaml) throws Exception {
     String ramlFilePath = ramlFolder + rootRaml + ".raml";
-    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, ramlFilePath);
+    ApiReference apiReference = ApiReference.create(Paths.get(ramlFilePath).toString());
+    ScaffoldingConfiguration scaffoldingConfiguration =
+        ScaffoldingConfiguration.builder().withApi(buildApiSpecification(apiReference)).build();
+    ScaffoldingResult result = scaffoldApi(RuntimeEdition.EE, scaffoldingConfiguration);
 
     assertTrue(result.isSuccess());
     assertEquals(1, result.getGeneratedConfigs().size());

@@ -10,6 +10,8 @@ public class ApikitMainFlowContainer {
 
   public static final String DEFAULT_HOST = "0.0.0.0";
   public static final int DEFAULT_PORT = 8081;
+  public static final String DEFAULT_HOST_PLACEHOLDER = "${http.host}";
+  public static final String DEFAULT_PORT_PLACEHOLDER = "${http.port}";
   public static final String DEFAULT_BASE_URI = "http://" + DEFAULT_HOST + ":" + DEFAULT_PORT + "/api";
   public static final String DEFAULT_BASE_PATH = "/";
   public static final String DEFAULT_PROTOCOL = "HTTP";

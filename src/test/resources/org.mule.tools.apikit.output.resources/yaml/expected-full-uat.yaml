@@ -1,0 +1,4 @@
+apiId: '123'
+http:
+  host: myHostEnUAT
+  port: '23423'

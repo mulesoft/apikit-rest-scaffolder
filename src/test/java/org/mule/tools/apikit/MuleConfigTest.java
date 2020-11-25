@@ -13,16 +13,22 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mule.apikit.model.Action;
 import org.mule.apikit.model.Resource;
 import org.mule.tools.apikit.misc.APIKitTools;
+import org.mule.tools.apikit.model.APIAutodiscoveryConfig;
 import org.mule.tools.apikit.model.APIKitConfig;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
+import org.mule.tools.apikit.model.ConfigurationPropertiesConfig;
 import org.mule.tools.apikit.model.Flow;
+import org.mule.tools.apikit.model.HttpListenerConfig;
+import org.mule.tools.apikit.model.HttpListenerConnection;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.output.GenerationModel;
@@ -30,7 +36,9 @@ import org.mule.tools.apikit.output.scopes.APIKitFlowScope;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -39,6 +47,9 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.apikit.model.ActionType.GET;
+import static org.mule.tools.apikit.TestUtils.getDocumentFromStream;
+import static org.mule.tools.apikit.TestUtils.getResourceAsStream;
+import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
 
 public class MuleConfigTest {
 
@@ -127,21 +138,7 @@ public class MuleConfigTest {
     MuleConfig muleConfig = MuleConfigBuilder.fromStream(fileAsInputStream);
     fileAsInputStream.close();
 
-    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
-    APIKitConfig fakeApikitConfig = mock(APIKitConfig.class);
-    Action action = mock(Action.class);
-    Resource resource = mock(Resource.class);
-
-    when(action.getType()).thenReturn(GET);
-    when(api.getId()).thenReturn("file");
-    when(api.getPath()).thenReturn("/api/*");
-    when(api.getConfig()).thenReturn(fakeApikitConfig);
-    when(resource.getResolvedUri(anyString())).thenReturn("/new-customers");
-    when(fakeApikitConfig.getName()).thenReturn("api-config");
-
-    GenerationModel generationModel = new GenerationModel(api, "v1", resource, action);
-    Element flowElement = new APIKitFlowScope(generationModel).generate();
-    Flow flow = new Flow(flowElement);
+    Flow flow = createFlow();
 
     muleConfig.addFlow(flow);
     Document generatedContent = muleConfig.buildContent();
@@ -159,6 +156,33 @@ public class MuleConfigTest {
           findElementByAttribute(generatedContent.getRootElement().getContent(), "name", "new-customers:api-config");
       assertTrue(newFlowInMuleConfig != null);
     }
+  }
+
+  private Flow createFlow() {
+    ApikitMainFlowContainer api = mock(ApikitMainFlowContainer.class);
+    APIKitConfig fakeApikitConfig = mock(APIKitConfig.class);
+    Action action = mock(Action.class);
+    Resource resource = mock(Resource.class);
+
+    when(action.getType()).thenReturn(GET);
+    when(api.getId()).thenReturn("file");
+    when(api.getPath()).thenReturn("/api/*");
+    when(api.getConfig()).thenReturn(fakeApikitConfig);
+    when(resource.getResolvedUri(anyString())).thenReturn("/new-customers");
+    when(fakeApikitConfig.getName()).thenReturn("api-config");
+
+    GenerationModel generationModel = new GenerationModel(api, "v1", resource, action);
+    Element flowElement = new APIKitFlowScope(generationModel).generate();
+    return new Flow(flowElement);
+  }
+
+  @Test
+  public void testMuleConfigWithAPIAutodiscoveryAndConfigurationProperties() throws Exception {
+    InputStream resourceAsStream =
+        getResourceAsStream("test-mule-config/leagues-flow-config-apiautodiscovery-configurationProperties.xml");
+    MuleConfig muleConfig = MuleConfigBuilder.fromStream(resourceAsStream);
+    assertTrue(muleConfig.getApiAutodiscoveryConfig().size() > 0);
+    assertTrue(muleConfig.getConfigurationPropertiesConfig().size() > 0);
   }
 
   private Element findElementByAttribute(List<Content> contentList, String attributeName, String attributeValue) {

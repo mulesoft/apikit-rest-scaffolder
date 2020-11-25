@@ -10,31 +10,37 @@ import org.jdom2.Content;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.mule.tools.apikit.input.parsers.APIAutodiscoveryConfigParser;
 import org.mule.tools.apikit.input.parsers.APIKitConfigParser;
+import org.mule.tools.apikit.input.parsers.ConfigurationPropertiesConfigParser;
 import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
+
 import java.util.List;
 import java.util.Optional;
 
 public class MuleConfigBuilder {
 
-  private final List<HttpListenerConfig> httpListenerConfigs = new ArrayList<>();
-  private final List<APIKitConfig> apiKitConfigs = new LinkedList<>();
-  private final List<Flow> flows = new ArrayList<>();
-
-  public MuleConfig build() {
-    return new MuleConfig(httpListenerConfigs, apiKitConfigs, flows);
-  }
+  public static final boolean DEFAULT_HTTP_LISTENER_CONFIG_PERSISTED = true;
 
   public static MuleConfig fromDoc(Document muleConfigContent) {
-    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser();
+    return fromDoc(muleConfigContent, DEFAULT_HTTP_LISTENER_CONFIG_PERSISTED);
+  }
+
+  public static MuleConfig fromDoc(Document muleConfigContent, boolean httpListenerConfigPersisted) {
+    HttpListenerConfigParser httpConfigParser = new HttpListenerConfigParser(httpListenerConfigPersisted);
     APIKitConfigParser apiKitConfigParser = new APIKitConfigParser();
+    APIAutodiscoveryConfigParser apiAutodiscoveryConfigParser = new APIAutodiscoveryConfigParser();
+    ConfigurationPropertiesConfigParser configurationPropertiesConfigParser = new ConfigurationPropertiesConfigParser();
 
     List<HttpListenerConfig> httpListenerConfigs = httpConfigParser.parse(muleConfigContent);
     List<APIKitConfig> apikitConfigs = apiKitConfigParser.parse(muleConfigContent);
+    List<APIAutodiscoveryConfig> apiAutodiscoveryConfig = apiAutodiscoveryConfigParser.parse(muleConfigContent);
+    List<ConfigurationPropertiesConfig> configurationPropertiesConfig =
+        configurationPropertiesConfigParser.parse(muleConfigContent);
+
     List<Flow> flowsInConfig = new ArrayList<>();
 
     for (Content content : muleConfigContent.getRootElement().getContent()) {
@@ -42,25 +48,29 @@ public class MuleConfigBuilder {
         Element contentElement = (Element) content;
         if ("flow".equals(contentElement.getName())) {
           Optional<ApikitRouter> apikitRouter = getRouter(contentElement);
+          Flow flow = new Flow(contentElement);
           if (apikitRouter.isPresent()) {
             MainFlow mainFlow = new MainFlow(contentElement);
             mainFlow.setApikitRouter(apikitRouter.get());
-            flowsInConfig.add(mainFlow);
-          } else {
-            flowsInConfig.add(new Flow(contentElement));
+            flow = mainFlow;
           }
+          flowsInConfig.add(flow);
         }
       }
     }
-
-    return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, muleConfigContent);
+    return new MuleConfig(httpListenerConfigs, apikitConfigs, flowsInConfig, apiAutodiscoveryConfig,
+                          configurationPropertiesConfig, muleConfigContent);
   }
 
   public static MuleConfig fromStream(InputStream input) throws Exception {
+    return fromStream(input, DEFAULT_HTTP_LISTENER_CONFIG_PERSISTED);
+  }
+
+  public static MuleConfig fromStream(InputStream input, boolean httpListenerConfigPersisted) throws Exception {
     SAXBuilder builder = MuleConfigBuilder.getSaxBuilder();
     Document inputAsDocument = builder.build(input);
     input.close();
-    return fromDoc(inputAsDocument);
+    return fromDoc(inputAsDocument, httpListenerConfigPersisted);
   }
 
   public static Optional<ApikitRouter> getRouter(Element flow) {

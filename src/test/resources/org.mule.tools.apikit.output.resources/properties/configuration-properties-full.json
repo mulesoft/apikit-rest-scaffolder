@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "http": {
+      "port": "customPort",
+      "host": "customHost"
+    },
+    "wsdl": {
+      "host": 123,
+      "port": 2134
+    },
+    "myProperty": "myPropertyValue",
+    "lalala": "lalalaValue"
+  },
+  "uat": {
+    "http": {
+      "host": "myHostEnUAT",
+      "port": 23423
+    }
+  },
+  "prod": {
+    "apiId": 12313312
+  }
+}

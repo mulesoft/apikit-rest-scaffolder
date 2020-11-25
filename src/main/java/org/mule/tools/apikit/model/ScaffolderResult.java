@@ -6,6 +6,8 @@
  */
 package org.mule.tools.apikit.model;
 
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,7 +67,9 @@ public final class ScaffolderResult implements ScaffoldingResult {
     }
 
     public Builder withGeneratedResources(List<ScaffolderResource> resources) {
-      generatedResources = resources;
+      if (isNotEmpty(resources)) {
+        generatedResources = resources;
+      }
       return this;
     }
 

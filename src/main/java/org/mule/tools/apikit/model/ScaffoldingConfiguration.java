@@ -16,13 +16,20 @@ public class ScaffoldingConfiguration {
   private final ApiSpecification api;
   private final List<MuleConfig> configurations;
   private final MuleDomain domain;
-  private final boolean showConsole;
+  private String apiSyncResource;
+  private final ScaffoldingAccessories scaffoldingAccessories;
 
-  private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain, boolean showConsole) {
+  private ScaffoldingConfiguration(ApiSpecification api, List<MuleConfig> configs, MuleDomain domain,
+                                   ScaffoldingAccessories scaffoldingAccessories, String apiSyncResource) {
     this.api = api;
     this.configurations = configs;
     this.domain = domain;
-    this.showConsole = showConsole;
+    this.scaffoldingAccessories = scaffoldingAccessories;
+    this.apiSyncResource = apiSyncResource;
+  }
+
+  public ScaffoldingAccessories getScaffoldingAccessories() {
+    return scaffoldingAccessories;
   }
 
   public ApiSpecification getApi() {
@@ -37,8 +44,12 @@ public class ScaffoldingConfiguration {
     return domain;
   }
 
-  public boolean isShowConsole() {
-    return showConsole;
+  public String getApiSyncResource() {
+    return apiSyncResource;
+  }
+
+  public void setApiSyncResource(String apiSyncResource) {
+    this.apiSyncResource = apiSyncResource;
   }
 
   public static Builder builder() {
@@ -50,11 +61,16 @@ public class ScaffoldingConfiguration {
     private ApiSpecification api;
     private List<MuleConfig> muleConfigurations;
     private MuleDomain domain;
-    private boolean showConsole;
+    private ScaffoldingAccessories scaffoldingAccessories;
+    private boolean showConsole = true;
+    private String externalCommonFile;
+    private String apiId;
+    private Properties properties;
+
+    private String apiSyncResource;
 
     public Builder() {
       this.muleConfigurations = new ArrayList<>();
-      this.showConsole = true;
       domain = MuleDomain.builder().build();
     }
 
@@ -73,13 +89,35 @@ public class ScaffoldingConfiguration {
       return this;
     }
 
+    public Builder withExternalCommonFile(String externalCommonFile) {
+      this.externalCommonFile = externalCommonFile;
+      return this;
+    }
+
+    public Builder withApiId(String apiId) {
+      this.apiId = apiId;
+      return this;
+    }
+
+    public Builder withProperties(Properties properties) {
+      this.properties = properties;
+      return this;
+    }
+
     public Builder withShowConsole(boolean showConsole) {
       this.showConsole = showConsole;
       return this;
     }
 
+    public Builder withApiSyncResource(String apiSyncResource) {
+      this.apiSyncResource = apiSyncResource;
+      return this;
+    }
+
     public ScaffoldingConfiguration build() {
-      return new ScaffoldingConfiguration(api, muleConfigurations, domain, showConsole);
+      return new ScaffoldingConfiguration(api, muleConfigurations, domain,
+                                          new ScaffoldingAccessories(showConsole, externalCommonFile, apiId, properties),
+                                          apiSyncResource);
     }
   }
 

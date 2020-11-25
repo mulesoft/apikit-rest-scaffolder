@@ -20,6 +20,7 @@ import org.mule.tools.apikit.model.ScaffolderResult;
 import org.mule.tools.apikit.output.GenerationModel;
 import org.mule.tools.apikit.output.GenerationStrategy;
 import org.mule.tools.apikit.output.MuleConfigGenerator;
+import org.mule.tools.apikit.output.resources.ResourcesGenerator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,7 @@ public final class MainAppScaffolder implements Scaffolder {
   public ScaffoldingResult run(ScaffoldingConfiguration config) {
     ScaffolderResult.Builder scaffolderResultBuilder = ScaffolderResult.builder();
     try {
-      APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs());
+      APIFactory apiFactory = new APIFactory(config.getDomain().getHttpListenerConfigs(), config.getScaffoldingAccessories());
       List<MuleConfig> muleConfigs = config.getMuleConfigurations();
 
       MuleConfigParser muleConfigParser = new MuleConfigParser(apiFactory, config.getApi().getLocation(), muleConfigs);
@@ -51,10 +52,13 @@ public final class MainAppScaffolder implements Scaffolder {
       MuleConfigGenerator muleConfigGenerator = new MuleConfigGenerator(includedApis,
                                                                         generationModels,
                                                                         muleConfigs,
-                                                                        scaffolderContext, config.isShowConsole());
+                                                                        scaffolderContext, config);
 
       List<MuleConfig> generatedConfigs = muleConfigGenerator.generate();
       scaffolderResultBuilder.withGeneratedConfigs(generatedConfigs);
+
+      scaffolderResultBuilder.withGeneratedResources(ResourcesGenerator.generate(config));
+
     } catch (Exception e) {
       List<ScaffoldingError> errors = Arrays.asList(new ScaffoldingError(e.getMessage()));
       scaffolderResultBuilder.withErrors(errors);

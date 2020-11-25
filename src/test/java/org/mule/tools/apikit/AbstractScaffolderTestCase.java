@@ -10,6 +10,7 @@ package org.mule.tools.apikit;
 import org.apache.commons.io.FilenameUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.api.ApiReference;
 import org.mule.parser.service.ParserService;
 import org.mule.parser.service.result.ParseResult;
@@ -19,6 +20,7 @@ import org.mule.tools.apikit.model.MuleDomain;
 import org.mule.tools.apikit.model.RuntimeEdition;
 import org.mule.tools.apikit.model.ScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderContextBuilder;
+import org.mule.tools.apikit.model.ScaffoldingAccessories;
 import org.mule.tools.apikit.model.ScaffoldingConfiguration;
 import org.mule.tools.apikit.model.ScaffoldingResult;
 import org.xml.sax.SAXException;
@@ -59,14 +61,16 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
   protected static String retrieveGeneratedFile(ScaffoldingResult result, String fileName)
       throws IOException {
     InputStream api =
-        result.getGeneratedConfigs().stream().filter(config -> config.getName() != null && config.getName().contains(fileName))
+        result.getGeneratedConfigs().stream().filter(config -> {
+          String name = config.getName() != null ? extractName(config.getName()) : "";
+          return name.equalsIgnoreCase(fileName);
+        })
             .findFirst().orElseThrow(() -> new RuntimeException(("unable to find generated file"))).getContent();
     return APIKitTools.readContents(api);
   }
 
   protected static String extractName(String path) {
-    String[] pathParts = path.split("/");
-    return pathParts[pathParts.length - 1];
+    return FilenameUtils.removeExtension(FilenameUtils.getName(path));
   }
 
   public static List<MuleConfig> createMuleConfigsFromLocations(List<String> ramlLocations) throws Exception {
@@ -76,8 +80,8 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     List<MuleConfig> muleConfigs = new ArrayList<>();
     for (String location : ramlLocations) {
       InputStream muleConfigInputStream = getResourceAsStream(location);
-      MuleConfig muleConfig = fromStream(muleConfigInputStream);
-      muleConfig.setName(location);
+      MuleConfig muleConfig = fromStream(muleConfigInputStream, false);
+      muleConfig.setName(FilenameUtils.getName(location));
       muleConfigs.add(muleConfig);
     }
     return muleConfigs;
@@ -92,116 +96,20 @@ public abstract class AbstractScaffolderTestCase extends AbstractMultiParserTest
     return MuleDomain.fromInputStream(muleDomainInputStream);
   }
 
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, boolean showConsole)
-      throws Exception {
-    return scaffoldApi(runtimeEdition, ramlLocation, emptyList(), null, showConsole);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation) throws Exception {
-    return scaffoldApi(runtimeEdition, ramlLocation, emptyList(), (MuleDomain) null);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference) {
-    return scaffoldApi(runtimeEdition, apiReference, null, emptyList(), true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation, String muleDomainLocation)
-      throws Exception {
-    return scaffoldApi(runtimeEdition, ramlLocation, emptyList(), muleDomainLocation);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                          List<String> existingMuleConfigsLocations, String muleDomainLocation)
-      throws Exception {
-    MuleDomain muleDomain = createMuleDomainFromLocation(muleDomainLocation);
-    List<MuleConfig> existingMuleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    return scaffoldApi(runtimeEdition, ramlLocation, muleDomain, existingMuleConfigs);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                          List<String> existingMuleConfigsLocations,
-                                          MuleDomain muleDomain, boolean showConsole)
-      throws Exception {
-    List<MuleConfig> existingMuleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    return scaffoldApi(runtimeEdition, ramlLocation, muleDomain, existingMuleConfigs, showConsole);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                          List<String> existingMuleConfigsLocations, MuleDomain muleDomain)
-      throws Exception {
-    List<MuleConfig> existingMuleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    return scaffoldApi(runtimeEdition, ramlLocation, muleDomain, existingMuleConfigs, true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                          List<MuleConfig> existingMuleConfigs) {
-    return scaffoldApi(runtimeEdition, ramlLocation, null, existingMuleConfigs, true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference,
-                                          List<MuleConfig> existingMuleConfigs) {
-    return scaffoldApi(runtimeEdition, apiReference, null, existingMuleConfigs, true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference, MuleDomain muleDomain,
-                                          List<String> existingMuleConfigsLocations)
-      throws Exception {
-    List<MuleConfig> existingMuleConfigs = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    return scaffoldApi(runtimeEdition, apiReference, muleDomain, existingMuleConfigs, true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference, MuleDomain muleDomain,
-                                          List<MuleConfig> existingMuleConfigs, List<String> existingMuleConfigsLocations)
-      throws Exception {
-    List<MuleConfig> existingMuleConfigsFromLocation = createMuleConfigsFromLocations(existingMuleConfigsLocations);
-    existingMuleConfigsFromLocation.addAll(existingMuleConfigs);
-    return scaffoldApi(runtimeEdition, apiReference, muleDomain, existingMuleConfigsFromLocation, true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                          MuleDomain muleDomain, List<MuleConfig> existingMuleConfigs) {
-    return scaffoldApi(runtimeEdition, ramlLocation, muleDomain, existingMuleConfigs, true);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, String ramlLocation,
-                                          MuleDomain muleDomain, List<MuleConfig> existingMuleConfigs, boolean showConsole) {
-    ApiReference apiReference = ApiReference.create(Paths.get(ramlLocation).toString());
-    return scaffoldApi(runtimeEdition, apiReference, muleDomain, existingMuleConfigs, showConsole);
-  }
-
-  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ApiReference apiReference,
-                                          MuleDomain muleDomain, List<MuleConfig> existingMuleConfigs, boolean showConsole) {
+  protected ScaffoldingResult scaffoldApi(RuntimeEdition runtimeEdition, ScaffoldingConfiguration scaffoldingConfiguration) {
     ScaffolderContext context = ScaffolderContextBuilder.builder().withRuntimeEdition(runtimeEdition).build();
     MainAppScaffolder mainAppScaffolder = new MainAppScaffolder(context);
-
-    ScaffoldingConfiguration scaffoldingConfiguration =
-        getScaffoldingConfiguration(apiReference, existingMuleConfigs, muleDomain, showConsole);
 
     ScaffoldingResult scaffoldingResult = mainAppScaffolder.run(scaffoldingConfiguration);
     assertTrue(scaffoldingResult.isSuccess());
     return scaffoldingResult;
   }
 
-  protected ScaffoldingConfiguration getScaffoldingConfiguration(String apiPath, List<MuleConfig> muleConfigs,
-                                                                 MuleDomain muleDomain) {
-    ApiReference apiReference = ApiReference.create(Paths.get(apiPath).toString());
-    return getScaffoldingConfiguration(apiReference, muleConfigs, muleDomain, true);
-  }
-
-  protected ScaffoldingConfiguration getScaffoldingConfiguration(ApiReference apiReference, List<MuleConfig> muleConfigs,
-                                                                 MuleDomain muleDomain, boolean showConsole) {
+  protected ApiSpecification buildApiSpecification(ApiReference apiReference) {
     ParseResult parseResult = new ParserService().parse(apiReference);
     ScaffoldingConfiguration.Builder configuration = new ScaffoldingConfiguration.Builder();
     configuration.withApi(parseResult.get());
-    if (isNotEmpty(muleConfigs)) {
-      configuration.withMuleConfigurations(muleConfigs);
-    }
-
-    if (muleDomain != null) {
-      configuration.withDomain(muleDomain);
-    }
-    configuration.withShowConsole(showConsole);
-    return configuration.build();
+    return parseResult.get();
   }
 
   protected static String fileNameWhithOutExtension(final String path) {

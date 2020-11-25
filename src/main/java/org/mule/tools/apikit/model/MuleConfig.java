@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
 
@@ -27,19 +28,43 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
   private Document originalContent;
   private List<HttpListenerConfig> configurations;
   private List<APIKitConfig> apikitConfigs;
+  private List<APIAutodiscoveryConfig> apiAutodiscoveryConfig;
+  private List<ConfigurationPropertiesConfig> configurationPropertiesConfig;
   private List<Flow> flows;
   private static final String INDENTATION = "    ";
 
-  protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows) {
+  protected MuleConfig(List<HttpListenerConfig> configurations, List<APIKitConfig> apikitConfigs, List<Flow> flows,
+                       List<APIAutodiscoveryConfig> apiAutodiscoveryConfig,
+                       List<ConfigurationPropertiesConfig> configurationPropertiesConfig) {
     this.configurations = configurations;
     this.apikitConfigs = apikitConfigs;
+    this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
+    this.configurationPropertiesConfig = configurationPropertiesConfig;
     this.flows = flows;
   }
 
   protected MuleConfig(List<HttpListenerConfig> httpConfigs, List<APIKitConfig> apikitConfigs, List<Flow> flows,
+                       List<APIAutodiscoveryConfig> apiAutodiscoveryConfig,
+                       List<ConfigurationPropertiesConfig> configurationPropertiesConfig,
                        Document content) {
-    this(httpConfigs, apikitConfigs, flows);
+    this(httpConfigs, apikitConfigs, flows, apiAutodiscoveryConfig, configurationPropertiesConfig);
     this.originalContent = content;
+  }
+
+  public List<ConfigurationPropertiesConfig> getConfigurationPropertiesConfig() {
+    return configurationPropertiesConfig;
+  }
+
+  public void setConfigurationPropertiesConfig(List<ConfigurationPropertiesConfig> configurationPropertiesConfig) {
+    this.configurationPropertiesConfig = configurationPropertiesConfig;
+  }
+
+  public List<APIAutodiscoveryConfig> getApiAutodiscoveryConfig() {
+    return apiAutodiscoveryConfig;
+  }
+
+  public void setApiAutodiscoveryConfig(List<APIAutodiscoveryConfig> apiAutodiscoveryConfig) {
+    this.apiAutodiscoveryConfig = apiAutodiscoveryConfig;
   }
 
   public String getName() {
@@ -107,6 +132,13 @@ public class MuleConfig implements NamedContent, WithConstructs, WithConfigs {
     }
     apikitConfigs.forEach(apiKitConfig -> addContent(document, apiKitConfig.generate()));
     flows.forEach(flow -> addContent(document, flow.generate().clone().detach()));
+    if (isNotEmpty(apiAutodiscoveryConfig)) {
+      apiAutodiscoveryConfig.forEach(singleApiAutodiscovery -> addContent(document, singleApiAutodiscovery.generate()));
+    }
+    if (isNotEmpty(configurationPropertiesConfig)) {
+      configurationPropertiesConfig
+          .forEach(singleCconfigurationPropertiesConfig -> addContent(document, singleCconfigurationPropertiesConfig.generate()));
+    }
 
     return document;
   }

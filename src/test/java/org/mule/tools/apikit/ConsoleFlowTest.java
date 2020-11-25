@@ -50,7 +50,7 @@ public class ConsoleFlowTest {
   public void scaffoldWithoutMuleConfigs() throws Exception {
     File ramlFile = getFile("console-flow/simple-console.raml");
     MainAppScaffolder mainAppScaffolder = getScaffolder();
-    ScaffoldingConfiguration configuration = getScaffolderConfiguration(getFile("console-flow/simple.xml"), ramlFile);
+    ScaffoldingConfiguration configuration = getScaffolderConfiguration(getFile("console-flow/simple.xml"), ramlFile, true);
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
     assertTrue(result.isSuccess());
   }
@@ -61,7 +61,7 @@ public class ConsoleFlowTest {
     File ramlFile = getFile("console-flow/simple-console.raml");
 
     MainAppScaffolder mainAppScaffolder = getScaffolder();
-    ScaffoldingConfiguration configuration = getScaffolderConfiguration(xmlFile, ramlFile);
+    ScaffoldingConfiguration configuration = getScaffolderConfiguration(xmlFile, ramlFile, false);
     ScaffoldingResult result = mainAppScaffolder.run(configuration);
 
     assertTrue(result.isSuccess());
@@ -97,7 +97,8 @@ public class ConsoleFlowTest {
     return new MainAppScaffolder(context);
   }
 
-  private ScaffoldingConfiguration getScaffolderConfiguration(File xmlFile, File ramlFile) throws Exception {
+  private ScaffoldingConfiguration getScaffolderConfiguration(File xmlFile, File ramlFile, boolean httpPersisted)
+      throws Exception {
     ParseResult parseResult = new ParserService().parse(ApiReference.create(ramlFile.toURI()));
 
     if (!parseResult.success()) {
@@ -108,7 +109,7 @@ public class ConsoleFlowTest {
 
     if (xmlFile != null) {
       InputStream is = FileUtils.openInputStream(xmlFile);
-      muleConfigs.add(MuleConfigBuilder.fromStream(is));
+      muleConfigs.add(MuleConfigBuilder.fromStream(is, httpPersisted));
     }
 
     return new ScaffoldingConfiguration.Builder()

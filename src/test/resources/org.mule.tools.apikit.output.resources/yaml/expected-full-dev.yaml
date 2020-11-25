@@ -1,0 +1,9 @@
+apiId: '123'
+http:
+  port: customPort
+  host: customHost
+wsdl:
+  host: '123'
+  port: '2134'
+myProperty: 'myPropertyValue'
+lalala: 'lalalaValue'
