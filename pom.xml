@@ -5,7 +5,7 @@
 
     <groupId>org.mule.apikit</groupId>
     <artifactId>mule-apikit-scaffolder</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>2.2.0-SNAPSHOT</version>
     <name>APIKit Scaffolder</name>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
-        <parser.service.version>3.0.0-SNAPSHOT</parser.service.version>
+        <parser.service.version>2.2.1-SNAPSHOT</parser.service.version>
         <mule.service.weave.version>2.3.0</mule.service.weave.version>
         <mule.plugin.maven.plugin.version>1.1.6</mule.plugin.maven.plugin.version>
         <mule.http.service.version>1.1.7</mule.http.service.version>
