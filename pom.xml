@@ -21,7 +21,7 @@
         <project.reactor.version>3.2.0.M1</project.reactor.version>
         <rest.assured.version>3.2.0</rest.assured.version>
 
-        <jacoco.version>0.8.5</jacoco.version>
+        <jacoco.version>0.8.7</jacoco.version>
         <allureJunitVersion>2.13.5</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
