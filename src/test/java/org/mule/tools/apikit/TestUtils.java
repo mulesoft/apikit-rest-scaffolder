@@ -11,6 +11,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaderJDOMFactory;
 import org.jdom2.input.sax.XMLReaders;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.xml.sax.SAXException;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 public class TestUtils {
 
   public static final String ENABLE_FLOW_SOURCES_TEMPLATE = "<munit:enable-flow-source value=\"%s\" />";
-  private static final SAXBuilder BUILDER = new SAXBuilder(XMLReaders.NONVALIDATING);
+  private static final SAXBuilder BUILDER = TestUtils.getSaxBuilder(XMLReaders.NONVALIDATING);
 
   public static Document getDocumentFromStream(InputStream xmlWithFlows) throws JDOMException, IOException {
     Document document = BUILDER.build(xmlWithFlows);
@@ -92,5 +93,18 @@ public class TestUtils {
       }
     }
     return count;
+  }
+
+  public static SAXBuilder getSaxBuilder() {
+    return getSaxBuilder(null);
+  }
+
+  public static SAXBuilder getSaxBuilder(XMLReaderJDOMFactory readerSource) {
+    SAXBuilder builder = readerSource != null ? new SAXBuilder(readerSource) : new SAXBuilder();
+    builder.setExpandEntities(false);
+    builder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    builder.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    return builder;
   }
 }
