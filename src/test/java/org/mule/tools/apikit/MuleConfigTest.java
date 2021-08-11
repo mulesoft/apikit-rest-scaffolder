@@ -7,7 +7,6 @@
 package org.mule.tools.apikit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.jdom2.Content;
@@ -39,6 +38,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.apikit.model.ActionType.GET;
+import static org.mule.tools.apikit.TestUtils.getSaxBuilder;
 
 public class MuleConfigTest {
 
@@ -46,7 +46,7 @@ public class MuleConfigTest {
 
   @Before
   public void setUp() {
-    builder = new SAXBuilder();
+    builder = getSaxBuilder();
   }
 
   @Test
@@ -149,7 +149,7 @@ public class MuleConfigTest {
     // Verify flow doesn't exist in the original MuleConfig
 
     try (InputStream contentStream = muleConfig.getContent()) {
-      Document originalContent = new SAXBuilder().build(contentStream);
+      Document originalContent = getSaxBuilder().build(contentStream);
       Element flowShouldNotExist =
           findElementByAttribute(originalContent.getRootElement().getContent(), "name", "new-customers:api-config");
       assertTrue(flowShouldNotExist == null);

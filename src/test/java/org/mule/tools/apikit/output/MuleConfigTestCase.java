@@ -6,22 +6,24 @@
  */
 package org.mule.tools.apikit.output;
 
-import static org.junit.Assert.assertEquals;
-import static org.mule.tools.apikit.model.MuleConfigBuilder.*;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 import org.mule.tools.apikit.model.MuleConfig;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.mule.tools.apikit.TestUtils.getSaxBuilder;
+import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
+
 public class MuleConfigTestCase {
 
   @Test
   public void muleConfigFormatContent() throws Exception {
-    SAXBuilder builder = new SAXBuilder();
+    SAXBuilder builder = getSaxBuilder();
     InputStream input = new FileInputStream("src/test/resources/test-mule-config/config-without-flows-and-indentation.xml");
     Document inputAsDocument = builder.build(input);
     input.close();
