@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -599,6 +601,22 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
         "    country: \"Argentina\"\n" +
         "  }\n" +
         "}"));
+  }
+
+  @Test
+  public void testExampleWithNamespaceReScaffold() throws Exception {
+    String apiLocation = "scaffolder/example.raml";
+    String s = when()
+        .api(apiLocation)
+        .configs("scaffolder/example.xml")
+        .then()
+        .assertSuccess()
+        .assertConfigsSize(1)
+        .getConfigContent();
+    //assert that generated flow have the ee namespace declaration
+    Matcher matcher = Pattern.compile("<flow name=\"get:\\\\pet:example-config\">\\n" +
+        "\\s+<ee:transform xmlns:ee=\"http:\\/\\/www\\.mulesoft\\.org\\/schema\\/mule\\/ee\\/core\">").matcher(s);
+    assertTrue(s, matcher.find());
   }
 
   @Test
