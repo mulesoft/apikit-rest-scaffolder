@@ -295,7 +295,7 @@ public class MuleConfigGenerator {
    */
   private Document createMuleConfigContent(ApikitMainFlowContainer api) {
     Document document = new Document();
-    document.setRootElement(new MuleScope(false, false).generate());
+    document.setRootElement(new MuleScope(isMuleEE(), false).generate());
     MuleConfig muleConfig = fromDoc(document);
     muleConfig.setName(createMuleConfigID(api.getId()));
     addApikitConfiguration(api, muleConfig);
