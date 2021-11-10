@@ -90,8 +90,6 @@ public class ErrorHandlerScope implements Scope {
     // Transform Element
     Element transform = new Element("transform", EE_NAMESPACE.getNamespace());
     transform.addNamespaceDeclaration(EE_NAMESPACE.getNamespace());
-    transform.setAttribute("schemaLocation", EE_NAMESPACE.getNamespace().getURI() + " " + EE_NAMESPACE.getLocation(),
-                           XSI_NAMESPACE.getNamespace());
 
     // Payload
     Element message = new Element("message", EE_NAMESPACE.getNamespace());
