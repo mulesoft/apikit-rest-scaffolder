@@ -1,0 +1,59 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Account and Transaction API Specification",
+    "description": "Swagger for Account and Transaction API Specification",
+    "termsOfService": "https://www.openbanking.org.uk/terms",
+    "contact": {
+      "name": "Service Desk",
+      "email": "ServiceDesk@openbanking.org.uk"
+    },
+    "license": {
+      "name": "open-licence",
+      "url": "https://www.openbanking.org.uk/open-licence"
+    },
+    "version": "3.1.8"
+  },
+  "paths": {
+    "/account-access-consents": {
+      "post": {
+        "responses" : {
+          "200" : {
+            "description" : ""
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json; charset=utf-8": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountId"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountId"
+              }
+            },
+            "application/jose+jwe": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountId"
+              }
+            }
+          },
+          "description": "Default",
+          "required": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountId": {
+        "description": "A unique and immutable identifier used to identify the account resource. This identifier has no meaning to the account owner.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      }
+    }
+  }
+}

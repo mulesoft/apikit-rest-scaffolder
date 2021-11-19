@@ -206,7 +206,7 @@ public class GenerationModel implements Comparable<GenerationModel> {
 
     if (mimeType != null) {
       flowName.append(FLOW_NAME_SEPARATOR)
-          .append(getMediaType(mimeType));
+          .append(mimeType);
     }
 
 
@@ -234,11 +234,6 @@ public class GenerationModel implements Comparable<GenerationModel> {
     }
 
     return result;
-  }
-
-  private String getMediaType(String mediaType) {
-    MediaType mType = parse(mediaType);
-    return String.format("%s/%s", mType.getPrimaryType(), mType.getSubType());
   }
 
 }

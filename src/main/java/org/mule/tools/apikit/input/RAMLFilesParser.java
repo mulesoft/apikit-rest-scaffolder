@@ -7,6 +7,8 @@
 package org.mule.tools.apikit.input;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.mule.runtime.api.metadata.MediaType.parse;
 import static org.mule.tools.apikit.model.ApikitMainFlowContainer.DEFAULT_BASE_URI;
 
 import java.util.HashSet;
@@ -19,6 +21,7 @@ import org.mule.apikit.model.Action;
 import org.mule.apikit.model.MimeType;
 import org.mule.apikit.model.ApiSpecification;
 import org.mule.apikit.model.Resource;
+import org.mule.runtime.api.metadata.MediaType;
 import org.mule.tools.apikit.misc.APIKitTools;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.APIFactory;
@@ -72,11 +75,18 @@ public class RAMLFilesParser {
     String completePath = APIKitTools
         .getCompletePathFromBasePathAndPath(api.getHttpListenerConfig().getBasePath(), api.getPath());
 
+    String mimeTypeWithoutAttributes = mimeType != null ? getMediaType(mimeType) : null;
+
     ResourceActionMimeTypeTriplet resourceActionTriplet =
         new ResourceActionMimeTypeTriplet(api, completePath + resource.getResolvedUri(version),
                                           action.getType().toString(),
-                                          mimeType);
+                                          mimeTypeWithoutAttributes);
     entries.put(resourceActionTriplet, new GenerationModel(api, version, resource, action,
-                                                           mimeType));
+                                                           mimeTypeWithoutAttributes));
+  }
+
+  private String getMediaType(String mediaType) {
+    MediaType mType = parse(mediaType);
+    return format("%s/%s", mType.getPrimaryType(), mType.getSubType());
   }
 }
