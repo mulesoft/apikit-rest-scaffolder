@@ -25,6 +25,7 @@
         <allureJunitVersion>2.13.5</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
+        <formatter.skip>false</formatter.skip>
 
     </properties>
 
@@ -165,7 +166,7 @@
                             <goal>validate</goal>
                         </goals>
                         <configuration>
-                            <skipFormatting>false</skipFormatting>
+                            <skipFormatting>${formatter.skip}</skipFormatting>
                         </configuration>
                     </execution>
                 </executions>
