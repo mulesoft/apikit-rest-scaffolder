@@ -422,14 +422,14 @@ output application/json
         </ee:transform>
         <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName):ADHybridHealthService-config" />
     </flow>
-    <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\TenantWhitelisting\(featureName):ADHybridHealthService-config">
+    <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\TenantListing\(featureName):ADHybridHealthService-config">
         <ee:transform>
             <ee:variables>
                 <ee:set-variable variableName="serviceName">attributes.uriParams.'serviceName'</ee:set-variable>
                 <ee:set-variable variableName="featureName">attributes.uriParams.'featureName'</ee:set-variable>
             </ee:variables>
         </ee:transform>
-        <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\TenantWhitelisting\(featureName):ADHybridHealthService-config" />
+        <logger level="INFO" message="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\TenantListing\(featureName):ADHybridHealthService-config" />
     </flow>
     <flow name="get:\providers\Microsoft.ADHybridHealthService\services\(serviceName)\alerts:ADHybridHealthService-config">
         <ee:transform>
