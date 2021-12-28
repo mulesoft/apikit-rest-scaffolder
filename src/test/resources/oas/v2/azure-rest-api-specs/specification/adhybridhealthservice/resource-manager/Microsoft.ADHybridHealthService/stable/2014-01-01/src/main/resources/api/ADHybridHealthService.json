@@ -3220,16 +3220,16 @@
         }
       }
     },
-    "/providers/Microsoft.ADHybridHealthService/services/{serviceName}/TenantWhitelisting/{featureName}": {
+    "/providers/Microsoft.ADHybridHealthService/services/{serviceName}/TenantListing/{featureName}": {
       "get": {
         "tags": [ "Services" ],
-        "description": "Checks if the tenant, to which a service is registered, is whitelisted to use a feature.",
+        "description": "Checks if the tenant, to which a service is registered, is authorized to use a feature.",
         "x-ms-examples": {
-          "services_getTenantWhitelisting": {
-            "$ref": "./examples/TenantWhitelisting.json"
+          "services_getTenantListing": {
+            "$ref": "./examples/TenantListing.json"
           }
         },
-        "operationId": "services_getTenantWhitelisting",
+        "operationId": "services_getTenantListing",
         "parameters": [
           {
             "name": "serviceName",
@@ -3251,7 +3251,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Indicates if a tenant is whitelisted for a feature or not.",
+            "description": "Indicates if a tenant is authorized for a feature or not.",
             "schema": {
               "$ref": "#/definitions/Result"
             }
