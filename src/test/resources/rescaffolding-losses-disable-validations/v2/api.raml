@@ -1,0 +1,19 @@
+#%RAML 1.0
+---
+title: Sample ApikitMainFlowContainer
+
+types:
+  Person:
+    type: object
+    properties:
+      idNumber: integer
+      firstName:  string
+      middleName?: string
+      lastName: string
+
+/persons:
+  get:
+    responses:
+      200:
+        body:
+          application/json: Person

@@ -38,6 +38,7 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
       Attribute extensionEnabled = element.getAttribute(APIKitConfig.EXTENSION_ENABLED_ATTRIBUTE);
       Attribute outboundHeadersMapName = element.getAttribute(APIKitConfig.OUTBOUND_HEADERS_MAP_ATTRIBUTE);
       Attribute httpStatusVarName = element.getAttribute(APIKitConfig.HTTP_STATUS_VAR_ATTRIBUTE);
+      Attribute disableValidations = element.getAttribute(APIKitConfig.DISABLE_VALIDATIONS);
 
       final APIKitConfig apiKitConfig = new APIKitConfig();
       if (api != null) {
@@ -61,6 +62,11 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
       if (httpStatusVarName != null) {
         apiKitConfig.setHttpStatusVarName(httpStatusVarName.getValue());
       }
+
+      if (disableValidations != null) {
+        apiKitConfig.setDisableValidations(disableValidations.getValue());
+      }
+
       apikitConfigs.add(apiKitConfig);
     }
 
