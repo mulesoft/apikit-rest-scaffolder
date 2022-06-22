@@ -36,22 +36,23 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import static java.lang.String.format;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.EnumSet.of;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mule.apikit.model.ApiVendor.*;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
 
 @RunWith(Parameterized.class)
 public class MainAppScaffolderOASTest {
 
   private static final Set<ApiVendor> OAS_VENDORS =
-      Collections.unmodifiableSet(EnumSet.of(ApiVendor.OAS, ApiVendor.OAS_20, ApiVendor.OAS_30));
+      unmodifiableSet(of(OAS, OAS_20, OAS_30));
   private Path api;
 
   private static final PathMatcher API_MATCHER = FileSystems.getDefault().getPathMatcher("glob:*.{json,yaml, yml}");
