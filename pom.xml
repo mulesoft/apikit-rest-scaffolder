@@ -13,16 +13,17 @@
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
-        <parser.service.version>2.2.13</parser.service.version>
+        <parser.service.version>2.3.2-SNAPSHOT</parser.service.version>
         <mule.service.weave.version>2.3.0</mule.service.weave.version>
         <mule.plugin.maven.plugin.version>1.1.6</mule.plugin.maven.plugin.version>
         <mule.http.service.version>1.1.7</mule.http.service.version>
         <mule.service.scheduler.version>1.1.7</mule.service.scheduler.version>
         <project.reactor.version>3.2.0.M1</project.reactor.version>
         <rest.assured.version>3.2.0</rest.assured.version>
+        <gson.version>2.9.1</gson.version>
 
         <jacoco.version>0.8.5</jacoco.version>
-        <allureJunitVersion>2.13.5</allureJunitVersion>
+        <allureJunitVersion>2.18.1</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
 
@@ -33,6 +34,21 @@
             <groupId>org.mule.runtime</groupId>
             <artifactId>mule-api</artifactId>
             <version>1.1.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mule.apikit</groupId>
