@@ -238,6 +238,7 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
   }
 
   private void mockScaffolderResourceLoader(String resourceURL, String folder, String file) throws Exception {
+    resourceURL = resourceURL.replaceAll(" ", "%20");
     Mockito.doReturn(getToBeReturned(folder, file)).when(scaffolderResourceLoaderMock)
         .getResource(resourceURL);
     Mockito.doReturn(getInputStream(folder + file)).doReturn(getInputStream(folder + file))

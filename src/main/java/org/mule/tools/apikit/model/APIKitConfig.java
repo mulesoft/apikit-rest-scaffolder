@@ -104,7 +104,7 @@ public class APIKitConfig implements Scope {
   }
 
   public void setApi(String api) {
-    this.api = api;
+    this.api = api.replaceAll("%20", " ");
   }
 
   public void setRaml(String raml) {
