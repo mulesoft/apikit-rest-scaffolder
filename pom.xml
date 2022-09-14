@@ -25,7 +25,7 @@
         <jacoco.version>0.8.5</jacoco.version>
         <allureJunitVersion>2.18.1</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
-        <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
+        <allure.maven.plugin.version>2.11.2</allure.maven.plugin.version>
 
     </properties>
 
