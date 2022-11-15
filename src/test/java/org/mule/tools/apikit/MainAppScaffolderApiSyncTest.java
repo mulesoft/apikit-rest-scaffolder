@@ -128,22 +128,21 @@ public class MainAppScaffolderApiSyncTest extends AbstractScaffolderTestCase {
 
   @Test
   public void libraryReferenceToRoot() throws Exception {
-    final String rootRaml = "test api";
     final String ramlFolder = "src/test/resources/api-sync/library-reference-to-root/root/";
     final String libraryFolder = "src/test/resources/api-sync/library-reference-to-root/library/";
     final List<String> libraryFiles = Arrays.asList("library.raml", "reused-fragment.raml");
 
     final String exchangeJsonResourceURL = ROOT_RAML_RESOURCE_URL + "exchange.json";
-    final String rootRamlResourceURL = ROOT_RAML_RESOURCE_URL + rootRaml + ".raml";
+    final String rootRamlResourceURL = ROOT_RAML_RESOURCE_URL + "test%20api.raml";
 
-    mockScaffolderResourceLoader(exchangeJsonResourceURL, ramlFolder, rootRaml + ".json");
-    mockScaffolderResourceLoader(rootRamlResourceURL, ramlFolder, rootRaml + ".raml");
+    mockScaffolderResourceLoader(exchangeJsonResourceURL, ramlFolder, "test api.json");
+    mockScaffolderResourceLoader(rootRamlResourceURL, ramlFolder, "test api.raml");
 
     for (String rootRamlFile : libraryFiles) {
       mockScaffolderResourceLoader(DEPENDENCIES_RESOURCE_URL + rootRamlFile, libraryFolder, rootRamlFile);
     }
 
-    ApiReference apiReference = ApiReference.create(ROOT_RAML_RESOURCE_URL + rootRaml + ".raml", scaffolderResourceLoaderMock);
+    ApiReference apiReference = ApiReference.create(rootRamlResourceURL, scaffolderResourceLoaderMock);
     ParseResult parseResult = new ParserService().parse(apiReference);
     assertTrue(parseResult.success());
 
