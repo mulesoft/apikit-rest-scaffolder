@@ -61,6 +61,11 @@ public class MuleConfigGenerator {
                                                                                                        "http://www.mulesoft.org/schema/mule/ee/core"),
                                                                                      "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
 
+  public static final NamespaceWithLocation DOC_NAMESPACE = new NamespaceWithLocation(
+                                                                                      Namespace
+                                                                                          .getNamespace("doc",
+                                                                                                        "http://www.mulesoft.org/schema/mule/documentation"),
+                                                                                      "");
   private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
 
   private final List<GenerationModel> flowEntriesDiff;
