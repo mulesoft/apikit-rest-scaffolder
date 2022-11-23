@@ -615,7 +615,8 @@ public class MainAppScaffolderTest extends AbstractScaffolderTestCase {
         .getConfigContent();
     //assert that generated flow have the ee namespace declaration
     Matcher matcher = Pattern.compile("<flow name=\"get:\\\\pet:example-config\">\\R" +
-        "\\s+<ee:transform xmlns:ee=\"http:\\/\\/www\\.mulesoft\\.org\\/schema\\/mule\\/ee\\/core\">").matcher(s);
+        "\\s+<ee:transform xmlns:ee=\"http:\\/\\/www\\.mulesoft\\.org\\/schema\\/mule\\/ee\\/core\" doc:name=\"Transform Message\">")
+        .matcher(s);
     assertTrue(s, matcher.find());
   }
 
