@@ -6,16 +6,15 @@
  */
 package org.mule.tools.apikit.output.scopes;
 
-import static org.mule.tools.apikit.output.MuleConfigGenerator.EE_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.XSI_NAMESPACE;
-
 import org.jdom2.CDATA;
+import org.jdom2.Element;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdom2.Element;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.DOC_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.EE_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
 
 public class ErrorHandlerScope implements Scope {
 
@@ -90,6 +89,7 @@ public class ErrorHandlerScope implements Scope {
     // Transform Element
     Element transform = new Element("transform", EE_NAMESPACE.getNamespace());
     transform.addNamespaceDeclaration(EE_NAMESPACE.getNamespace());
+    transform.setAttribute("name", "Transform Message", DOC_NAMESPACE.getNamespace());
 
     // Payload
     Element message = new Element("message", EE_NAMESPACE.getNamespace());
