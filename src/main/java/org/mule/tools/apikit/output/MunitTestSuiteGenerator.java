@@ -6,8 +6,6 @@
  */
 package org.mule.tools.apikit.output;
 
-import java.util.*;
-
 import com.google.common.collect.Lists;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -18,18 +16,16 @@ import org.mule.tools.apikit.model.MuleConfigBuilder;
 import org.mule.tools.apikit.model.MunitScaffolderContext;
 import org.mule.tools.apikit.model.ScaffolderResource;
 import org.mule.tools.apikit.output.scopes.HttpRequestConfigScope;
+import org.mule.tools.apikit.output.scopes.MuleScope;
 import org.mule.tools.apikit.output.scopes.MunitConfigScope;
 import org.mule.tools.apikit.output.scopes.MunitTestFlowScope;
-import org.mule.tools.apikit.output.scopes.MuleScope;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MunitTestSuiteGenerator {
-
-  public static final NamespaceWithLocation DOC_NAMESPACE = new NamespaceWithLocation(
-                                                                                      Namespace
-                                                                                          .getNamespace("doc",
-                                                                                                        "http://www.mulesoft.org/schema/mule/documentation"),
-                                                                                      "");
-
 
   public static final NamespaceWithLocation MUNIT_NAMESPACE = new NamespaceWithLocation(
                                                                                         Namespace

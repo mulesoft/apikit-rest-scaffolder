@@ -14,6 +14,7 @@ import org.mule.tools.apikit.output.GenerationModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mule.tools.apikit.output.MuleConfigGenerator.DOC_NAMESPACE;
 import static org.mule.tools.apikit.output.MuleConfigGenerator.EE_NAMESPACE;
 import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
 
@@ -64,6 +65,7 @@ public class APIKitFlowScope implements Scope {
     setPayload.addContent(cdataSection);
     message.setContent(setPayload);
     transform.addNamespaceDeclaration(EE_NAMESPACE.getNamespace());
+    transform.setAttribute("name", "Transform Message", DOC_NAMESPACE.getNamespace());
     transform.addContent(message);
     return transform;
   }
@@ -78,6 +80,8 @@ public class APIKitFlowScope implements Scope {
 
   private Element createEEUriParamsSetVariables(GenerationModel flowEntry) {
     Element transform = new Element("transform", EE_NAMESPACE.getNamespace());
+    transform.setAttribute("name", "Transform Message", DOC_NAMESPACE.getNamespace());
+
     Element variables = new Element("variables", EE_NAMESPACE.getNamespace());
 
     for (String uriParameter : flowEntry.getUriParameters()) {
