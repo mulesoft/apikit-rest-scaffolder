@@ -173,7 +173,7 @@ public class MainAppScaffolderOASTest {
     final Path goldenPath = Paths.get(srcPath);
     System.out.println("*** Create Golden " + goldenPath);
 
-    // Write golden files  with current values
+    // Write golden files with current values
     final Path parent = goldenPath.getParent();
     if (!Files.exists(parent))
       Files.createDirectory(parent);
