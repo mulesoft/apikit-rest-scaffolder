@@ -31,9 +31,8 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
   private static final String TEST_RESOURCES_APISYNC_W_GLOBAL = "rescaffolding-apisync-version-with-global-config";
 
   /**
-   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0.
-   * Finally it re-scaffolds with same version
-   * Expected behaviour is that the new scaffolded API has version 1.0.0 in the main xml.
+   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0. Finally
+   * it re-scaffolds with same version Expected behaviour is that the new scaffolded API has version 1.0.0 in the main xml.
    */
   @Test
   public void reScaffold() throws Exception {
@@ -50,10 +49,9 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
   }
 
   /**
-   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0.
-   * Then it simulates the manual changing of file from main xml --> globals xml.
-   * Finally it re-scaffolds with version 2.0.0.
-   * Expected behaviour is that the new scaffolded API has version 2.0.0 in global.xml and the main xml has the new resource.
+   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0. Then it
+   * simulates the manual changing of file from main xml --> globals xml. Finally it re-scaffolds with version 2.0.0. Expected
+   * behaviour is that the new scaffolded API has version 2.0.0 in global.xml and the main xml has the new resource.
    */
   @Test
   public void reScaffoldDifferentVersionsWithGlobal() throws Exception {
@@ -78,9 +76,8 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
   }
 
   /**
-   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0.
-   * Finally it re-scaffolds with version 2.0.0.
-   * Expected behaviour is that the new scaffolded API has version 2.0.0 in the main xml.
+   * First it scaffolds an API normally with configuration of APIKit inside the main xml file with version of raml 1.0.0. Finally
+   * it re-scaffolds with version 2.0.0. Expected behaviour is that the new scaffolded API has version 2.0.0 in the main xml.
    */
   @Test
   public void reScaffoldDifferentVersions() throws Exception {
@@ -99,8 +96,8 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
   }
 
   /**
-   * Rescaffoldig of an API Sync without any changes that already has the APIKit config in a global.xml.
-   * Expected behaviour is that the new scaffolded API has no changes.
+   * Rescaffoldig of an API Sync without any changes that already has the APIKit config in a global.xml. Expected behaviour is
+   * that the new scaffolded API has no changes.
    */
   @Test
   public void reScaffoldApiSyncWithGlobalWithoutChanges() throws Exception {
