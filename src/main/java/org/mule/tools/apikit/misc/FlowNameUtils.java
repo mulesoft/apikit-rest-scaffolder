@@ -45,6 +45,7 @@ public class FlowNameUtils {
 
   /**
    * transform special chars keys -> value if found in parameter value
+   * 
    * @param value
    * @return value with special chars transformed
    */
@@ -54,6 +55,7 @@ public class FlowNameUtils {
 
   /**
    * transform specials chars value -> key if found in parameter value
+   * 
    * @param value
    * @return value with special chars transformed
    */
