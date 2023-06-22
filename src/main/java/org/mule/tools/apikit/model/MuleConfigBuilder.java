@@ -80,9 +80,8 @@ public class MuleConfigBuilder {
   }
 
   /**
-   * Used for Mule configuration only.
-   * As a good practice it prevents any potential XXE attack.
-   * No need to relax it by externalized configuration due it is not allowed by design.
+   * Used for Mule configuration only. As a good practice it prevents any potential XXE attack. No need to relax it by
+   * externalized configuration due it is not allowed by design.
    *
    * @return
    */

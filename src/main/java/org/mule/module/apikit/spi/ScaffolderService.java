@@ -22,10 +22,10 @@ public interface ScaffolderService {
    * Modifies or creates the Mule config files which are contained in the app directory (passed through the muleConfigs parameter)
    * by running the scaffolder on the apiSpec passed as parameter.
    *
-   * @param context     the context where the scaffolder will be executed. It includes, for example, the runtime version.
-   * @param apiSpec     the ApiSpecification that will be scaffolded
+   * @param context the context where the scaffolder will be executed. It includes, for example, the runtime version.
+   * @param apiSpec the ApiSpecification that will be scaffolded
    * @param muleConfigs all the mule configs contained in the app directory
-   * @param domain      the mule domain of the application
+   * @param domain the mule domain of the application
    */
   void executeScaffolder(ScaffolderContext context, ApiSpecification apiSpec, List<MuleConfig> muleConfigs, MuleDomain domain);
 

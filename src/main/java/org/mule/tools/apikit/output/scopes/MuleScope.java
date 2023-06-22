@@ -14,8 +14,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mule.tools.apikit.misc.APIKitTools.API_KIT_NAMESPACE;
-import static org.mule.tools.apikit.output.MuleConfigGenerator.*;
-import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.*;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.DOC_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.EE_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.HTTP_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.XSI_NAMESPACE;
+import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.MUNIT_NAMESPACE;
+import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.MUNIT_TOOLS_NAMESPACE;
 
 public class MuleScope implements Scope {
 
@@ -40,8 +45,9 @@ public class MuleScope implements Scope {
     List<NamespaceWithLocation> namespaces = new ArrayList<>();
     namespaces.add(HTTP_NAMESPACE);
 
+    mule.addNamespaceDeclaration(DOC_NAMESPACE.getNamespace());
+
     if (isMunitSuite) {
-      mule.addNamespaceDeclaration(DOC_NAMESPACE.getNamespace());
       namespaces.addAll(Arrays.asList(MUNIT_NAMESPACE, MUNIT_TOOLS_NAMESPACE));
     } else {
       namespaces.add(API_KIT_NAMESPACE);

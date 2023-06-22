@@ -10,22 +10,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
         <parser.service.version>3.0.0-SNAPSHOT</parser.service.version>
-        <mule.service.weave.version>2.3.0</mule.service.weave.version>
+        <mule.service.weave.version>2.3.0-20221212</mule.service.weave.version>
         <mule.plugin.maven.plugin.version>1.1.6</mule.plugin.maven.plugin.version>
         <mule.http.service.version>1.1.7</mule.http.service.version>
         <mule.service.scheduler.version>1.1.7</mule.service.scheduler.version>
         <project.reactor.version>3.2.0.M1</project.reactor.version>
         <rest.assured.version>3.2.0</rest.assured.version>
+        <gson.version>2.9.1</gson.version>
 
-        <jacoco.version>0.8.5</jacoco.version>
-        <allureJunitVersion>2.13.5</allureJunitVersion>
+        <xmlunit.version>2.9.1</xmlunit.version>
+        <allureJunitVersion>2.18.1</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
 
+        <jacoco.version>0.8.10</jacoco.version>
+        <mockito-junit-jupiter.version>4.11.0</mockito-junit-jupiter.version>
     </properties>
 
     <dependencies>
@@ -33,6 +37,21 @@
             <groupId>org.mule.runtime</groupId>
             <artifactId>mule-api</artifactId>
             <version>1.1.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mule.apikit</groupId>
@@ -75,7 +94,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -92,8 +111,8 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito-junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -102,7 +121,12 @@
             <version>${allureJunitVersion}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
+            <version>${xmlunit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,9 +168,9 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.marvinformatics.formatter</groupId>
+                <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>1.9.2</version>
+                <version>2.16.0</version>
                 <configuration>
                     <compilerCompliance>1.8</compilerCompliance>
                     <compilerSource>1.8</compilerSource>
@@ -156,6 +180,7 @@
                     <aggregator>false</aggregator>
                     <executionRoot>true</executionRoot>
                     <encoding>UTF-8</encoding>
+                    <lineEnding>LF</lineEnding>
                 </configuration>
                 <executions>
                     <execution>

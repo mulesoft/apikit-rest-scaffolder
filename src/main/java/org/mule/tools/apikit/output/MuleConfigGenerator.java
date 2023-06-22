@@ -61,6 +61,11 @@ public class MuleConfigGenerator {
                                                                                                        "http://www.mulesoft.org/schema/mule/ee/core"),
                                                                                      "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd");
 
+  public static final NamespaceWithLocation DOC_NAMESPACE = new NamespaceWithLocation(
+                                                                                      Namespace
+                                                                                          .getNamespace("doc",
+                                                                                                        "http://www.mulesoft.org/schema/mule/documentation"),
+                                                                                      "");
   private static final String DEFAULT_APIKIT_CONFIG_NAME = "no_named_config";
 
   private final List<GenerationModel> flowEntriesDiff;
@@ -70,11 +75,11 @@ public class MuleConfigGenerator {
   private boolean showConsole;
 
   /**
-   * @param apiContainers     Information about APIs being scaffolded
-   * @param flowEntriesDiff   New flows that needs to be added
-   * @param muleConfigsInApp  Pre-existing Mule configurations
+   * @param apiContainers Information about APIs being scaffolded
+   * @param flowEntriesDiff New flows that needs to be added
+   * @param muleConfigsInApp Pre-existing Mule configurations
    * @param scaffolderContext Scaffolder context information
-   * @param includeConsole    Whether console should be included or not
+   * @param includeConsole Whether console should be included or not
    */
   public MuleConfigGenerator(List<ApikitMainFlowContainer> apiContainers, List<GenerationModel> flowEntriesDiff,
                              List<MuleConfig> muleConfigsInApp, ScaffolderContext scaffolderContext, boolean includeConsole) {
@@ -237,8 +242,7 @@ public class MuleConfigGenerator {
   }
 
   /**
-   * Generates new flows based on the generation models previously created. Also updates apikit configuration in case
-   * needed.
+   * Generates new flows based on the generation models previously created. Also updates apikit configuration in case needed.
    *
    * @param flowEntry new flow to be generated
    */
@@ -274,8 +278,8 @@ public class MuleConfigGenerator {
   }
 
   /**
-   * It creates a document for the new mule configuration, then builds it. Sets its name and adds it to the
-   * existing mule configurations of the application.
+   * It creates a document for the new mule configuration, then builds it. Sets its name and adds it to the existing mule
+   * configurations of the application.
    *
    * @param api container of the main mule application file
    * @return new mule configuration
@@ -290,6 +294,7 @@ public class MuleConfigGenerator {
 
   /**
    * Creates a document containing a name, apikit configuration, http listener flow and console flow
+   * 
    * @param api container of the main mule application file
    * @return a document to build a mule configuration
    */
@@ -308,6 +313,7 @@ public class MuleConfigGenerator {
 
   /**
    * Concatenates an id with suffix to create a mule configuration id.
+   * 
    * @param id id of apikit main flow container
    * @return new mule configuration id
    */
@@ -317,6 +323,7 @@ public class MuleConfigGenerator {
 
   /**
    * Creates a new apikit configuration and adds it to the mule configuration file.
+   * 
    * @param api container of the main mule application file
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
@@ -332,6 +339,7 @@ public class MuleConfigGenerator {
 
   /**
    * Adds http listener configuration if it doesn't already exist
+   * 
    * @param api container of the main mule application file
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
@@ -343,6 +351,7 @@ public class MuleConfigGenerator {
 
   /**
    * Adds console flow only if it is toggled on.
+   * 
    * @param api container of the main mule application file
    * @param muleConfig main mule configuration (contains http listener, apikit router, console and flows)
    */
@@ -354,6 +363,7 @@ public class MuleConfigGenerator {
 
   /**
    * Determines runtime edition
+   * 
    * @return true for EE / false for CE
    */
   private boolean isMuleEE() {
@@ -363,7 +373,7 @@ public class MuleConfigGenerator {
   /**
    * Conditions for updating apikit configurations: attributes have the same name and any other attribute is null or has changed.
    *
-   * @param apikitConfigFromApi        incoming new element for apikit configuration
+   * @param apikitConfigFromApi incoming new element for apikit configuration
    * @param apikitConfigFromMuleConfig existing element for apikit configuration
    * @return true for conditions explained above, false any other
    */
@@ -375,6 +385,7 @@ public class MuleConfigGenerator {
 
   /**
    * Conditions for attributes to be different: existing attribute not existing, or attribute has changed.
+   * 
    * @param existingAttribute existing attribute
    * @param attribute new attribute potentially different
    * @return true for conditions explained above, false any other
@@ -385,6 +396,7 @@ public class MuleConfigGenerator {
 
   /**
    * Checks if existing attribute contains incoming. If it does, then it hasn't changed, otherwise attribute has changed.
+   * 
    * @param currentAttribute existing attribute
    * @param incomingAttribute attribute that could be different than existing one
    * @return true for conditions explained above, false any other
@@ -399,6 +411,7 @@ public class MuleConfigGenerator {
 
   /**
    * Normalize every path to single slash format
+   * 
    * @param path path to check
    * @return normalized path
    */

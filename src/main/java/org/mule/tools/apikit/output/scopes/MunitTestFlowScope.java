@@ -37,8 +37,8 @@ import static org.apache.commons.lang3.StringUtils.strip;
 import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.wrapInEqualTo;
 import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.wrapInStringExpression;
 import static org.mule.tools.apikit.misc.DataWeaveExpressionUtils.wrapInWriteToString;
+import static org.mule.tools.apikit.output.MuleConfigGenerator.DOC_NAMESPACE;
 import static org.mule.tools.apikit.output.MuleConfigGenerator.XMLNS_NAMESPACE;
-import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.DOC_NAMESPACE;
 import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.MUNIT_NAMESPACE;
 import static org.mule.tools.apikit.output.MunitTestSuiteGenerator.MUNIT_TOOLS_NAMESPACE;
 

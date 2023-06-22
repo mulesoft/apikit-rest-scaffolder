@@ -22,6 +22,8 @@ public class APIKitConfig implements Scope {
   public static final String DEFAULT_OUTBOUND_HEADERS_MAP_NAME = "outboundHeaders";
   public static final String HTTP_STATUS_VAR_ATTRIBUTE = "httpStatusVarName";
   public static final String DEFAULT_HTTP_STATUS_NAME = "httpStatus";
+  public static final String DISABLE_VALIDATIONS = "disableValidations";
+
 
   private String name;
   private String api;
@@ -29,6 +31,7 @@ public class APIKitConfig implements Scope {
   private Boolean extensionEnabled = null;
   private String outboundHeadersMapName = DEFAULT_OUTBOUND_HEADERS_MAP_NAME;
   private String httpStatusVarName = DEFAULT_HTTP_STATUS_NAME;
+  private String disableValidations;
 
   public APIKitConfig(final String name,
                       final String api,
@@ -65,6 +68,14 @@ public class APIKitConfig implements Scope {
     this.extensionEnabled = enabled;
   }
 
+  public String getDisableValidations() {
+    return disableValidations;
+  }
+
+  public void setDisableValidations(String disableValidations) {
+    this.disableValidations = disableValidations;
+  }
+
   public void setName(String name) {
     this.name = name;
     if (name == null) {
@@ -93,7 +104,7 @@ public class APIKitConfig implements Scope {
   }
 
   public void setApi(String api) {
-    this.api = api;
+    this.api = api.replaceAll("%20", " ");
   }
 
   public void setRaml(String raml) {

@@ -37,7 +37,7 @@ public class APIKitFlowScopeTest {
     String s = Helper.nonSpaceOutput(doc);
 
     Diff diff = XMLUnit.compareXML(
-                                   "<flow xmlns=\"http://www.mulesoft.org/schema/mule/core\" name=\"get:\\pet\"><ee:transform xmlns:ee=\"http://www.mulesoft.org/schema/mule/ee/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\"><ee:message><ee:set-payload><![CDATA[%dw 2.0 output application/json --- \"Hello world!\"]]></ee:set-payload></ee:message></ee:transform></flow>",
+                                   "<flow xmlns=\"http://www.mulesoft.org/schema/mule/core\" name=\"get:\\pet\"><ee:transform xmlns:doc=\"http://www.mulesoft.org/schema/mule/documentation\" doc:name=\"Transform Message\" xmlns:ee=\"http://www.mulesoft.org/schema/mule/ee/core\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd\"><ee:message><ee:set-payload><![CDATA[%dw 2.0 output application/json --- \"Hello world!\"]]></ee:set-payload></ee:message></ee:transform></flow>",
                                    s);
 
     assertTrue(diff.toString(), diff.similar());
