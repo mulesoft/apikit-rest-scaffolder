@@ -29,7 +29,7 @@
         <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
 
         <jacoco.version>0.8.10</jacoco.version>
-        <mockito-junit-jupiter.version>4.11.0</mockito-junit-jupiter.version>
+        <mockito-junit-jupiter.version>5.4.0</mockito-junit-jupiter.version>
         <jdom2.version>2.0.6.1</jdom2.version>
     </properties>
 
