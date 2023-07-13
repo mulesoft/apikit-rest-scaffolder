@@ -6,9 +6,16 @@
  */
 package org.mule.tools.apikit.model;
 
+import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.mule.tools.apikit.output.scopes.APIKitConfigScope;
 import org.mule.tools.apikit.output.scopes.Scope;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class APIKitConfig implements Scope {
 
@@ -24,7 +31,17 @@ public class APIKitConfig implements Scope {
   public static final String DEFAULT_HTTP_STATUS_NAME = "httpStatus";
   public static final String DISABLE_VALIDATIONS = "disableValidations";
   public static final String QUERY_PARAMS_STRICT_VALIDATION = "queryParamsStrictValidation";
+  public static final String HEADERS_STRICT_VALIDATION = "headersStrictValidation";
+  public static final String KEEP_API_BASE_URI = "keepApiBaseUri";
+  public static final String KEEP_RAML_BASE_URI = "keepRamlBaseUri";
 
+
+  public static final List<String> ADDITIONAL_ATTRIBUTES = Arrays.asList(
+    DISABLE_VALIDATIONS,
+    QUERY_PARAMS_STRICT_VALIDATION,
+    HEADERS_STRICT_VALIDATION,
+    KEEP_API_BASE_URI,
+    KEEP_RAML_BASE_URI);
 
   private String name;
   private String api;
@@ -32,8 +49,7 @@ public class APIKitConfig implements Scope {
   private Boolean extensionEnabled = null;
   private String outboundHeadersMapName = DEFAULT_OUTBOUND_HEADERS_MAP_NAME;
   private String httpStatusVarName = DEFAULT_HTTP_STATUS_NAME;
-  private String disableValidations;
-  private String queryParamsStrictValidation;
+  private Map<String,String> additionalAttributes = new HashMap<>();
 
   public APIKitConfig(final String name,
                       final String api,
@@ -70,27 +86,11 @@ public class APIKitConfig implements Scope {
     this.extensionEnabled = enabled;
   }
 
-  public String getDisableValidations() {
-    return disableValidations;
-  }
-
-  public void setDisableValidations(String disableValidations) {
-    this.disableValidations = disableValidations;
-  }
-
   public void setName(String name) {
     this.name = name;
     if (name == null) {
       this.name = APIKitConfig.DEFAULT_CONFIG_NAME;
     }
-  }
-
-  public String getQueryParamsStrictValidation() {
-    return queryParamsStrictValidation;
-  }
-
-  public void setQueryParamsStrictValidation(String queryParamsStrictValidation) {
-    this.queryParamsStrictValidation = queryParamsStrictValidation;
   }
 
   public void setExtensionEnabled(boolean extensionEnabled) {
@@ -123,6 +123,14 @@ public class APIKitConfig implements Scope {
 
   public String getApiSpecificationLocation() {
     return api != null ? api : raml;
+  }
+
+  public void addAdditionalAttribute(Attribute attribute){
+    additionalAttributes.put(attribute.getName(),attribute.getValue());
+  }
+
+  public Set<Map.Entry<String, String>> getAdditionalAttributes(){
+    return additionalAttributes.entrySet();
   }
 
   public Element generate() {

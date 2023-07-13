@@ -13,6 +13,8 @@ import org.mule.tools.apikit.model.APIKitConfig;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -27,19 +29,16 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
 
   @Override
   public List<APIKitConfig> parse(Document document) {
-    List<APIKitConfig> apikitConfigs = new LinkedList<>();
+    List<Element> apikitConfigElements = APIKIT_CONFIG_EXPRESSION.evaluate(document);
 
-    List<Element> elements = APIKIT_CONFIG_EXPRESSION.evaluate(document);
+    return apikitConfigElements.stream().map( apikitConfigElement -> {
+      Attribute name = apikitConfigElement.getAttribute(APIKitConfig.NAME_ATTRIBUTE);
+      Attribute api = apikitConfigElement.getAttribute(APIKitConfig.API_ATTRIBUTE);
+      Attribute raml = apikitConfigElement.getAttribute(APIKitConfig.RAML_ATTRIBUTE);
+      Attribute extensionEnabled = apikitConfigElement.getAttribute(APIKitConfig.EXTENSION_ENABLED_ATTRIBUTE);
+      Attribute outboundHeadersMapName = apikitConfigElement.getAttribute(APIKitConfig.OUTBOUND_HEADERS_MAP_ATTRIBUTE);
+      Attribute httpStatusVarName = apikitConfigElement.getAttribute(APIKitConfig.HTTP_STATUS_VAR_ATTRIBUTE);
 
-    for (Element element : elements) {
-      Attribute name = element.getAttribute(APIKitConfig.NAME_ATTRIBUTE);
-      Attribute api = element.getAttribute(APIKitConfig.API_ATTRIBUTE);
-      Attribute raml = element.getAttribute(APIKitConfig.RAML_ATTRIBUTE);
-      Attribute extensionEnabled = element.getAttribute(APIKitConfig.EXTENSION_ENABLED_ATTRIBUTE);
-      Attribute outboundHeadersMapName = element.getAttribute(APIKitConfig.OUTBOUND_HEADERS_MAP_ATTRIBUTE);
-      Attribute httpStatusVarName = element.getAttribute(APIKitConfig.HTTP_STATUS_VAR_ATTRIBUTE);
-      Attribute disableValidations = element.getAttribute(APIKitConfig.DISABLE_VALIDATIONS);
-      Attribute queryParamsStrictValidation = element.getAttribute(APIKitConfig.QUERY_PARAMS_STRICT_VALIDATION);
 
       final APIKitConfig apiKitConfig = new APIKitConfig();
       if (api != null) {
@@ -64,18 +63,14 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
         apiKitConfig.setHttpStatusVarName(httpStatusVarName.getValue());
       }
 
-      if (disableValidations != null) {
-        apiKitConfig.setDisableValidations(disableValidations.getValue());
-      }
+      APIKitConfig.ADDITIONAL_ATTRIBUTES.stream()
+        .map(apikitConfigElement::getAttribute)
+        .filter(Objects::nonNull)
+        .forEach(apiKitConfig::addAdditionalAttribute);
 
-      if (queryParamsStrictValidation != null) {
-        apiKitConfig.setQueryParamsStrictValidation(queryParamsStrictValidation.getValue());
-      }
+      return apiKitConfig;
+    }).collect(Collectors.toList());
 
-      apikitConfigs.add(apiKitConfig);
-    }
-
-    return apikitConfigs;
   }
 
   private static XPathExpression<Element> getCompiledExpression() {

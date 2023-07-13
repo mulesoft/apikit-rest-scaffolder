@@ -60,12 +60,8 @@ public class APIKitConfigScope implements Scope {
     if (config.getHttpStatusVarName() != null) {
       apikitConfig.setAttribute(HTTP_STATUS_VAR_ATTRIBUTE, config.getHttpStatusVarName());
     }
-    if (config.getDisableValidations() != null) {
-      apikitConfig.setAttribute(DISABLE_VALIDATIONS, config.getDisableValidations());
-    }
-    if (config.getQueryParamsStrictValidation() != null) {
-      apikitConfig.setAttribute(QUERY_PARAMS_STRICT_VALIDATION, config.getQueryParamsStrictValidation());
-    }
+
+    config.getAdditionalAttributes().stream().forEach(entry -> apikitConfig.setAttribute(entry.getKey(),entry.getValue()));
 
     return apikitConfig;
   }
