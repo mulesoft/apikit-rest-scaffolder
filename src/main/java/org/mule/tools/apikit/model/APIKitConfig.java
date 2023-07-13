@@ -37,11 +37,11 @@ public class APIKitConfig implements Scope {
 
 
   public static final List<String> ADDITIONAL_ATTRIBUTES = Arrays.asList(
-    DISABLE_VALIDATIONS,
-    QUERY_PARAMS_STRICT_VALIDATION,
-    HEADERS_STRICT_VALIDATION,
-    KEEP_API_BASE_URI,
-    KEEP_RAML_BASE_URI);
+                                                                         DISABLE_VALIDATIONS,
+                                                                         QUERY_PARAMS_STRICT_VALIDATION,
+                                                                         HEADERS_STRICT_VALIDATION,
+                                                                         KEEP_API_BASE_URI,
+                                                                         KEEP_RAML_BASE_URI);
 
   private String name;
   private String api;
@@ -49,7 +49,7 @@ public class APIKitConfig implements Scope {
   private Boolean extensionEnabled = null;
   private String outboundHeadersMapName = DEFAULT_OUTBOUND_HEADERS_MAP_NAME;
   private String httpStatusVarName = DEFAULT_HTTP_STATUS_NAME;
-  private Map<String,String> additionalAttributes = new HashMap<>();
+  private Map<String, String> additionalAttributes = new HashMap<>();
 
   public APIKitConfig(final String name,
                       final String api,
@@ -125,11 +125,11 @@ public class APIKitConfig implements Scope {
     return api != null ? api : raml;
   }
 
-  public void addAdditionalAttribute(Attribute attribute){
-    additionalAttributes.put(attribute.getName(),attribute.getValue());
+  public void addAdditionalAttribute(Attribute attribute) {
+    additionalAttributes.put(attribute.getName(), attribute.getValue());
   }
 
-  public Set<Map.Entry<String, String>> getAdditionalAttributes(){
+  public Set<Map.Entry<String, String>> getAdditionalAttributes() {
     return additionalAttributes.entrySet();
   }
 

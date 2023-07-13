@@ -31,7 +31,7 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
   public List<APIKitConfig> parse(Document document) {
     List<Element> apikitConfigElements = APIKIT_CONFIG_EXPRESSION.evaluate(document);
 
-    return apikitConfigElements.stream().map( apikitConfigElement -> {
+    return apikitConfigElements.stream().map(apikitConfigElement -> {
       Attribute name = apikitConfigElement.getAttribute(APIKitConfig.NAME_ATTRIBUTE);
       Attribute api = apikitConfigElement.getAttribute(APIKitConfig.API_ATTRIBUTE);
       Attribute raml = apikitConfigElement.getAttribute(APIKitConfig.RAML_ATTRIBUTE);
@@ -64,9 +64,9 @@ public class APIKitConfigParser implements MuleConfigFileParser<List<APIKitConfi
       }
 
       APIKitConfig.ADDITIONAL_ATTRIBUTES.stream()
-        .map(apikitConfigElement::getAttribute)
-        .filter(Objects::nonNull)
-        .forEach(apiKitConfig::addAdditionalAttribute);
+          .map(apikitConfigElement::getAttribute)
+          .filter(Objects::nonNull)
+          .forEach(apiKitConfig::addAdditionalAttribute);
 
       return apiKitConfig;
     }).collect(Collectors.toList());

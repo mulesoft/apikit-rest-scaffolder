@@ -61,7 +61,7 @@ public class APIKitConfigScope implements Scope {
       apikitConfig.setAttribute(HTTP_STATUS_VAR_ATTRIBUTE, config.getHttpStatusVarName());
     }
 
-    config.getAdditionalAttributes().stream().forEach(entry -> apikitConfig.setAttribute(entry.getKey(),entry.getValue()));
+    config.getAdditionalAttributes().stream().forEach(entry -> apikitConfig.setAttribute(entry.getKey(), entry.getValue()));
 
     return apikitConfig;
   }
