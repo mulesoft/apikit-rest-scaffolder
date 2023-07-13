@@ -23,6 +23,7 @@ public class APIKitConfig implements Scope {
   public static final String HTTP_STATUS_VAR_ATTRIBUTE = "httpStatusVarName";
   public static final String DEFAULT_HTTP_STATUS_NAME = "httpStatus";
   public static final String DISABLE_VALIDATIONS = "disableValidations";
+  public static final String QUERY_PARAMS_STRICT_VALIDATION = "queryParamsStrictValidation";
 
 
   private String name;
@@ -32,6 +33,7 @@ public class APIKitConfig implements Scope {
   private String outboundHeadersMapName = DEFAULT_OUTBOUND_HEADERS_MAP_NAME;
   private String httpStatusVarName = DEFAULT_HTTP_STATUS_NAME;
   private String disableValidations;
+  private String queryParamsStrictValidation;
 
   public APIKitConfig(final String name,
                       final String api,
@@ -81,6 +83,14 @@ public class APIKitConfig implements Scope {
     if (name == null) {
       this.name = APIKitConfig.DEFAULT_CONFIG_NAME;
     }
+  }
+
+  public String getQueryParamsStrictValidation() {
+    return queryParamsStrictValidation;
+  }
+
+  public void setQueryParamsStrictValidation(String queryParamsStrictValidation) {
+    this.queryParamsStrictValidation = queryParamsStrictValidation;
   }
 
   public void setExtensionEnabled(boolean extensionEnabled) {

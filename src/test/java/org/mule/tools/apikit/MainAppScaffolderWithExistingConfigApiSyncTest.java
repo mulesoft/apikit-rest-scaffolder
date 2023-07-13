@@ -112,13 +112,13 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
 
   @Test
-  public void reScaffoldLossesDisableValidations() throws Exception {
-    ResourceLoader resourceLoader = new TestScaffolderResourceLoader("rescaffolding-losses-disable-validations/v2");
+  public void reScaffoldingPreserveAttributes() throws Exception {
+    ResourceLoader resourceLoader = new TestScaffolderResourceLoader("rescaffolding-preserve-attributes/v2");
     ApiReference apiReference = create(RAML_RESOURCE_URL_V2, resourceLoader);
 
     MuleConfig existingConfig = fromStream(
                                            currentThread().getContextClassLoader()
-                                               .getResourceAsStream("rescaffolding-losses-disable-validations/v1/api.xml"));
+                                               .getResourceAsStream("rescaffolding-preserve-attributes/v1/api.xml"));
 
     existingConfig.setName("api.xml");
 
@@ -126,7 +126,7 @@ public class MainAppScaffolderWithExistingConfigApiSyncTest extends AbstractScaf
 
     ScaffoldingResult reScaffoldingResult = scaffoldApi(CE, apiReference, muleConfigs);
 
-    verifySuccessfulScaffolding(reScaffoldingResult, "rescaffolding-losses-disable-validations/v2/api.xml");
+    verifySuccessfulScaffolding(reScaffoldingResult, "rescaffolding-preserve-attributes/v2/api.xml");
   }
 
 }
