@@ -16,6 +16,7 @@ import static org.mule.tools.apikit.model.APIKitConfig.EXTENSION_ENABLED_ATTRIBU
 import static org.mule.tools.apikit.model.APIKitConfig.HTTP_STATUS_VAR_ATTRIBUTE;
 import static org.mule.tools.apikit.model.APIKitConfig.NAME_ATTRIBUTE;
 import static org.mule.tools.apikit.model.APIKitConfig.OUTBOUND_HEADERS_MAP_ATTRIBUTE;
+import static org.mule.tools.apikit.model.APIKitConfig.QUERY_PARAMS_STRICT_VALIDATION;
 import static org.mule.tools.apikit.model.APIKitConfig.RAML_ATTRIBUTE;
 
 import org.mule.tools.apikit.model.APIKitConfig;
@@ -59,9 +60,8 @@ public class APIKitConfigScope implements Scope {
     if (config.getHttpStatusVarName() != null) {
       apikitConfig.setAttribute(HTTP_STATUS_VAR_ATTRIBUTE, config.getHttpStatusVarName());
     }
-    if (config.getDisableValidations() != null) {
-      apikitConfig.setAttribute(DISABLE_VALIDATIONS, config.getDisableValidations());
-    }
+
+    config.getAdditionalAttributes().stream().forEach(entry -> apikitConfig.setAttribute(entry.getKey(), entry.getValue()));
 
     return apikitConfig;
   }
