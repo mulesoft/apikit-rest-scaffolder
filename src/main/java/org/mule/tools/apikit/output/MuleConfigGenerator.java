@@ -32,8 +32,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
 import static org.mule.tools.apikit.model.RuntimeEdition.EE;
