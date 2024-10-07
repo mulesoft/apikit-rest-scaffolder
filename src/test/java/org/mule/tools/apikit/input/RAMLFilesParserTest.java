@@ -6,8 +6,8 @@
  */
 package org.mule.tools.apikit.input;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.junit.Test;
 
 import org.mule.apikit.model.api.ApiReference;
