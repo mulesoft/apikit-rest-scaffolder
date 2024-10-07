@@ -21,7 +21,7 @@
         <mule.service.scheduler.version>1.1.7</mule.service.scheduler.version>
         <project.reactor.version>3.2.0.M1</project.reactor.version>
         <rest.assured.version>3.2.0</rest.assured.version>
-        <gson.version>2.9.1</gson.version>
+        <gson.version>2.11.0</gson.version>
 
         <xmlunit.version>2.9.1</xmlunit.version>
         <allureJunitVersion>2.18.1</allureJunitVersion>
