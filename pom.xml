@@ -14,7 +14,7 @@
         <licensePath>LICENSE_HEADER.txt</licensePath>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
-        <parser.service.version>2.7.1</parser.service.version>
+        <parser.service.version>2.7.6</parser.service.version>
         <mule.service.weave.version>2.3.0-20221212</mule.service.weave.version>
         <mule.plugin.maven.plugin.version>1.1.6</mule.plugin.maven.plugin.version>
         <mule.http.service.version>1.1.7</mule.http.service.version>
@@ -80,9 +80,9 @@
             <version>${mule.service.weave.version}</version>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
         </dependency>
 
         <!-- Testing -->
