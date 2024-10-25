@@ -15,6 +15,7 @@ import org.mule.tools.apikit.input.parsers.HttpListenerConfigParser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -69,14 +70,41 @@ public class MuleConfigBuilder {
         Element flowContentElement = (Element) flowContent;
         if (elementIsApikitRouter(flowContentElement)) {
           return Optional.of(new ApikitRouter(flowContentElement));
+        } else if (elementIsChoice(flowContentElement)) {
+          Optional<ApikitRouter> apikitRouterOptional = getRouterFromChoice(flowContentElement);
+          if (apikitRouterOptional.isPresent()) {
+            return apikitRouterOptional;
+          }
         }
       }
     }
     return Optional.empty();
   }
 
+  public static Optional<ApikitRouter> getRouterFromChoice(Element parentElement) {
+
+    Optional<ApikitRouter> apikitRouterOptional = Optional.empty();
+    for (Content parentElementContent : parentElement.getContent()) {
+      if (parentElementContent instanceof Element) {
+        Element parentContentElement = (Element) parentElementContent;
+        if (!apikitRouterOptional.isPresent() && elementIsWhenOrOtherwise(parentContentElement)) {
+          apikitRouterOptional = getRouter(parentContentElement);
+        }
+      }
+    }
+    return apikitRouterOptional;
+  }
+
   private static boolean elementIsApikitRouter(Element element) {
     return element.getNamespace().getPrefix().equals("apikit") && element.getName().equals("router");
+  }
+
+  private static boolean elementIsChoice(Element element) {
+    return element.getName().equals("choice");
+  }
+
+  private static boolean elementIsWhenOrOtherwise(Element element) {
+    return Arrays.asList("when", "otherwise").contains(element.getName());
   }
 
   /**
