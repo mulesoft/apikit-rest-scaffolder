@@ -9,7 +9,14 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
     <apikit:config raml="simple.raml"/>
     <flow name="main">
         <http:inbound-endpoint port="${serverPort}" host="localhost" path="api"/>
-        <apikit:router/>
+        <choice>
+            <when expression="#[false]">
+                <logger level="WARN" message="invalid name returning 400"/>
+            </when>
+            <otherwise>
+                <apikit:router/>
+            </otherwise>
+        </choice>
     </flow>
     <flow name="get:\pet">
         <set-payload value="Hello world!" xmlns=""/>

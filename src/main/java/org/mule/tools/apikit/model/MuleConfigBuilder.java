@@ -69,6 +69,12 @@ public class MuleConfigBuilder {
         Element flowContentElement = (Element) flowContent;
         if (elementIsApikitRouter(flowContentElement)) {
           return Optional.of(new ApikitRouter(flowContentElement));
+        } else {
+          // Recursively trying to find an element (or one of its underlying elements) that is apikit router
+          Optional<ApikitRouter> apikitRouterOptional = getRouter(flowContentElement);
+          if (apikitRouterOptional.isPresent()) {
+            return apikitRouterOptional;
+          }
         }
       }
     }
