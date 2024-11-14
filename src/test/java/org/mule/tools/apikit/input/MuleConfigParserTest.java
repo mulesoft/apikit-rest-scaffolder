@@ -11,6 +11,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.TestUtils.*;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
@@ -125,5 +126,17 @@ public class MuleConfigParserTest {
     assertEquals(1, muleConfigParser.getEntries().size());
     assertEquals(1, muleConfigParser.getIncludedApis().size());
     assertEquals(1, muleConfigParser.getApikitConfigs().size());
+  }
+
+  @Test
+  public void testScaffoldingFlowWithChoiceElementNoRouter() throws Exception {
+    String api = getResourceAsString("scaffolder-with-choice-element/simple2.xml");
+    String ramlPath = "scaffolder-with-choice-element/simple.raml";
+
+    List<MuleConfig> muleConfigList = singletonList(
+            fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
+
+    assertFalse(muleConfigList.get(0).getFlows().stream().anyMatch(flow -> flow instanceof MainFlow));
+
   }
 }
