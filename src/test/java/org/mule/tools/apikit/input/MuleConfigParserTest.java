@@ -11,13 +11,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mule.tools.apikit.TestUtils.*;
 import static org.mule.tools.apikit.model.MuleConfigBuilder.fromDoc;
 
-import org.mule.tools.apikit.TestUtils;
 import org.mule.tools.apikit.model.APIFactory;
 import org.mule.tools.apikit.model.ApikitMainFlowContainer;
 import org.mule.tools.apikit.model.HttpListenerConfig;
+import org.mule.tools.apikit.model.MainFlow;
 import org.mule.tools.apikit.model.MuleConfig;
 import org.mule.tools.apikit.model.ResourceActionMimeTypeTriplet;
 
@@ -110,4 +112,31 @@ public class MuleConfigParserTest {
     assertEquals(1, muleConfigParser.getApikitConfigs().size());
   }
 
+  @Test
+  public void testScaffoldingFlowWithChoiceElememnt() throws Exception {
+    String api = getResourceAsString("scaffolder-with-choice-element/simple.xml");
+    String ramlPath = "scaffolder-with-choice-element/simple.raml";
+
+    List<MuleConfig> muleConfigList = singletonList(
+                                                    fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
+    MuleConfigParser muleConfigParser = new MuleConfigParser(new APIFactory(emptyList()), ramlPath, muleConfigList);
+
+    assertEquals(1, muleConfigList.size());
+    assertTrue(muleConfigList.get(0).getFlows().stream().anyMatch(flow -> flow instanceof MainFlow));
+    assertEquals(1, muleConfigParser.getEntries().size());
+    assertEquals(1, muleConfigParser.getIncludedApis().size());
+    assertEquals(1, muleConfigParser.getApikitConfigs().size());
+  }
+
+  @Test
+  public void testScaffoldingFlowWithChoiceElementNoRouter() throws Exception {
+    String api = getResourceAsString("scaffolder-with-choice-element/simple2.xml");
+    String ramlPath = "scaffolder-with-choice-element/simple.raml";
+
+    List<MuleConfig> muleConfigList = singletonList(
+            fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
+
+    assertFalse(muleConfigList.get(0).getFlows().stream().anyMatch(flow -> flow instanceof MainFlow));
+
+  }
 }
