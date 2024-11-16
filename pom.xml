@@ -26,7 +26,7 @@
         <xmlunit.version>2.9.1</xmlunit.version>
         <allureJunitVersion>2.18.1</allureJunitVersion>
         <allureReportVersion>2.3.4</allureReportVersion>
-        <allure.maven.plugin.version>2.10.0</allure.maven.plugin.version>
+        <allure.maven.plugin.version>2.15.2</allure.maven.plugin.version>
 
         <jacoco.version>0.8.10</jacoco.version>
         <mockito-junit-jupiter.version>4.11.0</mockito-junit-jupiter.version>
