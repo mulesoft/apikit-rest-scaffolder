@@ -134,7 +134,7 @@ public class MuleConfigParserTest {
     String ramlPath = "scaffolder-with-choice-element/simple.raml";
 
     List<MuleConfig> muleConfigList = singletonList(
-            fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
+                                                    fromDoc(getDocumentFromStream(new ByteArrayInputStream(api.getBytes()))));
 
     assertFalse(muleConfigList.get(0).getFlows().stream().anyMatch(flow -> flow instanceof MainFlow));
 
